@@ -26,7 +26,7 @@ and there are `Words`.
 
 Everything that is not a `Word` is a `Number`. Numbers largely live on the stack. 
 Parameters (or arguments) to words are usually passed on the stack. The result of 
-a word is placed on the stack.
+a word is usually placed on the stack.
 
 ### Words
 
@@ -43,7 +43,7 @@ puts the result on the stack.
 
 ### Built-in Words
 
-There are a (growing) number of basic words that have already been defined in **Firth**. 
+There are a (growing) number of basic `Words` that have already been defined in **Firth**. 
 They are:
 
 Word | Description
@@ -53,6 +53,8 @@ func | alias for ':'
 fn | alias for ':'
 def | alias for ':'
 ; | end definition of new word
+var | define a new variable*
+const | define a new constant*
 \+ | addition
 \- | subtraction
 \* | multiplcation
@@ -74,3 +76,4 @@ emit | print top stack entry as ASCII
 CR | print a carriage return
 \.S | print the stack contents
 
+* **Note:** These are not yet implemented
