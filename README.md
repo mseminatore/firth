@@ -53,7 +53,7 @@ func | alias for ':'
 \* | multiplcation
 / | division
 < | less than comparison
-> | greater than comparison
+\> | greater than comparison
 = | equivalence comparison
 and | bitwise AND
 or | bitwise OR
