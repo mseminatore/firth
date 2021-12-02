@@ -41,8 +41,10 @@ VM::VM()
 	create_word(".S", OP_DOTS);
 
 	// compiler words
-	create_word("func", OP_FUNC);
 	create_word(":", OP_FUNC);
+	create_word("func", OP_FUNC);
+	create_word("fn", OP_FUNC);
+	create_word("def", OP_FUNC);
 }
 
 //
@@ -356,7 +358,7 @@ int VM::exec_word(const std::string &word)
 		}
 			break;
 
-		// .S
+		// .S ( -- )
 		case OP_DOTS:
 		{
 
