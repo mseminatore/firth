@@ -48,9 +48,9 @@ Word | Description
 : | begin definition of new word
 func | alias for ':'
 ; | end definition of new word
-+ | addition
-- | subtraction
-* | multiplcation
+\+ | addition
+\- | subtraction
+\* | multiplcation
 / | division
 < | less than comparison
 > | greater than comparison
@@ -61,6 +61,6 @@ not | bitwise NOT
 dup | duplicate top stack entry
 swap | swap top two stack entries
 drop | discard top stack entry
-. | print top stack entry
+\. | print top stack entry
 emit | print top stack entry as ASCII
 CR | print a carriage return
