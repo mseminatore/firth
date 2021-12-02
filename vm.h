@@ -18,12 +18,19 @@ enum
 	OP_PRINT,
 	OP_CR,
 
+	// internal compiler opcodes
+	OP_FUNC,
+	OP_CALL,
+	OP_RET,
+	OP_ENDWORD,
+
 	OP_DUP,
 	OP_SWAP,
 	OP_DROP,
 	OP_ROT,
 	OP_OVER,
 
+	// math ops
 	OP_PLUS,
 	OP_MINUS,
 	OP_MUL,
@@ -33,41 +40,53 @@ enum
 //
 //
 //
-class Function
+struct Word
 {
 protected:
-	typedef std::vector<Instruction> Code;
-	Code code;
+	//typedef std::vector<Instruction> Code;
+	//Code code;
 
 public:
-	Function(Instruction inst)
-	{
-		code.push_back(inst);
-	}
+	int address;
 
-	Code::iterator begin() { return code.begin(); }
-	Code::iterator end() { return code.end(); }
+	Word() {}
+
+	//Word(Instruction inst)
+	//{
+	//	code.push_back(inst);
+	//}
+
+	//Code::iterator begin() { return code.begin(); }
+	//Code::iterator end() { return code.end(); }
 };
 
 //
 //
 //
-class Environment
+class VM
 {
 protected:
 	// dictionary of words
-	std::map<std::string, Function> dict;
+	std::map<std::string, Word> dict;
 
 	// the data stack
 	std::stack<Number> stack;
+	
+	// is the VM compiling or interpreting?
+	bool interpreter;
+
+	std::vector<int> bytecode;
+	std::stack<int> return_stack;
+	int ip;
 
 public:
-	Environment();
-	virtual ~Environment() {}
+	VM();
+	virtual ~VM() {}
 
+	int parse_token(const std::string &token);
 	int lookup_word(const std::string &word);
 	int exec_word(const std::string &word);
-	int create_word(const std::string &word, Function &f);
+	int create_word(const std::string &word, int op);
 
 	void push_number(const Number &val)
 	{

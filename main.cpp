@@ -3,16 +3,17 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "env.h"
+#include "vm.h"
 
 //
 //
 //
 int main(int argc, char **argv)
 {
-	Environment env;
+	VM vm;
 	bool done = false;
 	char buf[256];
+	int err;
 
 	while (!done)
 	{
@@ -27,29 +28,18 @@ int main(int argc, char **argv)
 		char *token = strtok(buf, " \n");
 		while (token)
 		{
-			// if the word is in the dictionary do it
-			if (!env.exec_word(token))
+			err = vm.parse_token(token);
+			if (err)
 			{
-				// if the word is not in dictionary assume it is a number and push it on the stack
-				if (isdigit(token[0]))
-				{
-					Number num = atoi(token);
-
-					env.push_number(num);
-//					fprintf(stdout, "%d ", num);
-				}
-				else
-				{
-					fprintf(stdout, "%s ?\n", token);
-					break;
-				}
+				// get the next token
+				token = strtok(NULL, " \n");
 			}
-
-			// get the next token
-			token = strtok(NULL, " \n");
+			else
+				break;
 		}
 
-		fprintf(stdout, " ok\n");
+		if (err)
+			fprintf(stdout, " ok\n");
 	}
 
 	fputs("done", stdout);
