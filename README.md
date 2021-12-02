@@ -1,10 +1,10 @@
-# Welcome to f!
-**f** is an experimental and simple programming language inspired by Forth.
+# Welcome to Firth!
+**Firth** is an experimental and simple programming language inspired by Forth.
 
 > If you are new to FORTH, you can learn a lot of the basics at 
 > [Easy Forth](https://skilldrick.github.io/easyforth/).
 
-I created **f** primarily as an exercise in learning Forth. And also to have 
+I created **Firth** primarily as an exercise in learning Forth. And also to have 
 my own environment for experimentaiton. The original plan was to create my 
 own Forth system, written in C++. However, along the way I decided that there 
 were likely to be a few things about Forth that I probably wanted to change. 
@@ -19,7 +19,7 @@ existing Forth code, I decided to make a language heavily influenced by Forth.
 
 ## Basics of the language
 
-In **f** as in Forth there are really only two key concepts. There are `Numbers` 
+In **Firth** as in Forth there are really only two key concepts. There are `Numbers` 
 and there are `Words`.
 
 ### Numbers
@@ -31,7 +31,7 @@ a word is placed on the stack.
 ### Words
 
 `Words` are just a different name for functions. It is very easy to create new 
-`Words` in **f**. To do so looks like this:
+`Words` in **Firth**. To do so looks like this:
 
 ```Forth
 func add + ;
@@ -43,7 +43,7 @@ puts the result on the stack.
 
 ### Built-in Words
 
-There are a (growing) number of basic words that have already been defined in **f**. 
+There are a (growing) number of basic words that have already been defined in **Firth**. 
 They are:
 
 Word | Description
