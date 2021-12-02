@@ -18,6 +18,7 @@ enum
 	OP_EMIT,
 	OP_CR,
 	OP_DOTS,
+	OP_DOTQUOTE,
 
 	// internal compiler opcodes
 	OP_FUNC,
@@ -59,9 +60,9 @@ protected:
 
 public:
 	int address;
-	bool valid;
-	
-	Word() { address = 0; valid = false; }
+	bool compileOnly;
+
+	Word() { address = 0; compileOnly = false; }
 };
 
 //
@@ -74,7 +75,8 @@ protected:
 	std::map<std::string, Word> dict;
 
 	// the data stack
-	std::stack<Number> stack;
+	typedef std::stack<Number> Stack;
+	Stack stack;
 	
 	// is the VM compiling or interpreting?
 	bool interpreter;

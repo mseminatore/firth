@@ -39,6 +39,7 @@ VM::VM()
 	create_word("emit", OP_EMIT);
 	create_word("CR", OP_CR);
 	create_word(".S", OP_DOTS);
+//	create_word(".\"", OP_DOTQUOTE);
 
 	// compiler words
 	create_word(":", OP_FUNC);
@@ -361,7 +362,16 @@ int VM::exec_word(const std::string &word)
 		// .S ( -- )
 		case OP_DOTS:
 		{
+			// make a copy of the stack
+			Stack s = stack;
 
+			fprintf(stdout, "Top -> ");
+			while(s.size())
+			{
+				fprintf(stdout, "%d ", s.top());
+				s.pop();
+			}
+			fputc('\n', stdout);
 		}
 			break;
 

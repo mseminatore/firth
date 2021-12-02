@@ -69,3 +69,5 @@ drop | discard top stack entry
 \. | print top stack entry
 emit | print top stack entry as ASCII
 CR | print a carriage return
+\.S | print the stack contents
+
