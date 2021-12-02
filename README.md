@@ -63,9 +63,12 @@ def | alias for ':'
 and | bitwise AND
 or | bitwise OR
 not | bitwise NOT
+xor | bitwise XOR
 dup | duplicate top stack entry
 swap | swap top two stack entries
 drop | discard top stack entry
+over | dupe the second stack entry to the top
+rot | rotate the top 3 stack entries
 \. | print top stack entry
 emit | print top stack entry as ASCII
 CR | print a carriage return

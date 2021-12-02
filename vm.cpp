@@ -28,11 +28,14 @@ VM::VM()
 	create_word("and", OP_AND);
 	create_word("or", OP_OR);
 	create_word("not", OP_NOT);
+	create_word("xor", OP_XOR);
 
 	// stack words
 	create_word("dup", OP_DUP);
 	create_word("swap", OP_SWAP);
 	create_word("drop", OP_DROP);
+	create_word("rot", OP_ROT);
+	create_word("over", OP_OVER);
 
 	// IO words
 	create_word(".", OP_PRINT);
@@ -59,7 +62,7 @@ int VM::parse_token(const std::string &token)
 		if (!exec_word(token))
 		{
 			// if the word is not in dictionary assume it is a number and push it on the stack
-			if (isdigit(token[0]))
+			if (isdigit(token[0]) || token[0] == '-')
 			{
 				Number num = atoi(token.c_str());
 
@@ -108,7 +111,7 @@ int VM::parse_token(const std::string &token)
 			}
 			else
 			{
-				if (isdigit(token[0]))
+				if (isdigit(token[0]) || token[0] == '-')
 				{
 					Number num = atoi(token.c_str());
 					bytecode.push_back(OP_LIT);
@@ -260,14 +263,23 @@ int VM::exec_word(const std::string &word)
 		// over ( n1 n2 -- n1 n2 n1 )
 		case OP_OVER:
 		{
-			assert(false);
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n1);
+			stack.push(n2);
+			stack.push(n1);
 		}
 			break;
 
 		// rot (n1 n2 n3 -- n2 n3 n1)
 		case OP_ROT:
 		{
-			assert(false);
+			auto n3 = stack.top(); stack.pop();
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n2);
+			stack.push(n3);
+			stack.push(n1);
 		}
 			break;
 
@@ -351,13 +363,22 @@ int VM::exec_word(const std::string &word)
 		}
 			break;
 
-		// not (n1 -- !n1)
+		// not (n1 -- ~n1)
 		case OP_NOT:
 		{
 			auto n1 = stack.top(); stack.pop();
 			stack.push(!n1);
 		}
 			break;
+
+		// xor (n1 n2 -- n1)
+		case OP_XOR:
+		{
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n1 ^ n2);
+		}
+		break;
 
 		// .S ( -- )
 		case OP_DOTS:
