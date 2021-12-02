@@ -14,16 +14,29 @@ const int FALSE = 0;
 enum
 {
 	OP_NOP,
-	OP_WORD,
 	OP_PRINT,
+	OP_EMIT,
 	OP_CR,
+	OP_DOTS,
 
 	// internal compiler opcodes
 	OP_FUNC,
 	OP_CALL,
 	OP_RET,
-	OP_ENDWORD,
+	OP_LIT,
+	OP_DONE,
 
+	// relational ops
+	OP_LT,
+	OP_GT,
+	OP_EQ,
+
+	// logic ops
+	OP_AND,
+	OP_OR,
+	OP_NOT,
+
+	// stack ops
 	OP_DUP,
 	OP_SWAP,
 	OP_DROP,
@@ -43,21 +56,12 @@ enum
 struct Word
 {
 protected:
-	//typedef std::vector<Instruction> Code;
-	//Code code;
 
 public:
 	int address;
-
-	Word() {}
-
-	//Word(Instruction inst)
-	//{
-	//	code.push_back(inst);
-	//}
-
-	//Code::iterator begin() { return code.begin(); }
-	//Code::iterator end() { return code.end(); }
+	bool valid;
+	
+	Word() { address = 0; valid = false; }
 };
 
 //
@@ -75,6 +79,9 @@ protected:
 	// is the VM compiling or interpreting?
 	bool interpreter;
 
+	// the word being compiled
+	bool wordNamed;
+
 	std::vector<int> bytecode;
 	std::stack<int> return_stack;
 	int ip;
@@ -84,7 +91,7 @@ public:
 	virtual ~VM() {}
 
 	int parse_token(const std::string &token);
-	int lookup_word(const std::string &word);
+	int lookup_word(const std::string &word, Word &w);
 	int exec_word(const std::string &word);
 	int create_word(const std::string &word, int op);
 
