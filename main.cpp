@@ -18,6 +18,7 @@ int main(int argc, char **argv)
 	while (!done)
 	{
 		// read a line
+		fputs("\nfirth> ", stdout);
 		auto result = fgets(buf, sizeof(buf), stdin);
 		if (!result)
 		{

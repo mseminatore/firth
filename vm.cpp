@@ -44,11 +44,34 @@ VM::VM()
 	create_word(".S", OP_DOTS);
 //	create_word(".\"", OP_DOTQUOTE);
 
+	// variable words
+	//create_word("var", OP_VAR);
+	//create_word("const", OP_CONST);
+	//create_word("@", OP_LOAD);
+	//create_word("!", OP_STORE);
+
 	// compiler words
 	create_word(":", OP_FUNC);
 	create_word("func", OP_FUNC);
 	create_word("fn", OP_FUNC);
 	create_word("def", OP_FUNC);
+}
+
+//
+//
+//
+int VM::pop(Number *pNum)
+{
+	// check for stack underflow
+	if (stack.size() == 0)
+	{
+		fprintf(stdout, " Stack underflow\n");
+		return FALSE;
+	}
+
+	*pNum = stack.top();
+	stack.pop();
+	return TRUE;
 }
 
 //
@@ -66,7 +89,7 @@ int VM::parse_token(const std::string &token)
 			{
 				Number num = atoi(token.c_str());
 
-				push_number(num);
+				push(num);
 //					fprintf(stdout, "%d ", num);
 			}
 			else
@@ -193,36 +216,36 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 -- n1)
 		case OP_PLUS:
 		{
-			auto b = stack.top(); stack.pop();
-			auto a = stack.top(); stack.pop();
-			stack.push(a + b);
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n1 + n2);
 		}
 			break;
 
 		// ( n1 n2 -- n1)
 		case OP_MINUS:
 		{
-			auto b = stack.top(); stack.pop();
-			auto a = stack.top(); stack.pop();
-			stack.push(a - b);
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n1 - n2);
 		}
 			break;
 
 		// ( n1 n2 -- n1)
 		case OP_MUL:
 		{
-			auto b = stack.top(); stack.pop();
-			auto a = stack.top(); stack.pop();
-			stack.push(a * b);
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n1 * n2);
 		}
 			break;
 
 		// ( n1 n2 -- n1)
 		case OP_DIV:
 		{
-			auto b = stack.top(); stack.pop();
-			auto a = stack.top(); stack.pop();
-			stack.push(a / b);
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n1 / n2);
 		}
 			break;
 
@@ -307,7 +330,7 @@ int VM::exec_word(const std::string &word)
 
 		case OP_LIT:
 		{
-			auto num = bytecode[ip];
+			auto num = bytecode[ip++];
 			stack.push(num);
 		}
 			break;
@@ -386,13 +409,13 @@ int VM::exec_word(const std::string &word)
 			// make a copy of the stack
 			Stack s = stack;
 
-			fprintf(stdout, "Top -> ");
+			fprintf(stdout, "Top -> [ ");
 			while(s.size())
 			{
 				fprintf(stdout, "%d ", s.top());
 				s.pop();
 			}
-			fputc('\n', stdout);
+			fputs("]\n", stdout);
 		}
 			break;
 

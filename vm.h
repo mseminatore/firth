@@ -19,6 +19,10 @@ enum
 	OP_CR,
 	OP_DOTS,
 	OP_DOTQUOTE,
+	OP_VAR,
+	OP_CONST,
+	OP_LOAD,
+	OP_STORE,
 
 	// internal compiler opcodes
 	OP_FUNC,
@@ -98,15 +102,10 @@ public:
 	int exec_word(const std::string &word);
 	int create_word(const std::string &word, int op);
 
-	void push_number(const Number &val)
+	void push(const Number &val)
 	{
 		stack.push(val);
 	}
 
-	Number pop_number()
-	{
-		Number num = stack.top();
-		stack.pop();
-		// TODO - check for stack underflow
-	}
+	int pop(Number *pNum);
 };
