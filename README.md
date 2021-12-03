@@ -2,17 +2,20 @@
 **Firth** is an experimental and simple programming language inspired by Forth.
 
 > If you are new to FORTH, you can learn a lot of the basics at 
-> [Easy Forth](https://skilldrick.github.io/easyforth/).
+> [Easy Forth](https://skilldrick.github.io/easyforth/). I also highly recommend
+> [Starting FORTH](https://www.forth.com/starting-forth) by Leo Brodie of
+> FORTH, Inc.
 
-I created **Firth** primarily as an exercise in learning Forth. And also to have 
-my own environment for experimentaiton. The original plan was to create my 
-own Forth system, written in C++. However, along the way I decided that there 
-were likely to be a few things about Forth that I probably wanted to change. 
-Mainly small things to make the syntax a little bit easier for beginners, 
-including myself.
+I like learning, and creating, programming languages. I created **Firth** 
+primarily as an exercise in learning Forth. And also to have my own environment 
+for experimentaiton. The original plan was to create my own Forth system, 
+written in C++. However, along the way I decided that there were likely to be 
+a few things about Forth that I probably wanted to change. Mainly small things 
+to make the syntax a little bit easier for beginners, including myself.
 
-> If you are familiar with Forth you may find this strange since a key feature 
-> of Forth is the ability to completely redefine existing behavior.
+> If you are already familiar with Forth you may find this strange since a key 
+> feature of Forth is the ability to completely redefine existing behavior. I 
+> wanted to retain the ability to break basic Forth compatibility.
 
 Rather than risk creating a version of Forth that might not be compatible with 
 existing Forth code, I decided to make a language heavily influenced by Forth.
@@ -25,8 +28,20 @@ and there are `Words`.
 ### Numbers
 
 Everything that is not a `Word` is a `Number`. Numbers largely live on the stack. 
-Parameters (or arguments) to words are usually passed on the stack. The result of 
-a word is usually placed on the stack.
+When you type a number Firth pushes it onto the stack. Parameters (or arguments) 
+to words are usually passed on the stack. The result of a word is usually placed 
+on the stack.
+
+Arithmetic in Firth, as in Forth, uses Reverse Polish Notation (RPN). To add two
+numbers together you would write:
+
+```Forth
+1 2 +
+```
+
+This would push the number 1 and then the number 2 onto the stack. And then it 
+would add those two numbers together, replacing them with the result on the 
+stack.
 
 ### Words
 
