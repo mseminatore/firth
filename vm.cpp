@@ -90,9 +90,7 @@ int VM::parse_token(const std::string &token)
 			if (isdigit(token[0]) || token[0] == '-')
 			{
 				Number num = atoi(token.c_str());
-
 				push(num);
-//					fprintf(fout, "%d ", num);
 			}
 			else
 			{
@@ -103,6 +101,7 @@ int VM::parse_token(const std::string &token)
 	}
 	else
 	{
+		// look for end of current word
 		if (!strcmp(token.c_str(), ";"))
 		{
 			bytecode.push_back(OP_RET);
