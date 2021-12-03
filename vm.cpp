@@ -18,6 +18,8 @@ VM::VM()
 	create_word("-", OP_MINUS);
 	create_word("*", OP_MUL);
 	create_word("/", OP_DIV);
+	create_word("mod", OP_MOD);
+	create_word("pow", OP_POW);
 
 	// relational words
 	create_word("<", OP_LT);
@@ -246,6 +248,24 @@ int VM::exec_word(const std::string &word)
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
 			stack.push(n1 / n2);
+		}
+			break;
+
+		// ( n1 n2 -- n1)
+		case OP_MOD:
+		{
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n1 % n2);
+		}
+			break;
+
+		// ( n1 n2 -- n1)
+		case OP_POW:
+		{
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(pow(n1, n2));
 		}
 			break;
 

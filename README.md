@@ -59,6 +59,8 @@ const | define a new constant*
 \- | subtraction
 \* | multiplcation
 / | division
+mod | compute modulo
+pow | raise x to power of y
 < | less than comparison
 \> | greater than comparison
 = | equivalence comparison

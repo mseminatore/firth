@@ -5,8 +5,8 @@
 
 #include "vm.h"
 
-FILE *fin = fin;
-FILE *fout = fout;
+FILE *fin = stdin;
+FILE *fout = stdout;
 
 bool g_bVerbose = false;
 

@@ -58,7 +58,9 @@ enum
 	OP_PLUS,
 	OP_MINUS,
 	OP_MUL,
-	OP_DIV
+	OP_DIV,
+	OP_MOD,
+	OP_POW
 };
 
 //
