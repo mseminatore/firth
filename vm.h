@@ -11,6 +11,11 @@ typedef int Instruction;
 const int TRUE = -1;
 const int FALSE = 0;
 
+extern FILE *fin;
+extern FILE *fout;
+
+extern bool g_bVerbose;
+
 enum
 {
 	OP_NOP,

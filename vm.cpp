@@ -65,7 +65,7 @@ int VM::pop(Number *pNum)
 	// check for stack underflow
 	if (stack.size() == 0)
 	{
-		fprintf(stdout, " Stack underflow\n");
+		fprintf(fout, " Stack underflow\n");
 		return FALSE;
 	}
 
@@ -90,11 +90,11 @@ int VM::parse_token(const std::string &token)
 				Number num = atoi(token.c_str());
 
 				push(num);
-//					fprintf(stdout, "%d ", num);
+//					fprintf(fout, "%d ", num);
 			}
 			else
 			{
-				fprintf(stdout, "%s ?\n", token.c_str());
+				fprintf(fout, "%s ?\n", token.c_str());
 				return FALSE;
 			}
 		}
@@ -142,7 +142,7 @@ int VM::parse_token(const std::string &token)
 				}
 				else
 				{
-					fprintf(stdout, "%s ?\n", token.c_str());
+					fprintf(fout, "%s ?\n", token.c_str());
 					return FALSE;
 				}
 			}
@@ -253,7 +253,7 @@ int VM::exec_word(const std::string &word)
 		case OP_PRINT:
 		{
 			auto a = stack.top();
-			fprintf(stdout, "%d", a);
+			fprintf(fout, "%d", a);
 			stack.pop();
 		}
 			break;
@@ -338,7 +338,7 @@ int VM::exec_word(const std::string &word)
 		// ( -- )
 		case OP_CR:
 		{
-			fputs("\n", stdout);
+			fputs("\n", fout);
 		}
 			break;
 
@@ -346,7 +346,7 @@ int VM::exec_word(const std::string &word)
 		case OP_EMIT:
 		{
 			auto c = stack.top(); stack.pop();
-			fputc(c, stdout);
+			fputc(c, fout);
 		}
 			break;
 
@@ -409,13 +409,13 @@ int VM::exec_word(const std::string &word)
 			// make a copy of the stack
 			Stack s = stack;
 
-			fprintf(stdout, "Top -> [ ");
+			fprintf(fout, "Top -> [ ");
 			while(s.size())
 			{
-				fprintf(stdout, "%d ", s.top());
+				fprintf(fout, "%d ", s.top());
 				s.pop();
 			}
-			fputs("]\n", stdout);
+			fputs("]\n", fout);
 		}
 			break;
 

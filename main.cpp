@@ -5,6 +5,26 @@
 
 #include "vm.h"
 
+FILE *fin = fin;
+FILE *fout = fout;
+
+bool g_bVerbose = false;
+
+//
+// get options from the command line
+//
+int getopt(int n, char *args[])
+{
+	int i;
+	for (i = 1; args[i] && args[i][0] == '-'; i++)
+	{
+		if (args[i][1] == 'v')
+			g_bVerbose = true;
+	}
+
+	return i;
+}
+
 //
 //
 //
@@ -18,8 +38,8 @@ int main(int argc, char **argv)
 	while (!done)
 	{
 		// read a line
-		fputs("\nfirth> ", stdout);
-		auto result = fgets(buf, sizeof(buf), stdin);
+		fputs("\nfirth> ", fout);
+		auto result = fgets(buf, sizeof(buf), fin);
 		if (!result)
 		{
 			break;
@@ -40,9 +60,9 @@ int main(int argc, char **argv)
 		}
 
 		if (err)
-			fprintf(stdout, " ok\n");
+			fprintf(fout, " ok\n");
 	}
 
-	fputs("done", stdout);
+	fputs("done", fout);
 	exit(0);
 }
