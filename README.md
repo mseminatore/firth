@@ -59,7 +59,9 @@ const | define a new constant*
 \- | subtraction
 \* | multiplcation
 / | division
-mod | compute modulo
+\*/ | multiply then divide
+mod | compute remainder
+/mod | remainder and quotient
 pow | raise x to power of y
 < | less than comparison
 \> | greater than comparison

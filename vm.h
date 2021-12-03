@@ -11,11 +11,16 @@ typedef int Instruction;
 const int TRUE = -1;
 const int FALSE = 0;
 
-extern FILE *fin;
-extern FILE *fout;
-
 extern bool g_bVerbose;
 
+// tokens
+enum
+{
+	TOK_WORD,
+	TOK_NUM
+};
+
+// opcodes
 enum
 {
 	OP_NOP,
@@ -60,6 +65,8 @@ enum
 	OP_MUL,
 	OP_DIV,
 	OP_MOD,
+	OP_DIVMOD,
+	OP_MULDIV,
 	OP_POW
 };
 
@@ -99,11 +106,14 @@ protected:
 	std::vector<int> bytecode;
 	std::stack<int> return_stack;
 	int ip;
+	FILE *f_in, *f_out;
 
 public:
 	VM();
 	virtual ~VM() {}
 
+	void setFiles(FILE *in, FILE *out) { f_in = in; f_out = out; }
+	
 	int parse_token(const std::string &token);
 	int lookup_word(const std::string &word, Word &w);
 	int exec_word(const std::string &word);

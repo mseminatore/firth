@@ -19,6 +19,8 @@ VM::VM()
 	create_word("*", OP_MUL);
 	create_word("/", OP_DIV);
 	create_word("mod", OP_MOD);
+	create_word("/mod", OP_DIVMOD);
+	create_word("*/", OP_MULDIV);
 	create_word("pow", OP_POW);
 
 	// relational words
@@ -62,12 +64,20 @@ VM::VM()
 //
 //
 //
+//VM::lex()
+//{
+//
+//}
+
+//
+//
+//
 int VM::pop(Number *pNum)
 {
 	// check for stack underflow
 	if (stack.size() == 0)
 	{
-		fprintf(fout, " Stack underflow\n");
+		fprintf(f_out, " Stack underflow\n");
 		return FALSE;
 	}
 
@@ -94,7 +104,7 @@ int VM::parse_token(const std::string &token)
 			}
 			else
 			{
-				fprintf(fout, "%s ?\n", token.c_str());
+				fprintf(f_out, "%s ?\n", token.c_str());
 				return FALSE;
 			}
 		}
@@ -143,7 +153,7 @@ int VM::parse_token(const std::string &token)
 				}
 				else
 				{
-					fprintf(fout, "%s ?\n", token.c_str());
+					fprintf(f_out, "%s ?\n", token.c_str());
 					return FALSE;
 				}
 			}
@@ -250,7 +260,7 @@ int VM::exec_word(const std::string &word)
 		}
 			break;
 
-		// ( n1 n2 -- n1)
+		// ( n1 n2 -- rem)
 		case OP_MOD:
 		{
 			auto n2 = stack.top(); stack.pop();
@@ -259,12 +269,33 @@ int VM::exec_word(const std::string &word)
 		}
 			break;
 
+		// ( n1 n2 -- rem quotient)
+		case OP_DIVMOD:
+		{
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			stack.push(n1 % n2); // push rem
+			stack.push(n1 / n2); // push quotient
+		}
+			break;
+
+		// ( n1 n2 n3 -- n4)
+		case OP_MULDIV:
+		{
+			auto n3 = stack.top(); stack.pop();
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			long long n4 = long long(n1) * n2;
+			stack.push(int(n4/n3));
+		}
+			break;
+
 		// ( n1 n2 -- n1)
 		case OP_POW:
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(pow(n1, n2));
+			stack.push(int(pow(n1, n2) + 0.5f));
 		}
 			break;
 
@@ -272,7 +303,7 @@ int VM::exec_word(const std::string &word)
 		case OP_PRINT:
 		{
 			auto a = stack.top();
-			fprintf(fout, "%d", a);
+			fprintf(f_out, "%d", a);
 			stack.pop();
 		}
 			break;
@@ -357,7 +388,7 @@ int VM::exec_word(const std::string &word)
 		// ( -- )
 		case OP_CR:
 		{
-			fputs("\n", fout);
+			fputs("\n", f_out);
 		}
 			break;
 
@@ -365,7 +396,7 @@ int VM::exec_word(const std::string &word)
 		case OP_EMIT:
 		{
 			auto c = stack.top(); stack.pop();
-			fputc(c, fout);
+			fputc(c, f_out);
 		}
 			break;
 
@@ -428,13 +459,13 @@ int VM::exec_word(const std::string &word)
 			// make a copy of the stack
 			Stack s = stack;
 
-			fprintf(fout, "Top -> [ ");
+			fprintf(f_out, "Top -> [ ");
 			while(s.size())
 			{
-				fprintf(fout, "%d ", s.top());
+				fprintf(f_out, "%d ", s.top());
 				s.pop();
 			}
-			fputs("]\n", fout);
+			fputs("]\n", f_out);
 		}
 			break;
 

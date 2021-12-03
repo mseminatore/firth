@@ -5,8 +5,8 @@
 
 #include "vm.h"
 
-FILE *fin = stdin;
-FILE *fout = stdout;
+static FILE *fin = stdin;
+static FILE *fout = stdout;
 
 bool g_bVerbose = false;
 
@@ -34,6 +34,8 @@ int main(int argc, char **argv)
 	bool done = false;
 	char buf[256];
 	int err;
+
+	vm.setFiles(fin, fout);
 
 	while (!done)
 	{
