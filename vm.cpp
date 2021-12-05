@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <assert.h>
 #include <ctype.h>
 
@@ -27,6 +29,9 @@ VM::VM()
 	create_word("<", OP_LT);
 	create_word(">", OP_GT);
 	create_word("=", OP_EQ);
+	create_word("0=", OP_ZEQ);
+	create_word("0<", OP_ZLT);
+	create_word("0>", OP_ZGT);
 
 	// logic words
 	create_word("and", OP_AND);
@@ -59,15 +64,130 @@ VM::VM()
 	create_word("func", OP_FUNC);
 	create_word("fn", OP_FUNC);
 	create_word("def", OP_FUNC);
+	
+	create_word("load", OP_LOAD);
+	create_word(">R", OP_TO_R);
+	create_word("R>", OP_FROM_R);
+
+	FILE *f = fopen("core.fth", "rt");
+	setInputFile(f);
+	setOutputFile(stdout);
+	while (parse());
+	fclose(f);
+}
+
+//
+int VM::getChar()
+{
+	return fgetc(fin);
+}
+
+//
+void VM::ungetChar(int c)
+{
+	ungetc(c, fin);
+}
+
+//
+bool VM::isWhitespace(int c)
+{
+	return (c == ' ' || c == '\t' /*|| c == '\n' || c == '\r'*/); //? true : false;
+}
+
+//
+bool VM::isNumber(int c)
+{
+	// TODO - since minus sign is a word this may be incorrect
+	return (isdigit(c) || c == '-');
+}
+
+// 
+bool VM::isWord()
+{
+	return false;
+}
+
+// skip any leading WS
+int VM::skipLeadingWhiteSpace()
+{
+	int chr;
+
+	do
+	{
+		chr = getChar();
+		//if (chr == '\n')
+		//{
+		//	// TODO - inc line num and count and reset column count
+		//}
+	} while (isWhitespace(chr));
+
+	return chr;
+}
+
+// return the next token
+int VM::lex()
+{
+	int chr;
+	char *pBuf = lval;
+
+lex01:
+
+	// skip any leading WS
+	chr = skipLeadingWhiteSpace();
+
+	// TODO - check for comments?
+
+	if (chr == EOF || chr == '\n')
+		return chr;
+
+	// TODO - look for a word
+
+
+	do
+	{
+		*pBuf++ = chr;
+	} while ((chr = getChar()) != EOF && chr != ' ' && chr != '\n');
+
+	ungetChar(chr);
+
+	*pBuf = 0;
+	return TOK_WORD;
+
+	// TODO - look for a number?
 }
 
 //
 //
 //
-//VM::lex()
-//{
-//
-//}
+int VM::parse()
+{
+	int token;
+	int err;
+
+	do
+	{
+		fputs("\nfirth> ", fout);
+		while((token = lex()) != '\n' && token != EOF)
+		{
+			err = parse_token(lval);
+			if (!err)
+			{
+//				assert(false);
+			}
+		}
+
+		if (fin != stdin)
+		{
+			fclose(fin);
+			setInputFile(stdin);
+			continue;
+		}
+
+	} while (token != EOF);
+
+
+	return TRUE;
+}
 
 //
 //
@@ -77,7 +197,7 @@ int VM::pop(Number *pNum)
 	// check for stack underflow
 	if (stack.size() == 0)
 	{
-		fprintf(f_out, " Stack underflow\n");
+		fprintf(fout, " Stack underflow\n");
 		return FALSE;
 	}
 
@@ -104,7 +224,7 @@ int VM::parse_token(const std::string &token)
 			}
 			else
 			{
-				fprintf(f_out, "%s ?\n", token.c_str());
+				fprintf(fout, "%s ?\n", token.c_str());
 				return FALSE;
 			}
 		}
@@ -153,7 +273,7 @@ int VM::parse_token(const std::string &token)
 				}
 				else
 				{
-					fprintf(f_out, "%s ?\n", token.c_str());
+					fprintf(fout, "%s ?\n", token.c_str());
 					return FALSE;
 				}
 			}
@@ -303,7 +423,7 @@ int VM::exec_word(const std::string &word)
 		case OP_PRINT:
 		{
 			auto a = stack.top();
-			fprintf(f_out, "%d", a);
+			fprintf(fout, "%d", a);
 			stack.pop();
 		}
 			break;
@@ -388,7 +508,7 @@ int VM::exec_word(const std::string &word)
 		// ( -- )
 		case OP_CR:
 		{
-			fputs("\n", f_out);
+			fputs("\n", fout);
 		}
 			break;
 
@@ -396,7 +516,7 @@ int VM::exec_word(const std::string &word)
 		case OP_EMIT:
 		{
 			auto c = stack.top(); stack.pop();
-			fputc(c, f_out);
+			fputc(c, fout);
 		}
 			break;
 
@@ -417,6 +537,30 @@ int VM::exec_word(const std::string &word)
 			stack.push(n1 > n2 ? TRUE : FALSE);
 		}
 			break;
+
+		// 0= ( n -- f)
+		case OP_ZEQ:
+		{
+			auto n = return_stack.top(); return_stack.pop();
+			stack.push(n == 0 ? TRUE : FALSE);
+		}
+		break;
+
+		// 0< ( n -- f)
+		case OP_ZLT:
+		{
+			auto n = return_stack.top(); return_stack.pop();
+			stack.push(n < 0 ? TRUE : FALSE);
+		}
+		break;
+
+		// 0> ( n -- f)
+		case OP_ZGT:
+		{
+			auto n = return_stack.top(); return_stack.pop();
+			stack.push(n > 0 ? TRUE : FALSE);
+		}
+		break;
 
 		// and (n1 n1 -- n1)
 		case OP_AND:
@@ -459,13 +603,13 @@ int VM::exec_word(const std::string &word)
 			// make a copy of the stack
 			Stack s = stack;
 
-			fprintf(f_out, "Top -> [ ");
+			fprintf(fout, "Top -> [ ");
 			while(s.size())
 			{
-				fprintf(f_out, "%d ", s.top());
+				fprintf(fout, "%d ", s.top());
 				s.pop();
 			}
-			fputs("]\n", f_out);
+			fputs("]\n", fout);
 		}
 			break;
 
@@ -475,6 +619,36 @@ int VM::exec_word(const std::string &word)
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
 			stack.push(n1 == n2 ? TRUE : FALSE);
+		}
+		break;
+
+		//
+		case OP_LOAD:
+		{
+			// get the file name word
+			lex();
+
+			// open the file
+			FILE *f = fopen(lval, "rt");
+			// set files
+			if (f)
+				setInputFile(f);
+		}
+			break;
+
+		// >R (n -- )
+		case OP_TO_R:
+		{
+			auto n = stack.top(); stack.pop();
+			return_stack.push(n);
+		}
+			break;
+
+		// R> ( -- n)
+		case OP_FROM_R:
+		{
+			auto n = return_stack.top(); return_stack.pop();
+			stack.push(n);
 		}
 		break;
 

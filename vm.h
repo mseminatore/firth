@@ -16,7 +16,7 @@ extern bool g_bVerbose;
 // tokens
 enum
 {
-	TOK_WORD,
+	TOK_WORD = 256,
 	TOK_NUM
 };
 
@@ -33,6 +33,8 @@ enum
 	OP_CONST,
 	OP_LOAD,
 	OP_STORE,
+	OP_TO_R,
+	OP_FROM_R,
 
 	// internal compiler opcodes
 	OP_FUNC,
@@ -45,6 +47,9 @@ enum
 	OP_LT,
 	OP_GT,
 	OP_EQ,
+	OP_ZEQ,
+	OP_ZLT,
+	OP_ZGT,
 
 	// logic ops
 	OP_AND,
@@ -106,14 +111,17 @@ protected:
 	std::vector<int> bytecode;
 	std::stack<int> return_stack;
 	int ip;
-	FILE *f_in, *f_out;
+	FILE *fin, *fout;
+	char lval[256];
 
 public:
 	VM();
 	virtual ~VM() {}
 
-	void setFiles(FILE *in, FILE *out) { f_in = in; f_out = out; }
-	
+	void setInputFile(FILE *f) { if (f) fin = f; else fin = stdin; }
+	void setOutputFile(FILE *f) { if (f) fout = f; else fout = stdout; }
+
+	int parse();
 	int parse_token(const std::string &token);
 	int lookup_word(const std::string &word, Word &w);
 	int exec_word(const std::string &word);
@@ -125,4 +133,13 @@ public:
 	}
 
 	int pop(Number *pNum);
+
+	// lexical analyzer methods
+	int getChar();
+	void ungetChar(int c);
+	bool isWhitespace(int c);
+	bool isNumber(int c);
+	bool isWord();
+	int skipLeadingWhiteSpace();
+	int lex();
 };

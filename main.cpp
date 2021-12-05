@@ -32,11 +32,15 @@ int main(int argc, char **argv)
 {
 	VM vm;
 	bool done = false;
-	char buf[256];
+//	char buf[256];
 	int err;
 
-	vm.setFiles(fin, fout);
+	vm.setInputFile(fin);
+	vm.setOutputFile(fout);
 
+#if 1
+	while (vm.parse());
+#else
 	while (!done)
 	{
 		// read a line
@@ -66,5 +70,7 @@ int main(int argc, char **argv)
 	}
 
 	fputs("done", fout);
+#endif
+
 	exit(0);
 }

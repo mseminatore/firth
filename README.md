@@ -53,7 +53,7 @@ func add + ;
  ok
 ```
 
-This creates a new `Word` named `add` that adds the top two stack entries and
+This creates a new `Word` named `add` that, just like `+` adds the top two stack entries and
 puts the result on the stack.
 
 ### Built-in Words
@@ -81,6 +81,9 @@ pow | raise x to power of y
 < | less than comparison
 \> | greater than comparison
 = | equivalence comparison
+0= | true if TOS is zero
+0< | true if TOS is less than zero
+0> | true if TOS is greater than zero 
 and | bitwise AND
 or | bitwise OR
 not | bitwise NOT
