@@ -61,9 +61,9 @@ VM::VM()
 
 	// compiler words
 	create_word(":", OP_FUNC);
-	create_word("func", OP_FUNC);
-	create_word("fn", OP_FUNC);
-	create_word("def", OP_FUNC);
+	//create_word("func", OP_FUNC);
+	//create_word("fn", OP_FUNC);
+	//create_word("def", OP_FUNC);
 	
 	create_word("load", OP_LOAD);
 	create_word(">R", OP_TO_R);
@@ -101,10 +101,20 @@ bool VM::isNumber(int c)
 	return (isdigit(c) || c == '-');
 }
 
-// 
-bool VM::isWord()
+//
+//
+//
+void VM::skipToEOL(void)
 {
-	return false;
+	int c;
+
+	// skip to EOL
+	do {
+		c = getChar();
+	} while (c != '\n' && c != EOF);
+
+	// put last character back
+	ungetChar(c);
 }
 
 // skip any leading WS
@@ -136,6 +146,11 @@ lex01:
 	chr = skipLeadingWhiteSpace();
 
 	// TODO - check for comments?
+	if (chr == '\\')
+	{
+		skipToEOL();
+		goto lex01;
+	}
 
 	if (chr == EOF || chr == '\n')
 		return chr;
@@ -166,7 +181,9 @@ int VM::parse()
 
 	do
 	{
-		fputs("\nfirth> ", fout);
+		if (fin == stdin)
+			fputs("\nfirth> ", fout);
+
 		while((token = lex()) != '\n' && token != EOF)
 		{
 			err = parse_token(lval);
@@ -175,16 +192,13 @@ int VM::parse()
 //				assert(false);
 			}
 		}
-
-		if (fin != stdin)
-		{
-			fclose(fin);
-			setInputFile(stdin);
-			continue;
-		}
-
 	} while (token != EOF);
 
+	if (fin != stdin)
+	{
+		fclose(fin);
+		setInputFile(stdin);
+	}
 
 	return TRUE;
 }

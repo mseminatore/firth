@@ -139,7 +139,7 @@ public:
 	void ungetChar(int c);
 	bool isWhitespace(int c);
 	bool isNumber(int c);
-	bool isWord();
+	void skipToEOL(void);
 	int skipLeadingWhiteSpace();
 	int lex();
 };
