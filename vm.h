@@ -140,6 +140,7 @@ public:
 	bool isWhitespace(int c);
 	bool isNumber(int c);
 	void skipToEOL(void);
+	void skipToChar(int c);
 	int skipLeadingWhiteSpace();
 	int lex();
 };

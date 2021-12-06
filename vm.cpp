@@ -61,9 +61,9 @@ VM::VM()
 
 	// compiler words
 	create_word(":", OP_FUNC);
-	//create_word("func", OP_FUNC);
-	//create_word("fn", OP_FUNC);
-	//create_word("def", OP_FUNC);
+	create_word("func", OP_FUNC);
+	create_word("fn", OP_FUNC);
+	create_word("def", OP_FUNC);
 	
 	create_word("load", OP_LOAD);
 	create_word(">R", OP_TO_R);
@@ -117,6 +117,19 @@ void VM::skipToEOL(void)
 	ungetChar(c);
 }
 
+//
+//
+//
+void VM::skipToChar(int chr)
+{
+	int c;
+
+	// skip to char
+	do {
+		c = getChar();
+	} while (c != chr && c != EOF);
+}
+
 // skip any leading WS
 int VM::skipLeadingWhiteSpace()
 {
@@ -149,6 +162,12 @@ lex01:
 	if (chr == '\\')
 	{
 		skipToEOL();
+		goto lex01;
+	}
+
+	if (chr == '(')
+	{
+		skipToChar(')');
 		goto lex01;
 	}
 
