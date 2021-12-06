@@ -158,7 +158,7 @@ lex01:
 	// skip any leading WS
 	chr = skipLeadingWhiteSpace();
 
-	// TODO - check for comments?
+	// check for comments
 	if (chr == '\\')
 	{
 		skipToEOL();
@@ -174,9 +174,7 @@ lex01:
 	if (chr == EOF || chr == '\n')
 		return chr;
 
-	// TODO - look for a word
-
-
+	// look for a word
 	do
 	{
 		*pBuf++ = chr;
@@ -186,8 +184,6 @@ lex01:
 
 	*pBuf = 0;
 	return TOK_WORD;
-
-	// TODO - look for a number?
 }
 
 //
@@ -574,7 +570,7 @@ int VM::exec_word(const std::string &word)
 		// 0= ( n -- f)
 		case OP_ZEQ:
 		{
-			auto n = return_stack.top(); return_stack.pop();
+			auto n = stack.top(); stack.pop();
 			stack.push(n == 0 ? TRUE : FALSE);
 		}
 		break;
@@ -582,7 +578,7 @@ int VM::exec_word(const std::string &word)
 		// 0< ( n -- f)
 		case OP_ZLT:
 		{
-			auto n = return_stack.top(); return_stack.pop();
+			auto n = stack.top(); stack.pop();
 			stack.push(n < 0 ? TRUE : FALSE);
 		}
 		break;
@@ -590,7 +586,7 @@ int VM::exec_word(const std::string &word)
 		// 0> ( n -- f)
 		case OP_ZGT:
 		{
-			auto n = return_stack.top(); return_stack.pop();
+			auto n = stack.top(); stack.pop();
 			stack.push(n > 0 ? TRUE : FALSE);
 		}
 		break;
