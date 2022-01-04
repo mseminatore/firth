@@ -64,12 +64,12 @@ They are:
 Word | Description
 ---- | -----------
 : | begin definition of new word
-func | alias for ':'
+func | (preferred) alias for ':'
 fn | alias for ':'
 def | alias for ':'
 ; | end definition of new word
-var | define a new variable*
-const | define a new constant*
+var | define a new variable
+const | define a new constant
 \+ | addition
 \- | subtraction
 \* | multiplcation
@@ -84,6 +84,7 @@ pow | raise x to power of y
 0= | true if TOS is zero
 0< | true if TOS is less than zero
 0> | true if TOS is greater than zero 
+0<> | true if TOS is not equal zero
 and | bitwise AND
 or | bitwise OR
 not | bitwise NOT
@@ -93,9 +94,14 @@ swap | swap top two stack entries
 drop | discard top stack entry
 over | dupe the second stack entry to the top
 rot | rotate the top 3 stack entries
+nip | discard the second entry on stack
 \. | print top stack entry
 emit | print top stack entry as ASCII
 CR | print a carriage return
+LF | print a line feed
+BEL | emits a BEL char
+BL | prints a space
+TAB | prints a tab char
 \.S | print the stack contents
 
 * **Note:** These are not yet implemented

@@ -26,15 +26,15 @@ enum
 	OP_NOP,
 	OP_PRINT,
 	OP_EMIT,
-	OP_CR,
 	OP_DOTS,
 	OP_DOTQUOTE,
 	OP_VAR,
 	OP_CONST,
-	OP_LOAD,
+	OP_VLOAD,
 	OP_STORE,
 	OP_TO_R,
 	OP_FROM_R,
+	OP_LOAD,
 
 	// internal compiler opcodes
 	OP_FUNC,
@@ -42,6 +42,13 @@ enum
 	OP_RET,
 	OP_LIT,
 	OP_DONE,
+	OP_GOTO,
+	OP_HERE,
+
+	// conditionals
+	OP_IF,
+	OP_THEN,
+	OP_ELSE,
 
 	// relational ops
 	OP_LT,
@@ -50,6 +57,7 @@ enum
 	OP_ZEQ,
 	OP_ZLT,
 	OP_ZGT,
+	OP_ZNE,
 
 	// logic ops
 	OP_AND,
@@ -72,7 +80,10 @@ enum
 	OP_MOD,
 	OP_DIVMOD,
 	OP_MULDIV,
-	OP_POW
+	OP_POW,
+	//OP_ABS,
+	//OP_MIN,
+	//OP_MAX
 };
 
 //
@@ -85,8 +96,9 @@ protected:
 public:
 	int address;
 	bool compileOnly;
+	int type;
 
-	Word() { address = 0; compileOnly = false; }
+	Word() { address = 0; compileOnly = false; type = -1; }
 };
 
 //
@@ -105,9 +117,6 @@ protected:
 	// is the VM compiling or interpreting?
 	bool interpreter;
 
-	// the word being compiled
-	bool wordNamed;
-
 	std::vector<int> bytecode;
 	std::stack<int> return_stack;
 	int ip;
@@ -125,7 +134,10 @@ public:
 	int parse_token(const std::string &token);
 	int lookup_word(const std::string &word, Word &w);
 	int exec_word(const std::string &word);
-	int create_word(const std::string &word, int op);
+	int create_word(const std::string &word, const Word &w);
+	int define_word(const std::string &word, int op, bool compileOnly = false);
+	int interpret(const std::string &token);
+	int compile(const std::string &token);
 
 	void push(const Number &val)
 	{

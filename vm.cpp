@@ -16,59 +16,64 @@ VM::VM()
 	bytecode.push_back(OP_DONE);
 
 	// math words
-	create_word("+", OP_PLUS);
-	create_word("-", OP_MINUS);
-	create_word("*", OP_MUL);
-	create_word("/", OP_DIV);
-	create_word("mod", OP_MOD);
-	create_word("/mod", OP_DIVMOD);
-	create_word("*/", OP_MULDIV);
-	create_word("pow", OP_POW);
+	define_word("+", OP_PLUS);
+	define_word("-", OP_MINUS);
+	define_word("*", OP_MUL);
+	define_word("/", OP_DIV);
+	define_word("mod", OP_MOD);
+	define_word("/mod", OP_DIVMOD);
+	define_word("*/", OP_MULDIV);
+	define_word("pow", OP_POW);
 
 	// relational words
-	create_word("<", OP_LT);
-	create_word(">", OP_GT);
-	create_word("=", OP_EQ);
-	create_word("0=", OP_ZEQ);
-	create_word("0<", OP_ZLT);
-	create_word("0>", OP_ZGT);
+	define_word("<", OP_LT);
+	define_word(">", OP_GT);
+	define_word("=", OP_EQ);
+	define_word("0=", OP_ZEQ);
+	define_word("0<", OP_ZLT);
+	define_word("0>", OP_ZGT);
+	define_word("0<>", OP_ZNE);
+
+	define_word("IF", OP_IF, true);
+	define_word("THEN", OP_THEN, true);
+	define_word("ELSE", OP_ELSE, true);
+	define_word("ELSE", OP_ELSE, true);
 
 	// logic words
-	create_word("and", OP_AND);
-	create_word("or", OP_OR);
-	create_word("not", OP_NOT);
-	create_word("xor", OP_XOR);
+	define_word("and", OP_AND);
+	define_word("or", OP_OR);
+	define_word("not", OP_NOT);
+	define_word("xor", OP_XOR);
 
 	// stack words
-	create_word("dup", OP_DUP);
-	create_word("swap", OP_SWAP);
-	create_word("drop", OP_DROP);
-	create_word("rot", OP_ROT);
-	create_word("over", OP_OVER);
+	define_word("dup", OP_DUP);
+	define_word("swap", OP_SWAP);
+	define_word("drop", OP_DROP);
+	define_word("rot", OP_ROT);
+	define_word("over", OP_OVER);
+	define_word(">R", OP_TO_R);
+	define_word("R>", OP_FROM_R);
 
 	// IO words
-	create_word(".", OP_PRINT);
-	create_word("emit", OP_EMIT);
-	create_word("CR", OP_CR);
-	create_word(".S", OP_DOTS);
-//	create_word(".\"", OP_DOTQUOTE);
+	define_word(".", OP_PRINT);
+	define_word("emit", OP_EMIT);
+	define_word(".S", OP_DOTS);
+//	define_word(".\"", OP_DOTQUOTE);
 
-	// variable words
-	//create_word("var", OP_VAR);
-	//create_word("const", OP_CONST);
-	//create_word("@", OP_LOAD);
-	//create_word("!", OP_STORE);
+	// variable and constant words
+	define_word("var", OP_VAR);
+	define_word("const", OP_CONST);
+	define_word("@", OP_VLOAD);
+	define_word("!", OP_STORE);
 
 	// compiler words
-	create_word(":", OP_FUNC);
-	create_word("func", OP_FUNC);
-	create_word("fn", OP_FUNC);
-	create_word("def", OP_FUNC);
-	
-	create_word("load", OP_LOAD);
-	create_word(">R", OP_TO_R);
-	create_word("R>", OP_FROM_R);
+	define_word(":", OP_FUNC);
+	define_word("func", OP_FUNC);
+	define_word("fn", OP_FUNC);
+	define_word("def", OP_FUNC);
+	define_word("load", OP_LOAD);
 
+	// core words
 	FILE *f = fopen("core.fth", "rt");
 	setInputFile(f);
 	setOutputFile(stdout);
@@ -236,76 +241,21 @@ int VM::pop(Number *pNum)
 }
 
 //
-//
-//
-int VM::parse_token(const std::string &token)
+int VM::interpret(const std::string &token)
 {
-	if (interpreter)
+	// if the word is in the dictionary do it
+	if (!exec_word(token))
 	{
-		// if the word is in the dictionary do it
-		if (!exec_word(token))
+		// if the word is not in dictionary assume it is a number and push it on the stack
+		if (isdigit(token[0]) || token[0] == '-')
 		{
-			// if the word is not in dictionary assume it is a number and push it on the stack
-			if (isdigit(token[0]) || token[0] == '-')
-			{
-				Number num = atoi(token.c_str());
-				push(num);
-			}
-			else
-			{
-				fprintf(fout, "%s ?\n", token.c_str());
-				return FALSE;
-			}
-		}
-	}
-	else
-	{
-		// look for end of current word
-		if (!strcmp(token.c_str(), ";"))
-		{
-			bytecode.push_back(OP_RET);
-			interpreter = true;
-			wordNamed = false;
-			return TRUE;
-		}
-
-		// compile a new word
-		// get the name
-		if (!wordNamed)
-		{
-			// set start address
-			Word w;
-			w.address = bytecode.size();
-
-			// TODO - we might want to succeed in overwriting existing words here
-			auto result = dict.insert(std::pair<const std::string, Word>(token, w));
-			if (result.second == false)
-				return FALSE;
-
-			wordNamed = true;
+			Number num = atoi(token.c_str());
+			push(num);
 		}
 		else
 		{
-			Word w;
-			if (lookup_word(token, w))
-			{
-				bytecode.push_back(OP_CALL);
-				bytecode.push_back(w.address);
-			}
-			else
-			{
-				if (isdigit(token[0]) || token[0] == '-')
-				{
-					Number num = atoi(token.c_str());
-					bytecode.push_back(OP_LIT);
-					bytecode.push_back(num);
-				}
-				else
-				{
-					fprintf(fout, "%s ?\n", token.c_str());
-					return FALSE;
-				}
-			}
+			fprintf(fout, "%s ?\n", token.c_str());
+			return FALSE;
 		}
 	}
 
@@ -313,16 +263,76 @@ int VM::parse_token(const std::string &token)
 }
 
 //
-// Create a new builtin word
-//
-int VM::create_word(const std::string &word, int op)
+int VM::compile(const std::string &token)
 {
-	Word w;
-	w.address = bytecode.size();
+	// look for end of current word
+	if (!strcmp(token.c_str(), ";"))
+	{
+		bytecode.push_back(OP_RET);
+		interpreter = true;
+		return TRUE;
+	}
 
+	// compile the call to the existing WORD
+	Word w;
+	if (lookup_word(token, w))
+	{
+		bytecode.push_back(OP_CALL);
+		bytecode.push_back(w.address);
+	}
+	else
+	{
+		// or compile the NUMBER
+		if (isdigit(token[0]) || token[0] == '-')
+		{
+			Number num = atoi(token.c_str());
+			bytecode.push_back(OP_LIT);
+			bytecode.push_back(num);
+		}
+		else
+		{
+			fprintf(fout, "%s ?\n", token.c_str());
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+//
+//
+//
+int VM::parse_token(const std::string &token)
+{
+	if (interpreter)
+		return interpret(token);
+
+	return compile(token);
+}
+
+//
+//
+//
+int VM::create_word(const std::string &word, const Word &w)
+{
 	// TODO - we might want to succeed in overwriting existing words here
 	auto result = dict.insert(std::pair<const std::string, Word>(word, w));
 	if (result.second == false)
+		return FALSE;
+
+	return TRUE;
+}
+
+//
+// Create a new builtin word
+//
+int VM::define_word(const std::string &word, int op, bool compileOnly)
+{
+	Word w;
+	w.address = bytecode.size();
+	w.compileOnly = compileOnly;
+
+	if (FALSE == create_word(word, w))
 		return FALSE;
 
 	bytecode.push_back(op);
@@ -352,11 +362,33 @@ int VM::exec_word(const std::string &word)
 {
 	auto result = dict.find(word);
 
+	// if WORD not found, error
 	if (result == dict.end())
 		return FALSE;
 
 	// exec the word
 	Word w = result->second;
+	if (w.compileOnly)
+	{
+		fputs(" action is not a function\n", fout);
+		return FALSE;
+	}
+
+	// handle variables
+	if (w.type == OP_VAR)
+	{
+		// get addr of the variable and put it on the stack
+		auto num = w.address;
+		stack.push(num);
+		return TRUE;
+	}
+
+	// handle constants
+	if (w.type == OP_CONST)
+	{
+		stack.push(w.address);
+		return TRUE;
+	}
 
 	return_stack.push(ip);
 	ip = w.address;
@@ -508,7 +540,13 @@ int VM::exec_word(const std::string &word)
 		case OP_FUNC:
 		{
 			interpreter = false;
-			wordNamed = false;
+
+			lex();
+			Word w;
+			w.address = bytecode.size();
+			w.type = OP_FUNC;
+			create_word(lval, w);
+
 			return TRUE;
 		}
 			break;
@@ -531,13 +569,6 @@ int VM::exec_word(const std::string &word)
 		{
 			auto num = bytecode[ip++];
 			stack.push(num);
-		}
-			break;
-
-		// ( -- )
-		case OP_CR:
-		{
-			fputs("\n", fout);
 		}
 			break;
 
@@ -573,7 +604,7 @@ int VM::exec_word(const std::string &word)
 			auto n = stack.top(); stack.pop();
 			stack.push(n == 0 ? TRUE : FALSE);
 		}
-		break;
+			break;
 
 		// 0< ( n -- f)
 		case OP_ZLT:
@@ -581,7 +612,7 @@ int VM::exec_word(const std::string &word)
 			auto n = stack.top(); stack.pop();
 			stack.push(n < 0 ? TRUE : FALSE);
 		}
-		break;
+			break;
 
 		// 0> ( n -- f)
 		case OP_ZGT:
@@ -589,7 +620,15 @@ int VM::exec_word(const std::string &word)
 			auto n = stack.top(); stack.pop();
 			stack.push(n > 0 ? TRUE : FALSE);
 		}
-		break;
+			break;
+
+		// 0<> (n -- f)
+		case OP_ZNE:
+		{
+			auto n = stack.top(); stack.pop();
+			stack.push(n != 0 ? TRUE : FALSE);
+		}
+			break;
 
 		// and (n1 n1 -- n1)
 		case OP_AND:
@@ -680,6 +719,66 @@ int VM::exec_word(const std::string &word)
 			stack.push(n);
 		}
 		break;
+
+		// IF (f -- )
+		case OP_IF:
+		{
+			auto n = stack.top(); stack.pop();
+			if (!n)
+			{
+				// get the address
+				auto addr = bytecode[ip];
+				ip = addr;
+			}
+		}
+		break;
+
+		// @ (addr -- val)
+		case OP_VLOAD:
+		{
+			auto addr = stack.top(); stack.pop();
+			auto val = bytecode[addr];
+			stack.push(val);
+		}
+			break;
+
+		// ! (addr val -- )
+		case OP_STORE:
+		{
+			auto addr = stack.top(); stack.pop();
+			auto val = stack.top(); stack.pop();
+			bytecode[addr] = val;
+		}
+			break;
+
+		// var ( -- )
+		case OP_VAR:
+		{
+			lex();
+			Word w;
+			w.address = bytecode.size();
+			w.type = OP_VAR;
+
+			// 0xDEAD is an uninitialized variable
+			bytecode.push_back(0xDEAD);
+
+			create_word(lval, w);
+		}
+			break;
+
+		// const ( -- )
+		case OP_CONST:
+		{
+			auto val = stack.top(); stack.pop();
+
+			lex();
+			Word w;
+			w.type = OP_CONST;
+			w.address = val;
+
+			create_word(lval, w);
+		}
+			break;
 
 		default:
 			assert(false);
