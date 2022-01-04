@@ -22,7 +22,7 @@ existing Forth code, I decided to make a language heavily influenced by Forth.
 
 ## Basics of the Firth language
 
-In **Firth** as in Forth there are really only two key concepts. There are `Numbers` 
+In **Firth**, as in Forth, there are really only two key concepts. There are `Numbers` 
 and there are `Words`.
 
 ### Numbers
@@ -53,7 +53,7 @@ func add + ;
  ok
 ```
 
-This creates a new `Word` named `add` that, just like `+` adds the top two stack entries and
+This creates a new `Word` named `add` that, just like `+`, adds the top two stack entries and
 puts the result on the stack.
 
 ### Built-in Words
