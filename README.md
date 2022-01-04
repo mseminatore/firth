@@ -20,7 +20,7 @@ to make the syntax a little bit easier for beginners, including myself.
 Rather than risk creating a version of Forth that might not be compatible with 
 existing Forth code, I decided to make a language heavily influenced by Forth.
 
-## Basics of the language
+## Basics of the Firth language
 
 In **Firth** as in Forth there are really only two key concepts. There are `Numbers` 
 and there are `Words`.
