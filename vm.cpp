@@ -10,10 +10,16 @@
 //
 VM::VM()
 {
+	cp = 0;
+	ip = 0;
+
+	dataseg.push_back(0);
+
 	interpreter = true;
+	compiling = true;
 
 	// special opcode that tells us when execution is finished
-	bytecode.push_back(OP_DONE);
+	emit(OP_DONE);
 
 	// math words
 	define_word("+", OP_PLUS);
@@ -34,9 +40,11 @@ VM::VM()
 	define_word("0>", OP_ZGT);
 	define_word("0<>", OP_ZNE);
 
+	// control words
+	define_word("GOTO", OP_GOTO, true);
+	define_word("BZ", OP_BZ, true);
 	define_word("IF", OP_IF, true);
 	define_word("THEN", OP_THEN, true);
-	define_word("ELSE", OP_ELSE, true);
 	define_word("ELSE", OP_ELSE, true);
 
 	// logic words
@@ -62,8 +70,9 @@ VM::VM()
 
 	// variable and constant words
 	define_word("var", OP_VAR);
+	define_word("__var_impl", OP_VAR_IMPL);
 	define_word("const", OP_CONST);
-	define_word("@", OP_VLOAD);
+	define_word("@", OP_FETCH);
 	define_word("!", OP_STORE);
 
 	// compiler words
@@ -73,12 +82,24 @@ VM::VM()
 	define_word("def", OP_FUNC);
 	define_word("load", OP_LOAD);
 
+	// pre-defined variables
+	define_word_var("CP", 0, 0);
+
 	// core words
 	FILE *f = fopen("core.fth", "rt");
 	setInputFile(f);
 	setOutputFile(stdout);
 	while (parse());
 	fclose(f);
+}
+
+//
+void VM::emit(int op)
+{
+	bytecode.push_back(op);
+
+	// update CP
+	dataseg[cp] = bytecode.size();
 }
 
 //
@@ -164,12 +185,15 @@ lex01:
 	chr = skipLeadingWhiteSpace();
 
 	// check for comments
+
+	// EOL comments
 	if (chr == '\\')
 	{
 		skipToEOL();
 		goto lex01;
 	}
 
+	// inline comments
 	if (chr == '(')
 	{
 		skipToChar(')');
@@ -194,38 +218,6 @@ lex01:
 //
 //
 //
-int VM::parse()
-{
-	int token;
-	int err;
-
-	do
-	{
-		if (fin == stdin)
-			fputs("\nfirth> ", fout);
-
-		while((token = lex()) != '\n' && token != EOF)
-		{
-			err = parse_token(lval);
-			if (!err)
-			{
-//				assert(false);
-			}
-		}
-	} while (token != EOF);
-
-	if (fin != stdin)
-	{
-		fclose(fin);
-		setInputFile(stdin);
-	}
-
-	return TRUE;
-}
-
-//
-//
-//
 int VM::pop(Number *pNum)
 {
 	// check for stack underflow
@@ -243,6 +235,12 @@ int VM::pop(Number *pNum)
 //
 int VM::interpret(const std::string &token)
 {
+	if (token == "]")
+	{
+		interpreter = false;
+		return TRUE;
+	}
+
 	// if the word is in the dictionary do it
 	if (!exec_word(token))
 	{
@@ -265,10 +263,16 @@ int VM::interpret(const std::string &token)
 //
 int VM::compile(const std::string &token)
 {
+	if (token == "[")
+	{
+		interpreter = true;
+		return TRUE;
+	}
+
 	// look for end of current word
 	if (!strcmp(token.c_str(), ";"))
 	{
-		bytecode.push_back(OP_RET);
+		emit(OP_RET);
 		interpreter = true;
 		return TRUE;
 	}
@@ -277,8 +281,8 @@ int VM::compile(const std::string &token)
 	Word w;
 	if (lookup_word(token, w))
 	{
-		bytecode.push_back(OP_CALL);
-		bytecode.push_back(w.address);
+		emit(OP_CALL);
+		emit(w.address);
 	}
 	else
 	{
@@ -286,8 +290,8 @@ int VM::compile(const std::string &token)
 		if (isdigit(token[0]) || token[0] == '-')
 		{
 			Number num = atoi(token.c_str());
-			bytecode.push_back(OP_LIT);
-			bytecode.push_back(num);
+			emit(OP_LIT);
+			emit(num);
 		}
 		else
 		{
@@ -308,6 +312,42 @@ int VM::parse_token(const std::string &token)
 		return interpret(token);
 
 	return compile(token);
+}
+
+//
+//
+//
+int VM::parse()
+{
+	int token;
+	int err = TRUE;
+
+	do
+	{
+		if (fin == stdin)
+			fputs("\nfirth> ", fout);
+
+		while ((token = lex()) != '\n' && token != EOF)
+		{
+			err = parse_token(lval);
+			if (!err)
+			{
+				//				assert(false);
+			}
+		}
+
+		if (token == '\n' && err == TRUE && fin == stdin)
+			fputs(" ok", fout);
+
+	} while (token != EOF);
+
+	if (fin != stdin)
+	{
+		fclose(fin);
+		setInputFile(stdin);
+	}
+
+	return TRUE;
 }
 
 //
@@ -335,8 +375,59 @@ int VM::define_word(const std::string &word, int op, bool compileOnly)
 	if (FALSE == create_word(word, w))
 		return FALSE;
 
-	bytecode.push_back(op);
-	bytecode.push_back(OP_RET);
+	emit(op);
+	emit(OP_RET);
+
+	return TRUE;
+}
+
+//
+int VM::define_word_var(const std::string &word, int val, int daddr)
+{
+	Word var_word;
+
+	if (!lookup_word("__var_impl", var_word))
+		return FALSE;
+
+	Word w;
+
+	// all vars call the same run-time code
+	w.address = var_word.address;
+	w.data = daddr;
+	w.type = OP_VAR;
+
+	if (FALSE == create_word(word, w))
+		return FALSE;
+
+	return TRUE;
+}
+
+//
+int VM::define_word_var(const std::string &word, int val)
+{
+	if (FALSE == define_word_var(word, val, dataseg.size()))
+		return FALSE;
+
+	dataseg.push_back(val);
+	return TRUE;
+}
+
+//
+int VM::define_word_const(const std::string &word, int val)
+{
+	Word w;
+
+	// all vars call the same run-time code
+	w.address = bytecode.size();
+	w.data = val;
+	w.type = OP_CONST;
+
+	emit(OP_LIT);
+	emit(val);
+	emit(OP_RET);
+
+	if (FALSE == create_word(word, w))
+		return FALSE;
 
 	return TRUE;
 }
@@ -356,7 +447,7 @@ int VM::lookup_word(const std::string &word, Word &w)
 }
 
 //
-// If word is in dictionary execute its code ELSE error
+// If word is in the dictionary execute its code, ELSE error
 //
 int VM::exec_word(const std::string &word)
 {
@@ -372,22 +463,6 @@ int VM::exec_word(const std::string &word)
 	{
 		fputs(" action is not a function\n", fout);
 		return FALSE;
-	}
-
-	// handle variables
-	if (w.type == OP_VAR)
-	{
-		// get addr of the variable and put it on the stack
-		auto num = w.address;
-		stack.push(num);
-		return TRUE;
-	}
-
-	// handle constants
-	if (w.type == OP_CONST)
-	{
-		stack.push(w.address);
-		return TRUE;
 	}
 
 	return_stack.push(ip);
@@ -410,7 +485,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 + n2);
+			push(n1 + n2);
 		}
 			break;
 
@@ -419,7 +494,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 - n2);
+			push(n1 - n2);
 		}
 			break;
 
@@ -428,7 +503,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 * n2);
+			push(n1 * n2);
 		}
 			break;
 
@@ -437,7 +512,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 / n2);
+			push(n1 / n2);
 		}
 			break;
 
@@ -446,7 +521,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 % n2);
+			push(n1 % n2);
 		}
 			break;
 
@@ -455,8 +530,8 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 % n2); // push rem
-			stack.push(n1 / n2); // push quotient
+			push(n1 % n2); // push rem
+			push(n1 / n2); // push quotient
 		}
 			break;
 
@@ -467,7 +542,7 @@ int VM::exec_word(const std::string &word)
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
 			long long n4 = long long(n1) * n2;
-			stack.push(int(n4/n3));
+			push(int(n4/n3));
 		}
 			break;
 
@@ -476,7 +551,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(int(pow(n1, n2) + 0.5f));
+			push(int(pow(n1, n2) + 0.5f));
 		}
 			break;
 
@@ -493,7 +568,7 @@ int VM::exec_word(const std::string &word)
 		case OP_DUP:
 		{
 			auto a = stack.top();
-			stack.push(a);
+			push(a);
 		}
 			break;
 
@@ -509,8 +584,8 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n2);
-			stack.push(n1);
+			push(n2);
+			push(n1);
 		}
 			break;
 
@@ -519,9 +594,9 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1);
-			stack.push(n2);
-			stack.push(n1);
+			push(n1);
+			push(n2);
+			push(n1);
 		}
 			break;
 
@@ -531,9 +606,9 @@ int VM::exec_word(const std::string &word)
 			auto n3 = stack.top(); stack.pop();
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n2);
-			stack.push(n3);
-			stack.push(n1);
+			push(n2);
+			push(n3);
+			push(n1);
 		}
 			break;
 
@@ -568,7 +643,7 @@ int VM::exec_word(const std::string &word)
 		case OP_LIT:
 		{
 			auto num = bytecode[ip++];
-			stack.push(num);
+			push(num);
 		}
 			break;
 
@@ -585,7 +660,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 < n2 ? TRUE : FALSE);
+			push(n1 < n2 ? TRUE : FALSE);
 		}
 			break;
 
@@ -594,7 +669,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 > n2 ? TRUE : FALSE);
+			push(n1 > n2 ? TRUE : FALSE);
 		}
 			break;
 
@@ -602,7 +677,7 @@ int VM::exec_word(const std::string &word)
 		case OP_ZEQ:
 		{
 			auto n = stack.top(); stack.pop();
-			stack.push(n == 0 ? TRUE : FALSE);
+			push(n == 0 ? TRUE : FALSE);
 		}
 			break;
 
@@ -610,7 +685,7 @@ int VM::exec_word(const std::string &word)
 		case OP_ZLT:
 		{
 			auto n = stack.top(); stack.pop();
-			stack.push(n < 0 ? TRUE : FALSE);
+			push(n < 0 ? TRUE : FALSE);
 		}
 			break;
 
@@ -618,7 +693,7 @@ int VM::exec_word(const std::string &word)
 		case OP_ZGT:
 		{
 			auto n = stack.top(); stack.pop();
-			stack.push(n > 0 ? TRUE : FALSE);
+			push(n > 0 ? TRUE : FALSE);
 		}
 			break;
 
@@ -626,7 +701,7 @@ int VM::exec_word(const std::string &word)
 		case OP_ZNE:
 		{
 			auto n = stack.top(); stack.pop();
-			stack.push(n != 0 ? TRUE : FALSE);
+			push(n != 0 ? TRUE : FALSE);
 		}
 			break;
 
@@ -635,7 +710,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 & n2 ? TRUE : FALSE);
+			push(n1 & n2);
 		}
 			break;
 
@@ -644,7 +719,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 | n2 ? TRUE : FALSE);
+			push(n1 | n2);
 		}
 			break;
 
@@ -652,7 +727,7 @@ int VM::exec_word(const std::string &word)
 		case OP_NOT:
 		{
 			auto n1 = stack.top(); stack.pop();
-			stack.push(!n1);
+			push(!n1);
 		}
 			break;
 
@@ -661,7 +736,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 ^ n2);
+			push(n1 ^ n2);
 		}
 		break;
 
@@ -686,7 +761,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto n2 = stack.top(); stack.pop();
 			auto n1 = stack.top(); stack.pop();
-			stack.push(n1 == n2 ? TRUE : FALSE);
+			push(n1 == n2 ? TRUE : FALSE);
 		}
 		break;
 
@@ -716,13 +791,41 @@ int VM::exec_word(const std::string &word)
 		case OP_FROM_R:
 		{
 			auto n = return_stack.top(); return_stack.pop();
-			stack.push(n);
+			push(n);
 		}
 		break;
+
+		// GOTO (addr -- )
+		case OP_GOTO:
+		{
+			auto addr = bytecode[ip];
+			ip = addr;
+		}
+			break;
+
+		// BZ (n -- )
+		case OP_BZ:
+		{
+			auto n = stack.top(); stack.pop();
+			if (0 == n)
+			{
+				auto addr = bytecode[ip];
+				ip = addr;
+			}
+			else
+				ip++;	// skip addr
+		}
+			break;
 
 		// IF (f -- )
 		case OP_IF:
 		{
+			// compile-time behavior
+			emit(OP_BZ);
+			push(bytecode.size());
+			emit(UNDEFINED);
+
+			// run-time behavior
 			auto n = stack.top(); stack.pop();
 			if (!n)
 			{
@@ -733,12 +836,21 @@ int VM::exec_word(const std::string &word)
 		}
 		break;
 
+		// THEN ( -- )
+		case OP_THEN:
+		{
+			// compile-time behavior
+			auto dest = stack.top(); stack.pop();
+			bytecode[dest] = bytecode.size();
+		}
+			break;
+
 		// @ (addr -- val)
-		case OP_VLOAD:
+		case OP_FETCH:
 		{
 			auto addr = stack.top(); stack.pop();
-			auto val = bytecode[addr];
-			stack.push(val);
+			auto val = dataseg[addr];
+			push(val);
 		}
 			break;
 
@@ -747,7 +859,7 @@ int VM::exec_word(const std::string &word)
 		{
 			auto addr = stack.top(); stack.pop();
 			auto val = stack.top(); stack.pop();
-			bytecode[addr] = val;
+			dataseg[addr] = val;
 		}
 			break;
 
@@ -755,14 +867,15 @@ int VM::exec_word(const std::string &word)
 		case OP_VAR:
 		{
 			lex();
-			Word w;
-			w.address = bytecode.size();
-			w.type = OP_VAR;
+			define_word_var(lval, UNDEFINED);
+		}
+			break;
 
-			// 0xDEAD is an uninitialized variable
-			bytecode.push_back(0xDEAD);
-
-			create_word(lval, w);
+		// ( -- addr)
+		case OP_VAR_IMPL:
+		{
+			// get addr of the variable and push it onto the stack
+			push(w.data);
 		}
 			break;
 
@@ -772,11 +885,7 @@ int VM::exec_word(const std::string &word)
 			auto val = stack.top(); stack.pop();
 
 			lex();
-			Word w;
-			w.type = OP_CONST;
-			w.address = val;
-
-			create_word(lval, w);
+			define_word_const(lval, val);
 		}
 			break;
 

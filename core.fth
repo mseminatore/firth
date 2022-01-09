@@ -19,3 +19,4 @@ func print . ;
 ( n -- n )
 func sqr dup * ;
 
+func HERE CP @ ;

@@ -10,6 +10,7 @@ typedef int Instruction;
 
 const int TRUE = -1;
 const int FALSE = 0;
+const int UNDEFINED = 0xCCCCCCCC;
 
 extern bool g_bVerbose;
 
@@ -29,8 +30,9 @@ enum
 	OP_DOTS,
 	OP_DOTQUOTE,
 	OP_VAR,
+	OP_VAR_IMPL,
 	OP_CONST,
-	OP_VLOAD,
+	OP_FETCH,
 	OP_STORE,
 	OP_TO_R,
 	OP_FROM_R,
@@ -43,6 +45,7 @@ enum
 	OP_LIT,
 	OP_DONE,
 	OP_GOTO,
+	OP_BZ,
 	OP_HERE,
 
 	// conditionals
@@ -95,10 +98,11 @@ protected:
 
 public:
 	int address;
+	int data;
 	bool compileOnly;
 	int type;
 
-	Word() { address = 0; compileOnly = false; type = -1; }
+	Word() { address = data = 0; compileOnly = false; type = OP_FUNC; }
 };
 
 //
@@ -116,10 +120,19 @@ protected:
 	
 	// is the VM compiling or interpreting?
 	bool interpreter;
+	bool compiling;
 
+	// compiled dictionary code
 	std::vector<int> bytecode;
+
+	// data segment
+	std::vector<int> dataseg;
+
+	// stack of return addrs
 	std::stack<int> return_stack;
-	int ip;
+
+	int ip, cp;
+
 	FILE *fin, *fout;
 	char lval[256];
 
@@ -136,8 +149,15 @@ public:
 	int exec_word(const std::string &word);
 	int create_word(const std::string &word, const Word &w);
 	int define_word(const std::string &word, int op, bool compileOnly = false);
+
+	int define_word_var(const std::string &word, int val);
+	int define_word_var(const std::string &word, int val, int daddr);
+	int define_word_const(const std::string &word, int val);
+
 	int interpret(const std::string &token);
 	int compile(const std::string &token);
+
+	void emit(int op);
 
 	void push(const Number &val)
 	{
