@@ -25,6 +25,9 @@ func cells 1 * ;
 (n1 n2 -- n1 n2 n1 n2)
 func 2dup over over ;
 
+0 const FALSE
+-1 const TRUE
+
 \ func IF BZ [ HERE ] ;
 
 \ func THEN [ HERE swap ! ] ;
