@@ -88,6 +88,9 @@ enum
 	OP_DIVMOD,
 	OP_MULDIV,
 	OP_POW,
+	
+	OP_LAST
+
 	//OP_ABS,
 	//OP_MIN,
 	//OP_MAX
@@ -101,12 +104,14 @@ struct Word
 protected:
 
 public:
-	int address;
-	int data;
-	bool compileOnly;
+	int address;		// address of bytecode for this word
+	int data;			// for VAR addr of value, for const the value
+	bool compileOnly;	// can be executed only in compile mode
+	bool immediate;		// execute immediately
 	int type;
+	int opcode;
 
-	Word() { address = data = 0; compileOnly = false; type = OP_FUNC; }
+	Word() { address = data = opcode = 0; compileOnly = immediate = false; type = OP_FUNC; }
 };
 
 //
@@ -144,6 +149,8 @@ public:
 	VM();
 	virtual ~VM() {}
 
+	void load(const std::string &file);
+
 	void setInputFile(FILE *f) { if (f) fin = f; else fin = stdin; }
 	void setOutputFile(FILE *f) { if (f) fout = f; else fout = stdout; }
 
@@ -160,6 +167,7 @@ public:
 
 	int interpret(const std::string &token);
 	int compile(const std::string &token);
+	int compile_time(const Word &w);
 
 	void emit(int op);
 

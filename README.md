@@ -63,6 +63,7 @@ They are:
 
 Word | Description
 ---- | -----------
+abs | take absolute value of TOS
 allot | reserve n extra cells for array
 and | bitwise AND
 BEL | emits a BEL char
@@ -75,7 +76,10 @@ dup | duplicate top stack entry
 emit | print top stack entry as ASCII
 func | begin definition of new word
 LF | print a line feed
+max | leave greater of top two stack entries
+min | leave lesser of top two stack entries
 mod | compute remainder
+negate | change sign of TOS
 nip | discard the second entry on stack
 not | bitwise NOT
 or | bitwise OR
@@ -84,9 +88,11 @@ pow | raise x to power of y
 rot | rotate the top 3 stack entries
 swap | swap top two stack entries
 TAB | prints a tab char
+tuck | copy the top stack item below the second stack item
 var | define a new variable
 xor | bitwise XOR
 2dup | duplicate top two stack entries
+?dup | duplicate TOS if it is non-zero
 ; | end definition of new word
 \+ | addition
 \- | subtraction

@@ -88,7 +88,13 @@ VM::VM()
 	define_word_var("CP", 0, 0);
 
 	// core words
-	FILE *f = fopen("core.fth", "rt");
+	load("core.fth");
+}
+
+//
+void VM::load(const std::string &file)
+{
+	FILE *f = fopen(file.c_str(), "rt");
 	setInputFile(f);
 	setOutputFile(stdout);
 	while (parse());
@@ -325,16 +331,18 @@ int VM::create_word(const std::string &word, const Word &w)
 //
 // Create a new builtin word
 //
-int VM::define_word(const std::string &word, int op, bool compileOnly)
+int VM::define_word(const std::string &word, int opcode, bool compileOnly)
 {
 	Word w;
 	w.address = bytecode.size();
 	w.compileOnly = compileOnly;
+	w.opcode = opcode;
 
 	if (FALSE == create_word(word, w))
 		return FALSE;
 
-	emit(op);
+	// run-time behavior
+	emit(opcode);
 	emit(OP_RET);
 
 	return TRUE;
@@ -426,8 +434,7 @@ int VM::compile(const std::string &token)
 	Word w;
 	if (lookup_word(token, w))
 	{
-		emit(OP_CALL);
-		emit(w.address);
+		return compile_time(w);
 	}
 	else
 	{
@@ -449,9 +456,50 @@ int VM::compile(const std::string &token)
 }
 
 //
-//int VM::compile_time()
-//{
-//}
+int VM::compile_time(const Word &w)
+{
+	switch (w.opcode)
+	{
+	case OP_IF:
+	{
+		// compile-time behavior
+		emit(OP_BZ);			// emit conditional branch on zero
+		push(bytecode.size());	// push current code pointer onto the stack
+		emit(UNDEFINED);		// reserve space for branch address
+	}
+		break;
+
+	case OP_THEN:
+	{
+		// compile-time behavior
+		auto dest = stack.top(); stack.pop();	// get TOS addr for branch target
+		bytecode[dest] = bytecode.size();		// fixup branch target
+	}
+		break;
+
+	case OP_ELSE:
+	{
+		// compile-time behavior
+
+		// patch IF branch to here
+		auto dest = stack.top(); stack.pop();	// get TOS addr for branch target
+		bytecode[dest] = bytecode.size();		// fixup branch target
+
+		// setup branch to THEN clause
+		emit(OP_GOTO);							// unconditional branch
+		push(bytecode.size());					// push current code pointer onto the stack
+		emit(UNDEFINED);						// default to next instruction
+	}
+		break;
+
+	case OP_DONE:
+	default:
+		emit(OP_CALL);
+		emit(w.address);
+	}
+
+	return TRUE;
+}
 
 //
 // If word is in the dictionary execute its code, ELSE error
@@ -832,34 +880,6 @@ int VM::exec_word(const std::string &word)
 		}
 			break;
 
-		// IF (f -- )
-		case OP_IF:
-		{
-			// compile-time behavior
-			emit(OP_BZ);
-			push(bytecode.size());
-			emit(UNDEFINED);
-
-			// run-time behavior
-			auto n = stack.top(); stack.pop();
-			if (!n)
-			{
-				// get the address
-				auto addr = bytecode[ip];
-				ip = addr;
-			}
-		}
-		break;
-
-		// THEN ( -- )
-		case OP_THEN:
-		{
-			// compile-time behavior
-			auto dest = stack.top(); stack.pop();
-			bytecode[dest] = bytecode.size();
-		}
-			break;
-
 		// @ (addr -- val)
 		case OP_FETCH:
 		{
@@ -911,6 +931,12 @@ int VM::exec_word(const std::string &word)
 			
 			while (count--)
 				dataseg.push_back(UNDEFINED);
+		}
+			break;
+
+		case OP_NOP:
+		{
+			// do nothing!!
 		}
 			break;
 
