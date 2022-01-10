@@ -29,6 +29,8 @@ enum
 	OP_EMIT,
 	OP_DOTS,
 	OP_DOTQUOTE,
+
+	// variables
 	OP_VAR,
 	OP_VAR_IMPL,
 	OP_CONST,
