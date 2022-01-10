@@ -20,10 +20,10 @@ func sqr dup * ;
 func HERE CP @ ;
 
 ( n -- n )
-func CELLS 1 * ;
+func cells 1 * ;
 
 (n1 n2 -- n1 n2 n1 n2)
-func 2DUP over over ;
+func 2dup over over ;
 
 \ func IF BZ [ HERE ] ;
 

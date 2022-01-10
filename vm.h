@@ -39,6 +39,7 @@ enum
 	OP_TO_R,
 	OP_FROM_R,
 	OP_LOAD,
+	OP_ALLOT,
 
 	// internal compiler opcodes
 	OP_FUNC,

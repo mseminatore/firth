@@ -74,6 +74,7 @@ VM::VM()
 	define_word("const", OP_CONST);
 	define_word("@", OP_FETCH);
 	define_word("!", OP_STORE);
+	define_word("allot", OP_ALLOT);
 
 	// compiler words
 	define_word(":", OP_FUNC);
@@ -886,6 +887,16 @@ int VM::exec_word(const std::string &word)
 
 			lex();
 			define_word_const(lval, val);
+		}
+			break;
+
+		// allot ( n -- )
+		case OP_ALLOT:
+		{
+			auto count = stack.top(); stack.pop();
+			
+			while (count--)
+				dataseg.push_back(UNDEFINED);
 		}
 			break;
 

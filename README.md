@@ -63,21 +63,37 @@ They are:
 
 Word | Description
 ---- | -----------
-: | begin definition of new word
-func | (preferred) alias for ':'
-fn | alias for ':'
-def | alias for ':'
-; | end definition of new word
-var | define a new variable
+allot | reserve n extra cells for array
+and | bitwise AND
+BEL | emits a BEL char
+BL | prints a space
+cells | calculate cell count for array size
 const | define a new constant
+CR | print a carriage return
+drop | discard top stack entry
+dup | duplicate top stack entry
+emit | print top stack entry as ASCII
+func | begin definition of new word
+LF | print a line feed
+mod | compute remainder
+nip | discard the second entry on stack
+not | bitwise NOT
+or | bitwise OR
+over | dupe the second stack entry to the top
+pow | raise x to power of y
+rot | rotate the top 3 stack entries
+swap | swap top two stack entries
+TAB | prints a tab char
+var | define a new variable
+xor | bitwise XOR
+2dup | duplicate top two stack entries
+; | end definition of new word
 \+ | addition
 \- | subtraction
 \* | multiplcation
 / | division
 \*/ | multiply then divide
-mod | compute remainder
 /mod | remainder and quotient
-pow | raise x to power of y
 < | less than comparison
 \> | greater than comparison
 = | equivalence comparison
@@ -85,23 +101,7 @@ pow | raise x to power of y
 0< | true if TOS is less than zero
 0> | true if TOS is greater than zero 
 0<> | true if TOS is not equal zero
-and | bitwise AND
-or | bitwise OR
-not | bitwise NOT
-xor | bitwise XOR
-dup | duplicate top stack entry
-swap | swap top two stack entries
-drop | discard top stack entry
-over | dupe the second stack entry to the top
-rot | rotate the top 3 stack entries
-nip | discard the second entry on stack
 \. | print top stack entry
-emit | print top stack entry as ASCII
-CR | print a carriage return
-LF | print a line feed
-BEL | emits a BEL char
-BL | prints a space
-TAB | prints a tab char
 \.S | print the stack contents
 
 * **Note:** These are not yet implemented
