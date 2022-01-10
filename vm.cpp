@@ -61,6 +61,7 @@ VM::VM()
 	define_word("over", OP_OVER);
 	define_word(">R", OP_TO_R);
 	define_word("R>", OP_FROM_R);
+	define_word("R@", OP_RFETCH);
 
 	// IO words
 	define_word(".", OP_PRINT);
@@ -262,49 +263,6 @@ int VM::interpret(const std::string &token)
 }
 
 //
-int VM::compile(const std::string &token)
-{
-	if (token == "[")
-	{
-		interpreter = true;
-		return TRUE;
-	}
-
-	// look for end of current word
-	if (!strcmp(token.c_str(), ";"))
-	{
-		emit(OP_RET);
-		interpreter = true;
-		return TRUE;
-	}
-
-	// compile the call to the existing WORD
-	Word w;
-	if (lookup_word(token, w))
-	{
-		emit(OP_CALL);
-		emit(w.address);
-	}
-	else
-	{
-		// or compile the NUMBER
-		if (isdigit(token[0]) || token[0] == '-')
-		{
-			Number num = atoi(token.c_str());
-			emit(OP_LIT);
-			emit(num);
-		}
-		else
-		{
-			fprintf(fout, "%s ?\n", token.c_str());
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
-//
 //
 //
 int VM::parse_token(const std::string &token)
@@ -446,6 +404,54 @@ int VM::lookup_word(const std::string &word, Word &w)
 	w = result->second;
 	return TRUE;
 }
+
+//
+int VM::compile(const std::string &token)
+{
+	if (token == "[")
+	{
+		interpreter = true;
+		return TRUE;
+	}
+
+	// look for end of current word
+	if (!strcmp(token.c_str(), ";"))
+	{
+		emit(OP_RET);
+		interpreter = true;
+		return TRUE;
+	}
+
+	// compile the call to the existing WORD
+	Word w;
+	if (lookup_word(token, w))
+	{
+		emit(OP_CALL);
+		emit(w.address);
+	}
+	else
+	{
+		// or compile the NUMBER
+		if (isdigit(token[0]) || token[0] == '-')
+		{
+			Number num = atoi(token.c_str());
+			emit(OP_LIT);
+			emit(num);
+		}
+		else
+		{
+			fprintf(fout, "%s ?\n", token.c_str());
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+//
+//int VM::compile_time()
+//{
+//}
 
 //
 // If word is in the dictionary execute its code, ELSE error
@@ -794,7 +800,15 @@ int VM::exec_word(const std::string &word)
 			auto n = return_stack.top(); return_stack.pop();
 			push(n);
 		}
-		break;
+			break;
+
+		// R@ ( -- n )
+		case OP_RFETCH:
+		{
+			auto n = return_stack.top();
+			push(n);
+		}
+			break;
 
 		// GOTO (addr -- )
 		case OP_GOTO:

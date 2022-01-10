@@ -38,6 +38,7 @@ enum
 	OP_STORE,
 	OP_TO_R,
 	OP_FROM_R,
+	OP_RFETCH,
 	OP_LOAD,
 	OP_ALLOT,
 

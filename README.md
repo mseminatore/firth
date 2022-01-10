@@ -45,7 +45,7 @@ stack.
 
 ### Words
 
-`Words` are just a different name for functions. It is very easy to create new 
+`Words` are just another name for functions. It is very easy to create new 
 `Words` in **Firth**. To do so looks like this:
 
 ```Forth

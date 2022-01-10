@@ -25,6 +25,9 @@ func cells 1 * ;
 (n1 n2 -- n1 n2 n1 n2)
 func 2dup over over ;
 
+( -- )
+func rdrop R> drop ;
+
 0 const FALSE
 -1 const TRUE
 
