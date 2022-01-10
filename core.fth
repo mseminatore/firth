@@ -20,3 +20,9 @@ func print . ;
 func sqr dup * ;
 
 func HERE CP @ ;
+
+func CELLS 1 * ;
+
+\ func IF BZ [ HERE ] ;
+
+\ func THEN [ HERE swap ! ] ;
