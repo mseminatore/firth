@@ -107,6 +107,7 @@ xor | bitwise XOR
 < | less than comparison
 \> | greater than comparison
 = | equivalence comparison
+<> | not equivalence comparison
 0= | true if TOS is zero
 0< | true if TOS is less than zero
 0> | true if TOS is greater than zero 

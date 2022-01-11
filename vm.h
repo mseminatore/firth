@@ -65,6 +65,7 @@ enum
 	OP_LT,
 	OP_GT,
 	OP_EQ,
+	OP_NE,
 	OP_ZEQ,
 	OP_ZLT,
 	OP_ZGT,

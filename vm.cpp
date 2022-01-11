@@ -35,6 +35,7 @@ VM::VM()
 	define_word("<", OP_LT);
 	define_word(">", OP_GT);
 	define_word("=", OP_EQ);
+	define_word("<>", OP_NE);
 	define_word("0=", OP_ZEQ);
 	define_word("0<", OP_ZLT);
 	define_word("0>", OP_ZGT);
@@ -522,7 +523,6 @@ int VM::compile_time(const Word &w)
 	case OP_LOOP:
 	{
 		// compile-time behavior
-		// TODO - 1 + over over 
 		emit(OP_LIT);
 		emit(1);
 		emit(OP_PLUS);
@@ -862,6 +862,15 @@ int VM::exec_word(const std::string &word)
 			push(n1 == n2 ? TRUE : FALSE);
 		}
 		break;
+
+		// not-equal to (n1 n2 -- bool)
+		case OP_NE:
+		{
+			auto n2 = stack.top(); stack.pop();
+			auto n1 = stack.top(); stack.pop();
+			push(n1 != n2 ? TRUE : FALSE);
+		}
+			break;
 
 		//
 		case OP_LOAD:
