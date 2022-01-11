@@ -46,6 +46,8 @@ VM::VM()
 	define_word("IF", OP_IF, true);
 	define_word("THEN", OP_THEN, true);
 	define_word("ELSE", OP_ELSE, true);
+	define_word("BEGIN", OP_BEGIN, true);
+	define_word("UNTIL", OP_UNTIL, true);
 
 	// logic words
 	define_word("and", OP_AND);
@@ -489,6 +491,22 @@ int VM::compile_time(const Word &w)
 		emit(OP_GOTO);							// unconditional branch
 		push(bytecode.size());					// push current code pointer onto the stack
 		emit(UNDEFINED);						// default to next instruction
+	}
+		break;
+
+	case OP_BEGIN:
+	{
+		// compile-time behavior
+		push(bytecode.size());	// push current code pointer onto the stack
+	}
+		break;
+
+	case OP_UNTIL:
+	{
+		// compile-time behavior
+		emit(OP_BZ);
+		auto dest = stack.top(); stack.pop();
+		emit(dest);
 	}
 		break;
 

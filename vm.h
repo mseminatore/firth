@@ -52,10 +52,12 @@ enum
 	OP_BZ,
 	OP_HERE,
 
-	// conditionals
+	// conditionals and loops
 	OP_IF,
 	OP_THEN,
 	OP_ELSE,
+	OP_BEGIN,
+	OP_UNTIL,
 
 	// relational ops
 	OP_LT,

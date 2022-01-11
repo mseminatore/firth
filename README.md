@@ -66,6 +66,7 @@ Word | Description
 abs | take absolute value of TOS
 allot | reserve n extra cells for array
 and | bitwise AND
+BEGIN | start an indefinit loop
 BEL | emits a BEL char
 BL | prints a space
 cells | calculate cell count for array size
@@ -89,6 +90,7 @@ rot | rotate the top 3 stack entries
 swap | swap top two stack entries
 TAB | prints a tab char
 tuck | copy the top stack item below the second stack item
+UNTIL | end of indefinite loop
 var | define a new variable
 xor | bitwise XOR
 2dup | duplicate top two stack entries
