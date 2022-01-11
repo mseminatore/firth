@@ -58,6 +58,8 @@ enum
 	OP_ELSE,
 	OP_BEGIN,
 	OP_UNTIL,
+	OP_DO,
+	OP_LOOP,
 
 	// relational ops
 	OP_LT,

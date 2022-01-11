@@ -66,17 +66,19 @@ Word | Description
 abs | take absolute value of TOS
 allot | reserve n extra cells for array
 and | bitwise AND
-BEGIN | start an indefinit loop
+BEGIN | start an indefinite loop
 BEL | emits a BEL char
 BL | prints a space
 cells | calculate cell count for array size
 const | define a new constant
 CR | print a carriage return
+DO | start a definite loop
 drop | discard top stack entry
 dup | duplicate top stack entry
 emit | print top stack entry as ASCII
 func | begin definition of new word
 LF | print a line feed
+LOOP | end of definite loop
 max | leave greater of top two stack entries
 min | leave lesser of top two stack entries
 mod | compute remainder

@@ -48,6 +48,8 @@ VM::VM()
 	define_word("ELSE", OP_ELSE, true);
 	define_word("BEGIN", OP_BEGIN, true);
 	define_word("UNTIL", OP_UNTIL, true);
+	define_word("DO", OP_DO, true);
+	define_word("LOOP", OP_LOOP, true);
 
 	// logic words
 	define_word("and", OP_AND);
@@ -506,6 +508,29 @@ int VM::compile_time(const Word &w)
 		// compile-time behavior
 		emit(OP_BZ);
 		auto dest = stack.top(); stack.pop();
+		emit(dest);
+	}
+		break;
+
+	case OP_DO:
+	{
+		// compile-time behavior
+		push(bytecode.size());	// push current code pointer onto the stack
+	}
+		break;
+	
+	case OP_LOOP:
+	{
+		// compile-time behavior
+		// TODO - 1 + over over 
+		emit(OP_LIT);
+		emit(1);
+		emit(OP_PLUS);
+		emit(OP_OVER);
+		emit(OP_OVER);
+		emit(OP_EQ);
+		emit(OP_BZ);
+		auto dest = stack.top(); stack.pop();	// get TOS addr for branch target
 		emit(dest);
 	}
 		break;
