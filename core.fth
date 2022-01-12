@@ -46,6 +46,12 @@ func negate -1 * ;
 (n -- |n|)
 func abs dup 0< IF -1 * THEN ;
 
+(n -- n++)
+func 1+ 1 + ;
+
+(n -- n--)
+func 1- 1 - ;
+
 0 const FALSE
 -1 const TRUE
 

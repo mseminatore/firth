@@ -87,7 +87,9 @@ VM::VM()
 	define_word("func", OP_FUNC);
 	define_word("fn", OP_FUNC);
 	define_word("def", OP_FUNC);
-	define_word("load", OP_LOAD);
+	define_word("include", OP_LOAD);
+
+	define_word("depth", OP_DEPTH);
 
 	// pre-defined variables
 	define_word_var("CP", 0, 0);
@@ -983,6 +985,12 @@ int VM::exec_word(const std::string &word)
 			
 			while (count--)
 				dataseg.push_back(UNDEFINED);
+		}
+			break;
+
+		case OP_DEPTH:
+		{
+			push(stack.size());
 		}
 			break;
 
