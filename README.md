@@ -1,9 +1,9 @@
 # Welcome to Firth!
-**Firth** is an experimental and simple programming language inspired by Forth.
+**Firth** is an experimental programming language heavily inspired by Forth.
 
-> If you are new to FORTH, you can learn a lot of the basics at 
+> If you are new to Forth, you can learn a lot of the basics at 
 > [Easy Forth](https://skilldrick.github.io/easyforth/). I also highly recommend
-> [Starting FORTH](https://www.forth.com/starting-forth) by Leo Brodie of
+> [Starting Forth](https://www.forth.com/starting-forth) by Leo Brodie of
 > FORTH, Inc.
 
 I like learning, and creating, programming languages. I created **Firth** 
