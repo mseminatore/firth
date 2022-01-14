@@ -59,6 +59,7 @@ VM::VM()
 	define_word("WHILE", OP_WHILE, true);
 	define_word("REPEAT", OP_REPEAT, true);
 	define_word("HALT", OP_HALT);
+	define_word("I", OP_RFETCH, true);
 
 	// logic words
 	define_word("and", OP_AND);
@@ -572,26 +573,39 @@ int VM::compile_time(const Word &w)
 	{
 		// compile-time behavior
 		push(bytecode.size());	// push current code pointer onto the stack
+		emit(OP_SWAP);			// save limit and index on return stack
+		emit(OP_TO_R);
+		emit(OP_TO_R);
 	}
 		break;
 	
 	case OP_LOOP:
 	{
 		// compile-time behavior
+		emit(OP_FROM_R);	// get index from return stack
+		emit(OP_FROM_R);	// get limit from return stack
+		emit(OP_SWAP);
 		emit(OP_LIT);
 		emit(1);
-		emit(OP_PLUS);
-		emit(OP_OVER);
-		emit(OP_OVER);
-		emit(OP_EQ);
-		emit(OP_BZ);
+		emit(OP_PLUS);		// inc index
+
+		emit(OP_OVER);		// make copy of limit index
+		emit(OP_OVER);		// one to test, other goes back on return stack
+
+		emit(OP_EQ);		// we consume one copy with test
+		emit(OP_BZ);		// conditional branch back to DO
+
 		auto dest = stack.top(); stack.pop();	// get TOS addr for branch target
 		emit(dest);
+		emit(OP_DROP);		// drop limit index from stack
+		emit(OP_DROP);
 	}
 		break;
 	
+	// user-defined WORDS
 	case OP_NOP:
 	{
+		// compile-time behavior
 		emit(OP_CALL);
 		emit(w.code_addr);
 	}

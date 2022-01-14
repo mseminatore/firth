@@ -81,6 +81,7 @@ dup | duplicate top stack entry
 emit | print top stack entry as ASCII
 EXIT | exit from current loop
 func | begin definition of new word
+| | put current loop index on the stack
 LF | print a line feed
 LOOP | end of definite loop
 max | leave greater of top two stack entries
