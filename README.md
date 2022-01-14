@@ -68,12 +68,14 @@ contents of the stack.
 3  ok
 ```
 
-This creates a new `Word` named `add` that calls `+` to add the top two stack entries and
-put the result on the stack. The built-in `Word` called `print` prints the top of stack.
+This creates a new `Word` named `add` that calls `+` to add the top two stack 
+entries and put the result on the stack. The built-in `Word` called `print` 
+prints the top of stack.
 
 ### Examples
 
-Below are a few examples of Firth in action. First, the canonical hello world program.
+Below are a few examples of Firth in action. First, the canonical hello world 
+program.
 
 ```Forth
 > func hello ." Hello World! "
@@ -82,6 +84,23 @@ Below are a few examples of Firth in action. First, the canonical hello world pr
 > hello
 Hello World!
   ok
+```
+
+Next, we define a new `Word` called `fib` that computes the Fibonacci sequence 
+for the number currently on the stack.
+
+```Forth
+> func fib dup
+    0<> IF dup 1 
+            <> IF
+                0 1 rot 1- 0 DO dup rot + LOOP nip
+            THEN
+        THEN
+;
+  ok
+
+> 9 fib print
+34  ok
 ```
 
 ### Built-in Words
