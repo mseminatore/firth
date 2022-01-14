@@ -58,8 +58,13 @@ func 1+ 1 + ;
 ( n -- n-- )
 func 1- 1 - ;
 
+\ boolean values
 0 const FALSE
 -1 const TRUE
+
+\ number ranges
+2147483647 const MAX-INT
+-2147483646 const MIN-INT
 
 \ func IF BZ [ HERE ] ;
 

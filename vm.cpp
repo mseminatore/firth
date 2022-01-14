@@ -601,7 +601,20 @@ int VM::compile_time(const Word &w)
 		emit(OP_DROP);
 	}
 		break;
-	
+
+	case OP_DOTQUOTE:
+	{
+		lex('"');
+		int c = getChar();	// throw away trailing end-quote
+		if (c != '"')
+			ungetChar(c);
+
+		//w.data_addr = (int)strdup(lval);
+		emit(OP_SPRINT);
+		emit((int)_strdup(lval));
+	}
+		break;
+
 	// user-defined WORDS
 	case OP_NOP:
 	{
@@ -1088,6 +1101,13 @@ int VM::exec_word(const std::string &word)
 		case OP_HALT:
 		{
 			break;
+		}
+			break;
+
+		case OP_SPRINT:
+		{
+			char *pStr = (char*)bytecode[ip++];
+			fprintf(fout, "%s\n", pStr);
 		}
 			break;
 

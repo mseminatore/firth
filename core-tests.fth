@@ -1,5 +1,9 @@
-\ core-tests.fth - test the core Words
+\ core-tests.fth - test the core Firth Words
 \ Copyright 2022 Mark Seminatore. All rights reserved.
+
+\
+\ Some test cases borrowed from https://forth-standard.org/standard/core/
+\
 
 Test-group
     ." Test drop "
@@ -26,6 +30,11 @@ Test-group
     T{ -1 negate }T 1 ==
     T{ 0 negate }T 0 ==
 
+    ." Test abs "
+    T{ -1 abs }T 1 ==
+    T{ 1 abs }T 1 ==
+    T{ 0 abs }T 0 ==
+
     ." Test nip "
     T{ 1 2 nip }T 2 ==
 
@@ -49,12 +58,17 @@ Test-group
     ." Test 2dup "
     T{ 1 2 2dup }T 1 2 1 2 ==
     
+    ." Test 2drop "
+    T{ 1 2 3 2drop }T 1 ==
+
     ." Test ?dup "
     T{ 1 ?dup }T 1 1 ==
     T{ 0 ?dup }T 0 ==
 
     ." Test */ "
     T{ 1 2 2 */ }T 1 ==
+    T{ MAX-INT 2 MAX-INT */ }T 2 ==
+    T{ MIN-INT 2 MIN-INT */ }T 2 ==
 
     ." Test < "
     T{ 1 2 < }T -1 ==
@@ -142,6 +156,12 @@ Test-group
     T{ 1 1 /mod }T 1 0 ==
     T{ 2 1 /mod }T 2 0 ==
 
+    ." Test sqr "
+    T{ 0 sqr }T 0 ==
+    T{ 1 sqr }T 1 ==
+    T{ 2 sqr }T 4 ==
+    T{ -2 sqr }T 4 ==
+
     ." Test 1+ "
     T{ 0 1+ }T 1 ==
     T{ -1 1+ }T 0 ==
@@ -151,5 +171,23 @@ Test-group
     T{ 0 1- }T -1 ==
     T{ -1 1- }T -2 ==
     T{ 1 1- }T 0 ==
+
+    ." Test DO LOOP "
+    T{ func DL1 3 0 DO I LOOP ; DL1 }T 0 1 2 ==
+
+    ." Test depth "
+    T{ 0 1 depth }T 0 1 2 ==
+    T{ 0 depth }T 0 1 ==
+    T{ depth }T 0 ==
+
+    ." Test IF ELSE THEN "
+    func GI1 IF 123 THEN ;
+    func GI2 IF 123 ELSE 234 THEN ;
+    T{ 0 0 GI1 }T 0 ==
+    T{ 1 GI1 }T 123 ==
+    T{ -1 GI1 }T 123 ==
+    T{ 0 GI2 }T 234 ==
+    T{ 1 GI2 }T 123 ==
+    T{ -1 GI2 }T 123 ==
 
 Test-end

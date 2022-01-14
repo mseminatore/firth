@@ -63,47 +63,47 @@ put the result on the stack.
 There are a (growing) number of basic `Words` that have already been defined in **Firth**. 
 They are:
 
-Word | Description
----- | -----------
-abs | take absolute value of TOS
-AGAIN | loop back to BEGIN
-allot | reserve n extra cells for array
-and | bitwise AND
+Word | Description | Stack effects
+---- | ----------- | -------------
+abs | take absolute value of TOS | ( n -- |n| )
+AGAIN | loop back to BEGIN | ( -- )
+allot | reserve n extra cells for array | ( n -- )
+and | bitwise AND | ( n1 n2 -- n3 )
 BEGIN | start an indefinite loop
-BEL | emits a BEL char
-BL | prints a space
-cells | calculate cell count for array size
-const | define a new constant
-CR | print a carriage return
-DO | start a definite loop
-drop | discard top stack entry
-dup | duplicate top stack entry
-emit | print top stack entry as ASCII
-EXIT | exit from current loop
-func | begin definition of new word
-| | put current loop index on the stack
-LF | print a line feed
-LOOP | end of definite loop
-max | leave greater of top two stack entries
-min | leave lesser of top two stack entries
-mod | compute remainder
-negate | change sign of TOS
-nip | discard the second entry on stack
-not | bitwise NOT
-or | bitwise OR
-over | dupe the second stack entry to the top
-pow | raise x to power of y
-REPEAT | loop back to BEGIN
-rot | rotate the top 3 stack entries
-swap | swap top two stack entries
-TAB | prints a tab char
-tuck | copy the top stack item below the second stack item
-UNTIL | end of indefinite loop
-var | define a new variable
-WHILE | test whether loop condition is true
-xor | bitwise XOR
-2dup | duplicate top two stack entries
-?dup | duplicate TOS if it is non-zero
+BEL | emits a BEL char | ( -- )
+BL | prints a space | ( -- )
+cells | calculate cell count for array size | ( n -- n )
+const | define a new constant | ( n -- )
+CR | print a carriage return | ( -- )
+DO | start a definite loop | ( -- )
+drop | discard top stack entry | ( n -- )
+dup | duplicate top stack entry| ( n -- n n )
+emit | print top stack entry as ASCII | ( n -- )
+EXIT | exit from current loop | ( -- )
+func | begin definition of new word | ( -- )
+I | put current loop index on the stack | ( -- n )
+LF | print a line feed | ( -- )
+LOOP | end of definite loop | ( -- )
+max | leave greater of top two stack entries | ( n1 n2 -- n1|n2 )
+min | leave lesser of top two stack entries | ( n1 n2 -- n1|n2 )
+mod | compute remainder | ( n1 n2 -- n3 )
+negate | change sign of TOS | ( n -- -n )
+nip | discard the second entry on stack | ( n1 n2 -- n2 )
+not | bitwise NOT | ( n1 n2 -- n3 )
+or | bitwise OR | ( n1 n2 -- n3 )
+over | dupe the second stack entry to the top | ( n1 n2 -- n1 n2 n1 )
+pow | raise x to power of y | ( x y -- x^y )
+REPEAT | loop back to BEGIN | ( -- )
+rot | rotate the top 3 stack entries | ( n1 n2 n3 -- n2 n3 n1 )
+swap | swap top two stack entries| ( n1 n2 -- n2 n1 )
+TAB | prints a tab char | ( -- )
+tuck | copy the top stack item below the second stack item | ( n1 n2 -- n2 n1 n2)
+UNTIL | end of indefinite loop | ( -- )
+var | define a new variable | ( -- )
+WHILE | test whether loop condition is true | ( -- )
+xor | bitwise XOR | ( n1 n2 -- n3 )
+2dup | duplicate top two stack entries | ( n1 n2 -- n1 n2 n1 n2 )
+?dup | duplicate TOS if it is non-zero | ( n1 -- n1| n1 n1 )
 ; | end definition of new word
 \+ | addition
 \- | subtraction
@@ -121,5 +121,6 @@ xor | bitwise XOR
 0<> | true if TOS is not equal zero
 \. | print top stack entry
 \.S | print the stack contents
+\." | print the following " delimited string
 
 * **Note:** These are not yet implemented
