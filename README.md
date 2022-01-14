@@ -45,14 +45,30 @@ stack.
 
 ### Words
 
-`Words` are just another name for functions. It is very easy to create new 
-`Words` in **Firth**. To do so looks like this:
+`Words` are really just another name for functions. In **Firth** it is very easy to create new 
+`Words`. Let's create a `Word` for addition. To do so looks like this:
 
 ```Forth
-func add + ;
- ok
+> func add + ;
+  ok
 
-1 2 add
+> 1 2 add
+  ok
+
+> print
+3  ok
+```
+
+### Examples
+
+Below are a few examples of Firth in action.
+
+```Forth
+> func hello ." Hello World! "
+  ok
+
+> hello
+Hello World!  ok
 ```
 
 This creates a new `Word` named `add` that calls `+` to add the top two stack entries and
