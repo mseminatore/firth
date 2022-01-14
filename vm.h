@@ -201,7 +201,7 @@ public:
 		stack.push(val);
 	}
 
-	int pop(Number *pNum);
+	Number pop();
 
 	// lexical analyzer methods
 	int getChar();

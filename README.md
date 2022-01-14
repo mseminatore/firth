@@ -13,12 +13,15 @@ written in C++. However, along the way I decided that there were likely to be
 a few things about Forth that I probably wanted to change. Mainly small things 
 to make the syntax a little bit easier for beginners, including myself.
 
-> If you are already familiar with Forth you may find this strange since a key 
-> feature of Forth is the ability to completely redefine existing behavior. I 
-> wanted to retain the ability to break basic Forth compatibility.
+> If you are already familiar with Forth you may find the idea of creating a 
+> new Forth-like language to be strange. After all, a key feature of Forth 
+> is the ability to completely redefine existing behavior. I 
+> wanted to retain the ability to break basic Forth compatibility when and 
+> where I want.
 
 Rather than risk creating a version of Forth that might not be compatible with 
-existing Forth code, I decided to make a language heavily influenced by Forth.
+existing Forth code, I decided to make a language heavily influenced by and 
+largely compatible with Forth.
 
 ## Basics of the Firth language
 
@@ -36,12 +39,18 @@ Arithmetic in Firth, as in Forth, uses Reverse Polish Notation (RPN). To add two
 numbers together you would write:
 
 ```Forth
-1 2 +
+> 1 2 +
+  ok
+
+> .S
+Top -> [ 3 ] 
+  ok
 ```
 
 This would push the number 1 and then the number 2 onto the stack. And then it 
 would add those two numbers together, replacing them with the result on the 
-stack.
+stack. The built-in `Word` called `.S` prints out, without modifying, the 
+contents of the stack.
 
 ### Words
 
@@ -59,20 +68,21 @@ stack.
 3  ok
 ```
 
+This creates a new `Word` named `add` that calls `+` to add the top two stack entries and
+put the result on the stack. The built-in `Word` called `print` prints the top of stack.
+
 ### Examples
 
-Below are a few examples of Firth in action.
+Below are a few examples of Firth in action. First, the canonical hello world program.
 
 ```Forth
 > func hello ." Hello World! "
   ok
 
 > hello
-Hello World!  ok
+Hello World!
+  ok
 ```
-
-This creates a new `Word` named `add` that calls `+` to add the top two stack entries and
-put the result on the stack.
 
 ### Built-in Words
 

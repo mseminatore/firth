@@ -241,18 +241,18 @@ lex01:
 //
 //
 //
-int VM::pop(Number *pNum)
+Number VM::pop()
 {
 	// check for stack underflow
 	if (stack.size() == 0)
 	{
 		fprintf(fout, " Stack underflow\n");
-		return FALSE;
+		return 0;
 	}
 
-	*pNum = stack.top();
+	auto num = stack.top();
 	stack.pop();
-	return TRUE;
+	return num;
 }
 
 //
