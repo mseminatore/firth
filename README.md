@@ -4,7 +4,7 @@
 > If you are new to Forth, you can learn a lot of the basics at 
 > [Easy Forth](https://skilldrick.github.io/easyforth/). I also highly recommend
 > [Starting Forth](https://www.forth.com/starting-forth) by Leo Brodie of
-> FORTH, Inc.
+> Forth, Inc.
 
 I like learning, and creating, programming languages. I created **Firth** 
 primarily as an exercise in learning Forth. And also to have my own environment 
@@ -51,10 +51,12 @@ stack.
 ```Forth
 func add + ;
  ok
+
+1 2 add
 ```
 
-This creates a new `Word` named `add` that, just like `+`, adds the top two stack entries and
-puts the result on the stack.
+This creates a new `Word` named `add` that calls `+` to add the top two stack entries and
+put the result on the stack.
 
 ### Built-in Words
 
