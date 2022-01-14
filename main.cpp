@@ -31,46 +31,11 @@ int getopt(int n, char *args[])
 int main(int argc, char **argv)
 {
 	VM vm;
-	bool done = false;
-//	char buf[256];
-	int err;
 
 	vm.setInputFile(fin);
 	vm.setOutputFile(fout);
 
-#if 1
 	while (vm.parse());
-#else
-	while (!done)
-	{
-		// read a line
-		fputs("\nfirth> ", fout);
-		auto result = fgets(buf, sizeof(buf), fin);
-		if (!result)
-		{
-			break;
-		}
-
-		// parse the line for words (space delimited)
-		char *token = strtok(buf, " \n");
-		while (token)
-		{
-			err = vm.parse_token(token);
-			if (err)
-			{
-				// get the next token
-				token = strtok(NULL, " \n");
-			}
-			else
-				break;
-		}
-
-		if (err)
-			fprintf(fout, " ok\n");
-	}
-
-	fputs("done", fout);
-#endif
 
 	exit(0);
 }

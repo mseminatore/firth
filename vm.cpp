@@ -10,6 +10,9 @@
 //
 VM::VM()
 {
+	fin = stdin;
+	fout = stdout;
+
 	cp = 0;
 	ip = 0;
 
@@ -51,6 +54,11 @@ VM::VM()
 	define_word("UNTIL", OP_UNTIL, true);
 	define_word("DO", OP_DO, true);
 	define_word("LOOP", OP_LOOP, true);
+	define_word("AGAIN", OP_AGAIN, true);
+	define_word("EXIT", OP_EXIT, true);
+	define_word("WHILE", OP_WHILE, true);
+	define_word("REPEAT", OP_REPEAT, true);
+	define_word("HALT", OP_HALT);
 
 	// logic words
 	define_word("and", OP_AND);
@@ -92,7 +100,7 @@ VM::VM()
 	define_word("depth", OP_DEPTH);
 
 	// pre-defined variables
-	define_word_var("CP", 0, 0);
+	define_word_var("CP", 0, cp);
 
 	// core words
 	load("core.fth");
@@ -103,7 +111,6 @@ void VM::load(const std::string &file)
 {
 	FILE *f = fopen(file.c_str(), "rt");
 	setInputFile(f);
-	setOutputFile(stdout);
 	while (parse());
 	fclose(f);
 }
@@ -309,7 +316,7 @@ int VM::parse()
 		}
 
 		if (token == '\n' && err == TRUE && fin == stdin)
-			fputs(" ok", fout);
+			fputs(" ok\n", fout);
 
 	} while (token != EOF);
 
@@ -341,7 +348,7 @@ int VM::create_word(const std::string &word, const Word &w)
 int VM::define_word(const std::string &word, int opcode, bool compileOnly)
 {
 	Word w;
-	w.address = bytecode.size();
+	w.code_addr = bytecode.size();
 	w.compileOnly = compileOnly;
 	w.opcode = opcode;
 
@@ -366,9 +373,10 @@ int VM::define_word_var(const std::string &word, int val, int daddr)
 	Word w;
 
 	// all vars call the same run-time code
-	w.address = var_word.address;
-	w.data = daddr;
+	w.code_addr = var_word.code_addr;
+	w.data_addr = daddr;
 	w.type = OP_VAR;
+	w.opcode = OP_VAR;
 
 	if (FALSE == create_word(word, w))
 		return FALSE;
@@ -392,8 +400,8 @@ int VM::define_word_const(const std::string &word, int val)
 	Word w;
 
 	// all vars call the same run-time code
-	w.address = bytecode.size();
-	w.data = val;
+	w.code_addr = bytecode.size();
+	w.data_addr = val;
 	w.type = OP_CONST;
 
 	emit(OP_LIT);
@@ -467,6 +475,13 @@ int VM::compile_time(const Word &w)
 {
 	switch (w.opcode)
 	{
+	case OP_VAR:
+	{
+		emit(OP_LIT);
+		emit(w.data_addr);
+	}
+		break;
+
 	case OP_IF:
 	{
 		// compile-time behavior
@@ -487,15 +502,15 @@ int VM::compile_time(const Word &w)
 	case OP_ELSE:
 	{
 		// compile-time behavior
-
-		// patch IF branch to here
 		auto dest = stack.top(); stack.pop();	// get TOS addr for branch target
-		bytecode[dest] = bytecode.size();		// fixup branch target
 
-		// setup branch to THEN clause
+		// setup branch around ELSE clause to the THEN clause
 		emit(OP_GOTO);							// unconditional branch
-		push(bytecode.size());					// push current code pointer onto the stack
+		push(bytecode.size());					// push current code pointer onto the stack for THEN
 		emit(UNDEFINED);						// default to next instruction
+
+		// patch IF branch to here, beyond the ELSE
+		bytecode[dest] = bytecode.size();		// fixup branch target
 	}
 		break;
 
@@ -512,6 +527,44 @@ int VM::compile_time(const Word &w)
 		emit(OP_BZ);
 		auto dest = stack.top(); stack.pop();
 		emit(dest);
+	}
+		break;
+
+	case OP_AGAIN:
+	{
+		// compile-time behavior
+		emit(OP_GOTO);
+		auto dest = stack.top(); stack.pop();
+		emit(dest);
+	}
+		break;
+
+	case OP_EXIT:
+	{
+		// TODO - drop/pop N items off stack?? Where N is diff between stack at start of BEGIN
+		emit(OP_RET);
+	}
+		break;
+
+	case OP_WHILE:
+	{
+		// compile-time behavior
+		emit(OP_BZ);			// if test fails jump to after REPEAT
+		push(bytecode.size());	// push fixup addr onto stack
+		emit(UNDEFINED);		// placeholder for forward address
+	}
+		break;
+
+	case OP_REPEAT:
+	{
+		auto while_addr = stack.top(); stack.pop();
+
+		// compile-time behavior
+		emit(OP_GOTO);
+		auto dest = stack.top(); stack.pop();
+		emit(dest);
+
+		bytecode[while_addr] = bytecode.size();	// fixup conditional branch target for WHILE
 	}
 		break;
 
@@ -536,11 +589,17 @@ int VM::compile_time(const Word &w)
 		emit(dest);
 	}
 		break;
+	
+	case OP_NOP:
+	{
+		emit(OP_CALL);
+		emit(w.code_addr);
+	}
+		break;
 
 	case OP_DONE:
 	default:
-		emit(OP_CALL);
-		emit(w.address);
+		emit(w.opcode);
 	}
 
 	return TRUE;
@@ -566,7 +625,7 @@ int VM::exec_word(const std::string &word)
 	}
 
 	return_stack.push(ip);
-	ip = w.address;
+	ip = w.code_addr;
 	
 	while(1)
 	{
@@ -718,7 +777,7 @@ int VM::exec_word(const std::string &word)
 
 			lex();
 			Word w;
-			w.address = bytecode.size();
+			w.code_addr = bytecode.size();
 			w.type = OP_FUNC;
 			create_word(lval, w);
 
@@ -964,7 +1023,7 @@ int VM::exec_word(const std::string &word)
 		case OP_VAR_IMPL:
 		{
 			// get addr of the variable and push it onto the stack
-			push(w.data);
+			push(w.data_addr);
 		}
 			break;
 
@@ -997,6 +1056,12 @@ int VM::exec_word(const std::string &word)
 		case OP_NOP:
 		{
 			// do nothing!!
+		}
+			break;
+
+		case OP_HALT:
+		{
+			break;
 		}
 			break;
 

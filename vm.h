@@ -61,6 +61,10 @@ enum
 	OP_UNTIL,
 	OP_DO,
 	OP_LOOP,
+	OP_WHILE,
+	OP_REPEAT,
+	OP_EXIT,
+	OP_AGAIN,
 
 	// relational ops
 	OP_LT,
@@ -95,6 +99,8 @@ enum
 	OP_MULDIV,
 	OP_POW,
 	
+	OP_HALT,
+
 	OP_LAST
 
 	//OP_ABS,
@@ -110,14 +116,14 @@ struct Word
 protected:
 
 public:
-	int address;		// address of bytecode for this word
-	int data;			// for VAR addr of value, for const the value
+	int code_addr;		// address of bytecode for this word
+	int data_addr;		// for VAR addr of value, for const the value
 	bool compileOnly;	// can be executed only in compile mode
 	bool immediate;		// execute immediately
 	int type;
 	int opcode;
 
-	Word() { address = data = opcode = 0; compileOnly = immediate = false; type = OP_FUNC; }
+	Word() { code_addr = data_addr = opcode = 0; compileOnly = immediate = false; type = OP_FUNC; }
 };
 
 //
@@ -157,8 +163,20 @@ public:
 
 	void load(const std::string &file);
 
-	void setInputFile(FILE *f) { if (f) fin = f; else fin = stdin; }
-	void setOutputFile(FILE *f) { if (f) fout = f; else fout = stdout; }
+	void setInputFile(FILE *f) { 
+		if (f) 
+			fin = f; 
+		else 
+			fin = stdin; 
+	}
+
+	void setOutputFile(FILE *f) 
+	{ 
+		if (f) 
+			fout = f; 
+		else 
+			fout = stdout; 
+	}
 
 	int parse();
 	int parse_token(const std::string &token);
