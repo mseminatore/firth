@@ -65,7 +65,7 @@ They are:
 
 Word | Description | Stack effects
 ---- | ----------- | -------------
-abs | take absolute value of TOS | ( n -- |n| )
+abs | take absolute value of TOS | ( n -- \|n\| )
 AGAIN | loop back to BEGIN | ( -- )
 allot | reserve n extra cells for array | ( n -- )
 and | bitwise AND | ( n1 n2 -- n3 )
@@ -78,10 +78,12 @@ CR | print a carriage return | ( -- )
 DO | start a definite loop | ( -- )
 drop | discard top stack entry | ( n -- )
 dup | duplicate top stack entry| ( n -- n n )
+ELSE | start of else clause | ( -- )
 emit | print top stack entry as ASCII | ( n -- )
 EXIT | exit from current loop | ( -- )
 func | begin definition of new word | ( -- )
 I | put current loop index on the stack | ( -- n )
+IF | start a conditional | ( f -- )
 LF | print a line feed | ( -- )
 LOOP | end of definite loop | ( -- )
 max | leave greater of top two stack entries | ( n1 n2 -- n1|n2 )
@@ -97,30 +99,31 @@ REPEAT | loop back to BEGIN | ( -- )
 rot | rotate the top 3 stack entries | ( n1 n2 n3 -- n2 n3 n1 )
 swap | swap top two stack entries| ( n1 n2 -- n2 n1 )
 TAB | prints a tab char | ( -- )
+THEN | end of IF conditional | ( --  )
 tuck | copy the top stack item below the second stack item | ( n1 n2 -- n2 n1 n2)
 UNTIL | end of indefinite loop | ( -- )
 var | define a new variable | ( -- )
 WHILE | test whether loop condition is true | ( -- )
 xor | bitwise XOR | ( n1 n2 -- n3 )
 2dup | duplicate top two stack entries | ( n1 n2 -- n1 n2 n1 n2 )
-?dup | duplicate TOS if it is non-zero | ( n1 -- n1| n1 n1 )
-; | end definition of new word
-\+ | addition
-\- | subtraction
-\* | multiplcation
-/ | division
-\*/ | multiply then divide
-/mod | remainder and quotient
-< | less than comparison
-\> | greater than comparison
-= | equivalence comparison
-<> | not equivalence comparison
-0= | true if TOS is zero
-0< | true if TOS is less than zero
-0> | true if TOS is greater than zero 
-0<> | true if TOS is not equal zero
-\. | print top stack entry
-\.S | print the stack contents
-\." | print the following " delimited string
+?dup | duplicate TOS if it is non-zero | ( n1 -- n1\| n1 n1 )
+; | end definition of new word | ( -- )
+\+ | addition | ( n1 n2 -- n3 )
+\- | subtraction | ( n1 n2 -- n3 )
+\* | multiplcation | ( n1 n2 -- n3 )
+/ | division | ( n1 n2 -- n3 )
+\*/ | multiply then divide | ( n1 n2 n3 -- n4 )
+/mod | remainder and quotient | ( n1 n2 -- n3 n4 )
+< | less than comparison | ( n1 n2 -- f )
+\> | greater than comparison | ( n1 n2 -- f )
+= | equivalence comparison | ( n1 n2 -- f )
+<> | not equivalence comparison | ( n1 n2 -- f )
+0= | true if TOS is zero | ( n -- f )
+0< | true if TOS is less than zero | ( n -- f )
+0> | true if TOS is greater than zero  | ( n -- f )
+0<> | true if TOS is not equal zero | ( n -- f )
+\. | print top stack entry | ( n -- )
+\.S | print the stack contents | ( -- )
+\." | print the following " delimited string | ( -- )
 
 * **Note:** These are not yet implemented
