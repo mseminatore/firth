@@ -64,6 +64,7 @@ They are:
 Word | Description
 ---- | -----------
 abs | take absolute value of TOS
+AGAIN | loop back to BEGIN
 allot | reserve n extra cells for array
 and | bitwise AND
 BEGIN | start an indefinite loop
@@ -76,6 +77,7 @@ DO | start a definite loop
 drop | discard top stack entry
 dup | duplicate top stack entry
 emit | print top stack entry as ASCII
+EXIT | exit from current loop
 func | begin definition of new word
 LF | print a line feed
 LOOP | end of definite loop
@@ -88,12 +90,14 @@ not | bitwise NOT
 or | bitwise OR
 over | dupe the second stack entry to the top
 pow | raise x to power of y
+REPEAT | loop back to BEGIN
 rot | rotate the top 3 stack entries
 swap | swap top two stack entries
 TAB | prints a tab char
 tuck | copy the top stack item below the second stack item
 UNTIL | end of indefinite loop
 var | define a new variable
+WHILE | test whether loop condition is true
 xor | bitwise XOR
 2dup | duplicate top two stack entries
 ?dup | duplicate TOS if it is non-zero
