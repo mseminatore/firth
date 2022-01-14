@@ -80,7 +80,7 @@ VM::VM()
 	define_word(".", OP_PRINT);
 	define_word("emit", OP_EMIT);
 	define_word(".S", OP_DOTS);
-//	define_word(".\"", OP_DOTQUOTE);
+	define_word(".\"", OP_DOTQUOTE);
 
 	// variable and constant words
 	define_word("var", OP_VAR);
@@ -196,7 +196,7 @@ int VM::skipLeadingWhiteSpace()
 }
 
 // return the next token
-int VM::lex()
+int VM::lex(int delim)
 {
 	int chr;
 	char *pBuf = lval;
@@ -229,7 +229,7 @@ lex01:
 	do
 	{
 		*pBuf++ = chr;
-	} while ((chr = getChar()) != EOF && chr != ' ' && chr != '\n');
+	} while ((chr = getChar()) != EOF && chr != delim && chr != '\n');
 
 	ungetChar(chr);
 
@@ -311,7 +311,7 @@ int VM::parse()
 			err = parse_token(lval);
 			if (!err)
 			{
-				//				assert(false);
+				return err;
 			}
 		}
 
@@ -912,6 +912,18 @@ int VM::exec_word(const std::string &word)
 				s.pop();
 			}
 			fputs("]\n", fout);
+		}
+			break;
+		
+		// ." message " ( -- )
+		case OP_DOTQUOTE:
+		{
+			lex('"');
+			int c = getChar();	// throw away trailing end-quote
+			if (c != '"')
+				ungetChar(c);
+
+			fprintf(fout, "%s\n", lval);
 		}
 			break;
 

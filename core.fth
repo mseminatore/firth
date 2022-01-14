@@ -2,7 +2,7 @@
 func nip swap drop ;
 
 ( --  c)
-func BL 32 ;
+func BL 32 emit;
 
 ( -- )
 func SPACE BL emit ;

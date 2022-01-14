@@ -210,5 +210,5 @@ public:
 	void skipToEOL(void);
 	void skipToChar(int c);
 	int skipLeadingWhiteSpace();
-	int lex();
+	int lex(int delim = ' ');
 };
