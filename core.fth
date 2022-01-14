@@ -1,8 +1,11 @@
+\ Core.fth - core word library for Firth
+\ Copyright 2022 Mark Seminatore. All rights reserved.
+
 ( n1 n2 -- n2 )
 func nip swap drop ;
 
 ( --  c)
-func BL 32 emit;
+func BL 32 emit ;
 
 ( -- )
 func SPACE BL emit ;

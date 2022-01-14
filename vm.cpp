@@ -311,7 +311,7 @@ int VM::parse()
 			err = parse_token(lval);
 			if (!err)
 			{
-				return err;
+				//				assert(false);
 			}
 		}
 
