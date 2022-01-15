@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "vm.h"
+#include "firth.h"
 
 static FILE *fin = stdin;
 static FILE *fout = stdout;
@@ -30,12 +30,12 @@ int getopt(int n, char *args[])
 //
 int main(int argc, char **argv)
 {
-	VM vm;
+	Firth firth;
 
-	vm.setInputFile(fin);
-	vm.setOutputFile(fout);
+	firth.setInputFile(fin);
+	firth.setOutputFile(fout);
 
-	while (vm.parse());
+	while (firth.parse());
 
 	exit(0);
 }

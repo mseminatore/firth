@@ -129,7 +129,7 @@ public:
 //
 //
 //
-class VM
+class Firth
 {
 protected:
 	struct WordLessThan
@@ -143,11 +143,14 @@ protected:
 	// dictionary of words
 	std::map<std::string, Word, WordLessThan> dict;
 
+	// reverse lookup for disassembly of bytecodes
+	std::map<int, std::string> disasm;
+
 	// the data stack
 	typedef std::stack<Number> Stack;
 	Stack stack;
 	
-	// is the VM compiling or interpreting?
+	// is Firth compiling or interpreting?
 	bool interpreter;
 	bool compiling;
 
@@ -165,11 +168,26 @@ protected:
 	FILE *fin, *fout;
 	char lval[256];
 
-public:
-	VM();
-	virtual ~VM() {}
-
+	//
+	// non-public methods
+	//
 	void load(const std::string &file);
+	void emit(int op);
+
+	// lexical analyzer methods
+	int getChar();
+	void ungetChar(int c);
+	bool isWhitespace(int c);
+	bool isNumber(int c);
+	void skipToEOL(void);
+	void skipToChar(int c);
+	int skipLeadingWhiteSpace();
+	int lex(int delim = ' ');
+
+public:
+	Firth();
+	virtual ~Firth() {}
+
 
 	void setInputFile(FILE *f) { 
 		if (f) 
@@ -188,6 +206,8 @@ public:
 
 	int parse();
 	int parse_token(const std::string &token);
+	int parse_string(const std::string &line);
+
 	int lookup_word(const std::string &word, Word &w);
 	int exec_word(const std::string &word);
 	int create_word(const std::string &word, const Word &w);
@@ -201,8 +221,6 @@ public:
 	int compile(const std::string &token);
 	int compile_time(const Word &w);
 
-	void emit(int op);
-
 	void push(const Number &val)
 	{
 		stack.push(val);
@@ -210,14 +228,4 @@ public:
 
 	Number pop();
 	Number top() { return stack.top(); }
-
-	// lexical analyzer methods
-	int getChar();
-	void ungetChar(int c);
-	bool isWhitespace(int c);
-	bool isNumber(int c);
-	void skipToEOL(void);
-	void skipToChar(int c);
-	int skipLeadingWhiteSpace();
-	int lex(int delim = ' ');
 };

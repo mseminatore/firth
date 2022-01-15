@@ -3,12 +3,12 @@
 #include <assert.h>
 #include <ctype.h>
 
-#include "vm.h"
+#include "firth.h"
 
 //
 // Create the default environment
 //
-VM::VM()
+Firth::Firth()
 {
 	fin = stdin;
 	fout = stdout;
@@ -110,7 +110,7 @@ VM::VM()
 }
 
 //
-void VM::load(const std::string &file)
+void Firth::load(const std::string &file)
 {
 	FILE *f = fopen(file.c_str(), "rt");
 	setInputFile(f);
@@ -119,7 +119,7 @@ void VM::load(const std::string &file)
 }
 
 //
-void VM::emit(int op)
+void Firth::emit(int op)
 {
 	bytecode.push_back(op);
 
@@ -128,25 +128,25 @@ void VM::emit(int op)
 }
 
 //
-int VM::getChar()
+int Firth::getChar()
 {
 	return fgetc(fin);
 }
 
 //
-void VM::ungetChar(int c)
+void Firth::ungetChar(int c)
 {
 	ungetc(c, fin);
 }
 
 //
-bool VM::isWhitespace(int c)
+bool Firth::isWhitespace(int c)
 {
 	return (c == ' ' || c == '\t' /*|| c == '\n' || c == '\r'*/); //? true : false;
 }
 
 //
-bool VM::isNumber(int c)
+bool Firth::isNumber(int c)
 {
 	// TODO - since minus sign is a word this may be incorrect
 	return (isdigit(c) || c == '-');
@@ -155,7 +155,7 @@ bool VM::isNumber(int c)
 //
 //
 //
-void VM::skipToEOL(void)
+void Firth::skipToEOL(void)
 {
 	int c;
 
@@ -171,7 +171,7 @@ void VM::skipToEOL(void)
 //
 //
 //
-void VM::skipToChar(int chr)
+void Firth::skipToChar(int chr)
 {
 	int c;
 
@@ -182,7 +182,7 @@ void VM::skipToChar(int chr)
 }
 
 // skip any leading WS
-int VM::skipLeadingWhiteSpace()
+int Firth::skipLeadingWhiteSpace()
 {
 	int chr;
 
@@ -199,7 +199,7 @@ int VM::skipLeadingWhiteSpace()
 }
 
 // return the next token
-int VM::lex(int delim)
+int Firth::lex(int delim)
 {
 	int chr;
 	char *pBuf = lval;
@@ -243,7 +243,7 @@ lex01:
 //
 //
 //
-Number VM::pop()
+Number Firth::pop()
 {
 	// check for stack underflow
 	if (stack.size() == 0)
@@ -258,7 +258,7 @@ Number VM::pop()
 }
 
 //
-int VM::interpret(const std::string &token)
+int Firth::interpret(const std::string &token)
 {
 	if (token == "]")
 	{
@@ -288,7 +288,18 @@ int VM::interpret(const std::string &token)
 //
 //
 //
-int VM::parse_token(const std::string &token)
+int Firth::parse_string(const std::string &line)
+{
+	// TODO - break string up into words
+	// TODO - pass words to parser
+	assert(false);
+	return TRUE;
+}
+
+//
+//
+//
+int Firth::parse_token(const std::string &token)
 {
 	if (interpreter)
 		return interpret(token);
@@ -299,7 +310,7 @@ int VM::parse_token(const std::string &token)
 //
 //
 //
-int VM::parse()
+int Firth::parse()
 {
 	int token;
 	int err = TRUE;
@@ -335,7 +346,7 @@ int VM::parse()
 //
 //
 //
-int VM::create_word(const std::string &word, const Word &w)
+int Firth::create_word(const std::string &word, const Word &w)
 {
 	// TODO - we might want to succeed in overwriting existing words here
 	auto result = dict.insert(std::pair<const std::string, Word>(word, w));
@@ -348,7 +359,7 @@ int VM::create_word(const std::string &word, const Word &w)
 //
 // Create a new builtin word
 //
-int VM::define_word(const std::string &word, int opcode, bool compileOnly)
+int Firth::define_word(const std::string &word, int opcode, bool compileOnly)
 {
 	Word w;
 	w.code_addr = bytecode.size();
@@ -362,11 +373,14 @@ int VM::define_word(const std::string &word, int opcode, bool compileOnly)
 	emit(opcode);
 	emit(OP_RET);
 
+	// TODO - add opcode/word to diasm
+	disasm.insert(std::pair<int, std::string>(opcode, word));
+
 	return TRUE;
 }
 
 //
-int VM::define_word_var(const std::string &word, int val, int daddr)
+int Firth::define_word_var(const std::string &word, int val, int daddr)
 {
 	Word var_word;
 
@@ -388,7 +402,7 @@ int VM::define_word_var(const std::string &word, int val, int daddr)
 }
 
 //
-int VM::define_word_var(const std::string &word, int val)
+int Firth::define_word_var(const std::string &word, int val)
 {
 	if (FALSE == define_word_var(word, val, dataseg.size()))
 		return FALSE;
@@ -398,7 +412,7 @@ int VM::define_word_var(const std::string &word, int val)
 }
 
 //
-int VM::define_word_const(const std::string &word, int val)
+int Firth::define_word_const(const std::string &word, int val)
 {
 	Word w;
 
@@ -420,7 +434,7 @@ int VM::define_word_const(const std::string &word, int val)
 //
 // Look word up in the dictionary
 //
-int VM::lookup_word(const std::string &word, Word &w)
+int Firth::lookup_word(const std::string &word, Word &w)
 {
 	auto result = dict.find(word);
 
@@ -432,7 +446,7 @@ int VM::lookup_word(const std::string &word, Word &w)
 }
 
 //
-int VM::compile(const std::string &token)
+int Firth::compile(const std::string &token)
 {
 	if (token == "[")
 	{
@@ -474,7 +488,7 @@ int VM::compile(const std::string &token)
 }
 
 //
-int VM::compile_time(const Word &w)
+int Firth::compile_time(const Word &w)
 {
 	switch (w.opcode)
 	{
@@ -637,7 +651,7 @@ int VM::compile_time(const Word &w)
 //
 // If word is in the dictionary execute its code, ELSE error
 //
-int VM::exec_word(const std::string &word)
+int Firth::exec_word(const std::string &word)
 {
 	auto result = dict.find(word);
 
