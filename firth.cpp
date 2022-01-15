@@ -104,18 +104,22 @@ Firth::Firth()
 
 	// pre-defined variables
 	define_word_var("CP", 0, cp);
-
-	// core words
-	load("core.fth");
 }
 
 //
-void Firth::load(const std::string &file)
+int Firth::load(const std::string &file)
 {
 	FILE *f = fopen(file.c_str(), "rt");
+	if (!f)
+		return FALSE;
+
 	setInputFile(f);
-	while (parse());
+	
+	parse();
+
 	fclose(f);
+	
+	return TRUE;
 }
 
 //
@@ -237,6 +241,7 @@ lex01:
 	ungetChar(chr);
 
 	*pBuf = 0;
+
 	return TOK_WORD;
 }
 
@@ -375,6 +380,25 @@ int Firth::define_word(const std::string &word, int opcode, bool compileOnly)
 
 	// TODO - add opcode/word to diasm
 	disasm.insert(std::pair<int, std::string>(opcode, word));
+
+	return TRUE;
+}
+
+//
+// Create a new 
+//
+int Firth::define_user_word(const std::string &word, FirthFunc func, bool compileOnly)
+{
+	Word w;
+
+	if (!func)
+		return FALSE;
+
+	w.nativeWord = func;
+	w.compileOnly = compileOnly;
+
+	if (FALSE == create_word(word, w))
+		return FALSE;
 
 	return TRUE;
 }
@@ -665,6 +689,12 @@ int Firth::exec_word(const std::string &word)
 	{
 		fputs(" action is not a function\n", fout);
 		return FALSE;
+	}
+
+	// execute native words
+	if (w.nativeWord)
+	{
+		return w.nativeWord();
 	}
 
 	return_stack.push(ip);

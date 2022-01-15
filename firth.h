@@ -108,6 +108,9 @@ enum
 	OP_LAST
 };
 
+// type of native words
+typedef int(*FirthFunc)(void);
+
 //
 //
 //
@@ -122,8 +125,15 @@ public:
 	bool immediate;		// execute immediately
 	int type;
 	int opcode;
+	
+	FirthFunc nativeWord;
 
-	Word() { code_addr = data_addr = opcode = 0; compileOnly = immediate = false; type = OP_FUNC; }
+	Word() { 
+		code_addr = data_addr = opcode = 0; 
+		compileOnly = immediate = false; 
+		type = OP_FUNC; 
+		nativeWord = nullptr;
+	}
 };
 
 //
@@ -171,7 +181,7 @@ protected:
 	//
 	// non-public methods
 	//
-	void load(const std::string &file);
+	int load(const std::string &file);
 	void emit(int op);
 
 	// lexical analyzer methods
@@ -183,6 +193,10 @@ protected:
 	void skipToChar(int c);
 	int skipLeadingWhiteSpace();
 	int lex(int delim = ' ');
+
+	int define_word_var(const std::string &word, int val, int daddr);
+	int define_word(const std::string &word, int op, bool compileOnly = false);
+	int create_word(const std::string &word, const Word &w);
 
 public:
 	Firth();
@@ -210,16 +224,25 @@ public:
 
 	int lookup_word(const std::string &word, Word &w);
 	int exec_word(const std::string &word);
-	int create_word(const std::string &word, const Word &w);
-	int define_word(const std::string &word, int op, bool compileOnly = false);
 
 	int define_word_var(const std::string &word, int val);
-	int define_word_var(const std::string &word, int val, int daddr);
 	int define_word_const(const std::string &word, int val);
+	int define_user_word(const std::string &word, FirthFunc func, bool compileOnly = false);
 
 	int interpret(const std::string &token);
 	int compile(const std::string &token);
 	int compile_time(const Word &w);
+
+	int loadLibrary(const std::string &file)
+	{
+		return load(file);
+	}
+
+	int loadCore()
+	{
+		// core words
+		return loadLibrary("core.fth");
+	}
 
 	void push(const Number &val)
 	{

@@ -102,6 +102,11 @@ for the number currently on the stack.
 > 9 fib print
 34  ok
 ```
+### Embedding Firth
+
+Firth is designed to be very easy to embed into other apps with just a few API
+calls. The file main.cpp demonstrates how to initialize Firth, and add custom
+`Words` for a constant, a variable, and a native function.
 
 ### Testing Firth
 
