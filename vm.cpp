@@ -495,7 +495,7 @@ int VM::compile_time(const Word &w)
 	case OP_THEN:
 	{
 		// compile-time behavior
-		auto dest = stack.top(); stack.pop();	// get TOS addr for branch target
+		auto dest = pop();	// get TOS addr for branch target
 		bytecode[dest] = bytecode.size();		// fixup branch target
 	}
 		break;
@@ -503,7 +503,7 @@ int VM::compile_time(const Word &w)
 	case OP_ELSE:
 	{
 		// compile-time behavior
-		auto dest = stack.top(); stack.pop();	// get TOS addr for branch target
+		auto dest = pop();	// get TOS addr for branch target
 
 		// setup branch around ELSE clause to the THEN clause
 		emit(OP_GOTO);							// unconditional branch
@@ -526,7 +526,7 @@ int VM::compile_time(const Word &w)
 	{
 		// compile-time behavior
 		emit(OP_BZ);
-		auto dest = stack.top(); stack.pop();
+		auto dest = pop();
 		emit(dest);
 	}
 		break;
@@ -535,7 +535,7 @@ int VM::compile_time(const Word &w)
 	{
 		// compile-time behavior
 		emit(OP_GOTO);
-		auto dest = stack.top(); stack.pop();
+		auto dest = pop();
 		emit(dest);
 	}
 		break;
@@ -558,11 +558,11 @@ int VM::compile_time(const Word &w)
 
 	case OP_REPEAT:
 	{
-		auto while_addr = stack.top(); stack.pop();
+		auto while_addr = pop();
 
 		// compile-time behavior
 		emit(OP_GOTO);
-		auto dest = stack.top(); stack.pop();
+		auto dest = pop();
 		emit(dest);
 
 		bytecode[while_addr] = bytecode.size();	// fixup conditional branch target for WHILE
@@ -595,7 +595,7 @@ int VM::compile_time(const Word &w)
 		emit(OP_EQ);		// we consume one copy with test
 		emit(OP_BZ);		// conditional branch back to DO
 
-		auto dest = stack.top(); stack.pop();	// get TOS addr for branch target
+		auto dest = pop();	// get TOS addr for branch target
 		emit(dest);
 		emit(OP_DROP);		// drop limit index from stack
 		emit(OP_DROP);
@@ -669,8 +669,8 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 -- n1)
 		case OP_PLUS:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 + n2);
 		}
 			break;
@@ -678,8 +678,8 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 -- n1)
 		case OP_MINUS:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 - n2);
 		}
 			break;
@@ -687,8 +687,8 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 -- n1)
 		case OP_MUL:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 * n2);
 		}
 			break;
@@ -696,8 +696,8 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 -- n1)
 		case OP_DIV:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 / n2);
 		}
 			break;
@@ -705,8 +705,8 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 -- rem)
 		case OP_MOD:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 % n2);
 		}
 			break;
@@ -714,8 +714,8 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 -- rem quotient)
 		case OP_DIVMOD:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 % n2); // push rem
 			push(n1 / n2); // push quotient
 		}
@@ -724,9 +724,9 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 n3 -- n4)
 		case OP_MULDIV:
 		{
-			auto n3 = stack.top(); stack.pop();
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n3 = pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			long long n4 = long long(n1) * n2;
 			push(int(n4/n3));
 		}
@@ -735,8 +735,8 @@ int VM::exec_word(const std::string &word)
 		// ( n1 n2 -- n1)
 		case OP_POW:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(int(pow(n1, n2) + 0.5f));
 		}
 			break;
@@ -744,16 +744,15 @@ int VM::exec_word(const std::string &word)
 		// ( n1 -- )
 		case OP_PRINT:
 		{
-			auto a = stack.top();
+			auto a = pop();
 			fprintf(fout, "%d", a);
-			stack.pop();
 		}
 			break;
 
 		// ( n1 -- n1 n1)
 		case OP_DUP:
 		{
-			auto a = stack.top();
+			auto a = top();
 			push(a);
 		}
 			break;
@@ -761,15 +760,15 @@ int VM::exec_word(const std::string &word)
 		// ( n1 -- )
 		case OP_DROP:
 		{
-			stack.pop();
+			pop();
 		}
 			break;
 
 		// ( n1 n2 -- n2 n1)
 		case OP_SWAP:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n2);
 			push(n1);
 		}
@@ -778,8 +777,8 @@ int VM::exec_word(const std::string &word)
 		// over ( n1 n2 -- n1 n2 n1 )
 		case OP_OVER:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1);
 			push(n2);
 			push(n1);
@@ -789,9 +788,9 @@ int VM::exec_word(const std::string &word)
 		// rot (n1 n2 n3 -- n2 n3 n1)
 		case OP_ROT:
 		{
-			auto n3 = stack.top(); stack.pop();
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n3 = pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n2);
 			push(n3);
 			push(n1);
@@ -836,7 +835,7 @@ int VM::exec_word(const std::string &word)
 		// ( c -- )
 		case OP_EMIT:
 		{
-			auto c = stack.top(); stack.pop();
+			auto c = pop();
 			fputc(c, fout);
 		}
 			break;
@@ -844,8 +843,8 @@ int VM::exec_word(const std::string &word)
 		// less than (n1 n2 -- bool)
 		case OP_LT:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 < n2 ? TRUE : FALSE);
 		}
 			break;
@@ -853,8 +852,8 @@ int VM::exec_word(const std::string &word)
 		// greater than (n1 n2 -- bool)
 		case OP_GT:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 > n2 ? TRUE : FALSE);
 		}
 			break;
@@ -862,7 +861,7 @@ int VM::exec_word(const std::string &word)
 		// 0= ( n -- f)
 		case OP_ZEQ:
 		{
-			auto n = stack.top(); stack.pop();
+			auto n = pop();
 			push(n == 0 ? TRUE : FALSE);
 		}
 			break;
@@ -870,7 +869,7 @@ int VM::exec_word(const std::string &word)
 		// 0< ( n -- f)
 		case OP_ZLT:
 		{
-			auto n = stack.top(); stack.pop();
+			auto n = pop();
 			push(n < 0 ? TRUE : FALSE);
 		}
 			break;
@@ -878,7 +877,7 @@ int VM::exec_word(const std::string &word)
 		// 0> ( n -- f)
 		case OP_ZGT:
 		{
-			auto n = stack.top(); stack.pop();
+			auto n = pop();
 			push(n > 0 ? TRUE : FALSE);
 		}
 			break;
@@ -886,7 +885,7 @@ int VM::exec_word(const std::string &word)
 		// 0<> (n -- f)
 		case OP_ZNE:
 		{
-			auto n = stack.top(); stack.pop();
+			auto n = pop();
 			push(n != 0 ? TRUE : FALSE);
 		}
 			break;
@@ -894,8 +893,8 @@ int VM::exec_word(const std::string &word)
 		// and (n1 n1 -- n1)
 		case OP_AND:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 & n2);
 		}
 			break;
@@ -903,8 +902,8 @@ int VM::exec_word(const std::string &word)
 		// or (n1 n2 -- n1)
 		case OP_OR:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 | n2);
 		}
 			break;
@@ -912,7 +911,7 @@ int VM::exec_word(const std::string &word)
 		// not (n1 -- ~n1)
 		case OP_NOT:
 		{
-			auto n1 = stack.top(); stack.pop();
+			auto n1 = pop();
 			push(!n1);
 		}
 			break;
@@ -920,8 +919,8 @@ int VM::exec_word(const std::string &word)
 		// xor (n1 n2 -- n1)
 		case OP_XOR:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 ^ n2);
 		}
 		break;
@@ -957,8 +956,8 @@ int VM::exec_word(const std::string &word)
 		// equal to (n1 n2 -- bool)
 		case OP_EQ:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 == n2 ? TRUE : FALSE);
 		}
 		break;
@@ -966,8 +965,8 @@ int VM::exec_word(const std::string &word)
 		// not-equal to (n1 n2 -- bool)
 		case OP_NE:
 		{
-			auto n2 = stack.top(); stack.pop();
-			auto n1 = stack.top(); stack.pop();
+			auto n2 = pop();
+			auto n1 = pop();
 			push(n1 != n2 ? TRUE : FALSE);
 		}
 			break;
@@ -989,7 +988,7 @@ int VM::exec_word(const std::string &word)
 		// >R (n -- )
 		case OP_TO_R:
 		{
-			auto n = stack.top(); stack.pop();
+			auto n = pop();
 			return_stack.push(n);
 		}
 			break;
@@ -1021,7 +1020,7 @@ int VM::exec_word(const std::string &word)
 		// BZ (n -- )
 		case OP_BZ:
 		{
-			auto n = stack.top(); stack.pop();
+			auto n = pop();
 			if (0 == n)
 			{
 				auto addr = bytecode[ip];
@@ -1035,7 +1034,7 @@ int VM::exec_word(const std::string &word)
 		// @ (addr -- val)
 		case OP_FETCH:
 		{
-			auto addr = stack.top(); stack.pop();
+			auto addr = pop();
 			auto val = dataseg[addr];
 			push(val);
 		}
@@ -1044,8 +1043,8 @@ int VM::exec_word(const std::string &word)
 		// ! (addr val -- )
 		case OP_STORE:
 		{
-			auto addr = stack.top(); stack.pop();
-			auto val = stack.top(); stack.pop();
+			auto addr = pop();
+			auto val = pop();
 			dataseg[addr] = val;
 		}
 			break;
@@ -1069,7 +1068,7 @@ int VM::exec_word(const std::string &word)
 		// const ( -- )
 		case OP_CONST:
 		{
-			auto val = stack.top(); stack.pop();
+			auto val = pop();
 
 			lex();
 			define_word_const(lval, val);
@@ -1079,7 +1078,7 @@ int VM::exec_word(const std::string &word)
 		// allot ( n -- )
 		case OP_ALLOT:
 		{
-			auto count = stack.top(); stack.pop();
+			auto count = pop();
 			
 			while (count--)
 				dataseg.push_back(UNDEFINED);

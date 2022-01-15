@@ -103,6 +103,170 @@ for the number currently on the stack.
 34  ok
 ```
 
+### Testing Firth
+
+I have created a small test harness to allow testing words in Firth. This
+framework is called *test.fth* and is located in the **test** sub-folder. You
+load the framework as follows:
+
+```Forth
+> include test\test.fth
+  ok
+
+```
+
+I also created a set of unit tests for the core Firth `Words`, also in the 
+**test** sub-folder called *core-tests.fth*. You run the tests by including
+the file. The file defines and runs the tests for you. If all goes well you
+will see a message that all tests passed.
+
+```Forth
+> include test\core-tests.fth
+Test drop
+        1 √
+Test swap
+        2 √
+Test dup
+        3 √
+Test max
+        4 √
+        5 √
+        6 √
+Test min
+        7 √
+        8 √
+        9 √
+Test negate
+        10 √
+        11 √
+        12 √
+Test abs
+        13 √
+        14 √
+        15 √
+Test nip
+        16 √
+Test not
+        17 √
+        18 √
+Test or
+        19 √
+        20 √
+        21 √
+        22 √
+        23 √
+Test xor
+        24 √
+        25 √
+        26 √
+        27 √
+Test 2dup
+        28 √
+Test 2drop
+        29 √
+Test ?dup
+        30 √
+        31 √
+Test */
+        32 √
+        33 √
+        34 √
+Test <
+        35 √
+        36 √
+        37 √
+Test >
+        38 √
+        39 √
+        40 √
+Test =
+        41 √
+        42 √
+Test <>
+        43 √
+        44 √
+Test 0=
+        45 √
+        46 √
+Test 0<
+        47 √
+        48 √
+        49 √
+Test 0>
+        50 √
+        51 √
+        52 √
+Test 0<>
+        53 √
+        54 √
+Test and
+        55 √
+        56 √
+        57 √
+        58 √
+        59 √
+Test over
+        60 √
+Test pow
+        61 √
+        62 √
+Test rot
+        63 √
+Test tuck
+        64 √
+Test +
+        65 √
+        66 √
+        67 √
+Test -
+        68 √
+        69 √
+        70 √
+Test *
+        71 √
+        72 √
+        73 √
+Test /
+        74 √
+        75 √
+        76 √
+Test mod
+        77 √
+        78 √
+        79 √
+Test /mod
+        80 √
+        81 √
+        82 √
+Test sqr
+        83 √
+        84 √
+        85 √
+        86 √
+Test 1+
+        87 √
+        88 √
+        89 √
+Test 1-
+        90 √
+        91 √
+        92 √
+Test DO LOOP
+        93 √
+Test depth
+        94 √
+        95 √
+        96 √
+Test IF ELSE THEN
+        97 √
+        98 √
+        99 √
+        100 √
+        101 √
+        102 √
+All tests passed!
+```
+
 ### Built-in Words
 
 There are a (growing) number of basic `Words` that have already been defined in **Firth**. 

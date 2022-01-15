@@ -202,6 +202,7 @@ public:
 	}
 
 	Number pop();
+	Number top() { return stack.top(); }
 
 	// lexical analyzer methods
 	int getChar();
