@@ -99,8 +99,8 @@ VM::VM()
 	define_word("fn", OP_FUNC);
 	define_word("def", OP_FUNC);
 	define_word("include", OP_LOAD);
-
 	define_word("depth", OP_DEPTH);
+	define_word("WORDS", OP_WORDS);
 
 	// pre-defined variables
 	define_word_var("CP", 0, cp);
@@ -1125,6 +1125,16 @@ int VM::exec_word(const std::string &word)
 			auto shift = pop();
 			auto num = pop();
 			push(num << shift);
+		}
+			break;
+
+		case OP_WORDS:
+		{
+			for (auto iter = dict.begin(); iter != dict.end(); iter++)
+			{
+				fprintf(fout, "%s\n", iter->first.c_str());
+			}
+			fprintf(fout, "\nThere are %d WORDS in the dictionary.\n", dict.size());
 		}
 			break;
 

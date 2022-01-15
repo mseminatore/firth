@@ -53,6 +53,7 @@ enum
 	OP_GOTO,
 	OP_BZ,
 	OP_HERE,
+	OP_WORDS,
 
 	// conditionals and loops
 	OP_IF,
@@ -105,10 +106,6 @@ enum
 	OP_HALT,
 
 	OP_LAST
-
-	//OP_ABS,
-	//OP_MIN,
-	//OP_MAX
 };
 
 //
@@ -135,8 +132,16 @@ public:
 class VM
 {
 protected:
+	struct WordLessThan
+	{
+		bool operator() (const std::string &a, const std::string &b) const
+		{
+			return _strcmpi(a.c_str(), b.c_str()) < 0 ;
+		}
+	};
+
 	// dictionary of words
-	std::map<std::string, Word> dict;
+	std::map<std::string, Word, WordLessThan> dict;
 
 	// the data stack
 	typedef std::stack<Number> Stack;

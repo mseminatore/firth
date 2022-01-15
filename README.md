@@ -327,6 +327,7 @@ tuck | copy the top stack item below the second stack item | ( n1 n2 -- n2 n1 n2
 UNTIL | end of indefinite loop | ( -- )
 var | define a new variable | ( -- )
 WHILE | test whether loop condition is true | ( -- )
+WORDS | list all words in the dictionary | ( -- )
 xor | bitwise XOR | ( n1 n2 -- n3 )
 2dup | duplicate top two stack entries | ( n1 n2 -- n1 n2 n1 n2 )
 ?dup | duplicate TOS if it is non-zero | ( n1 -- n1\| n1 n1 )
