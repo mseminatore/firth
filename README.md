@@ -115,10 +115,17 @@ load the framework as follows:
 
 ```
 
-I also created a set of unit tests for the core Firth `Words`, also in the 
-**test** sub-folder called *core-tests.fth*. You run the tests by including
-the file. The file defines and runs the tests for you. If all goes well you
-will see a message that all tests passed.
+I have also created a set of unit tests for the core Firth `Words`. The unit 
+tests are also found in the **test** sub-folder in a file called 
+*core-tests.fth*. Once again you load the tests by including the file. 
+
+> I found that having unit tests was critical to the development of this 
+> project. It allowed me to ensure that newly added words functioned correctly.
+> But even more importantly, having a rich set of unit tests allowed me to 
+> re-factor and optimize code with confidence.
+
+The *core-tests.fth* file file both defines and runs the unit tests. If all goes well a message will be 
+displayed saying that *All tests passed!*
 
 ```Forth
 > include test\core-tests.fth
