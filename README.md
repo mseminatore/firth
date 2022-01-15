@@ -105,8 +105,54 @@ for the number currently on the stack.
 ### Embedding Firth
 
 Firth is designed to be very easy to embed into other apps with just a few API
-calls. The file main.cpp demonstrates how to initialize Firth, and add custom
+calls. The file *main.cpp* demonstrates how to initialize Firth and add custom
 `Words` for a constant, a variable, and a native function.
+
+```C++
+
+#include "firth.h"
+
+Firth *g_pFirth = NULL;
+
+// custom word
+int isTwo(void)
+{
+	// get the TOS
+    auto n = g_pFirth->pop();
+
+    // push result onto the stack
+	g_pFirth->push(n == 2 ? TRUE : FALSE);
+
+	return TRUE;
+}
+
+int main()
+{
+    g_pFirth = new Firth();
+
+	// load core libraries
+	g_pFirth->loadCore();
+
+	// add custom words that can be called from Firth
+	g_pFirth->define_user_word("istwo", isTwo);
+
+	// add a const and a var
+	g_pFirth->define_word_const("PI", 31415);
+	g_pFirth->define_word_var("myVar", 16);
+
+    // call Firth from native code
+    g_pFirth->push(1);
+    g_pFirth->push(2);
+    g_pFirth->exec_word("+");
+    g_pFirth->exec_word(".");
+
+    // parse Firth
+	while (g_pFirth->parse());
+
+    return 0;
+}
+
+```
 
 ### Testing Firth
 

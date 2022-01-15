@@ -50,13 +50,19 @@ int main(int argc, char **argv)
 	g_pFirth->define_user_word("istwo", isTwo);
 
 	// add a const and a var
-	g_pFirth->define_word_const("PI", 314);
-	g_pFirth->define_word_var("timer", 16);
+	g_pFirth->define_word_const("PI", 31415);
+	g_pFirth->define_word_var("myVar", 16);
+
+	// call Firth from native code
+	g_pFirth->push(1);
+	g_pFirth->push(2);
+	g_pFirth->exec_word("+");
+	g_pFirth->exec_word(".");
 
 	g_pFirth->setInputFile(fin);
 	g_pFirth->setOutputFile(fout);
 
 	while (g_pFirth->parse());
 
-	exit(0);
+	return 0;
 }
