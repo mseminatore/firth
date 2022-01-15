@@ -2,55 +2,55 @@
 \ Copyright 2022 Mark Seminatore. All rights reserved.
 
 ( n1 n2 -- n2 )
-func nip swap drop ;
+func NIP SWAP DROP ;
 
 ( --  c)
-func BL 32 emit ;
+func BL 32 EMIT ;
 
 ( -- )
-func SPACE BL emit ;
-func TAB 9 emit ;
-func LF 10 emit ;
-func BEL 7 emit ;
-func CR 13 emit 10 emit ;
+func SPACE BL EMIT ;
+func TAB 9 EMIT ;
+func LF 10 EMIT ;
+func BEL 7 EMIT ;
+func CR 13 EMIT 10 EMIT ;
 
 \ define a convenience word for printing the TOS ( n -- )
 func print . ;
 
 \ sqr the TOS ( n -- n )
-func sqr dup * ;
+func sqr DUP * ;
 
 func HERE CP @ ;
 
 ( n -- n )
-func cells 1 * ;
+func CELLS 1 * ;
 
 ( n1 n2 -- n1 n2 n1 n2 )
-func 2dup over over ;
+func 2DUP OVER OVER ;
 
 ( n1 n2 -- )
-func 2drop drop drop ;
+func 2DROP DROP DROP ;
 
 ( -- )
-func rdrop R> drop ;
+func RDROP R> DROP ;
 
 (n1 n2 -- n2 n1 n2 )
-func tuck swap over ;
+func TUCK SWAP OVER ;
 
 ( n1 -- 0 | n1 n1 )
-func ?dup dup dup 0= IF drop THEN ;
+func ?DUP DUP DUP 0= IF DROP THEN ;
 
 ( n1 n2 -- n1|n2 ) 
-func min over over - 0< IF drop ELSE nip THEN ;
+func MIN OVER OVER - 0< IF DROP ELSE NIP THEN ;
 
 ( n1 n2 -- n1|n2 )
-func max over over - 0> IF drop ELSE nip THEN ;
+func MAX OVER OVER - 0> IF DROP ELSE NIP THEN ;
 
 ( n -- -n )
-func negate -1 * ;
+func NEGATE -1 * ;
 
 ( n -- |n| )
-func abs dup 0< IF -1 * THEN ;
+func ABS DUP 0< IF -1 * THEN ;
 
 ( n -- n++ )
 func 1+ 1 + ;
@@ -69,4 +69,4 @@ func 1- 1 - ;
 
 \ func IF BZ [ HERE ] ;
 
-\ func THEN [ HERE swap ! ] ;
+\ func THEN [ HERE SWAP ! ] ;
