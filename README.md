@@ -117,13 +117,13 @@ Firth *g_pFirth = NULL;
 // custom word
 int isTwo(void)
 {
-	// get the TOS
+    // get the TOS
     auto n = g_pFirth->pop();
 
     // push result onto the stack
-	g_pFirth->push(n == 2 ? TRUE : FALSE);
+    g_pFirth->push(n == 2 ? TRUE : FALSE);
 
-	return TRUE;
+    return TRUE;
 }
 
 int main()
@@ -133,12 +133,12 @@ int main()
 	// load core libraries
 	g_pFirth->loadCore();
 
-	// add custom words that can be called from Firth
-	g_pFirth->define_user_word("istwo", isTwo);
+    // add custom words that can be called from Firth
+    g_pFirth->define_user_word("istwo", isTwo);
 
-	// add a const and a var
-	g_pFirth->define_word_const("PI", 31415);
-	g_pFirth->define_word_var("myVar", 16);
+    // add a const and a var
+    g_pFirth->define_word_const("PI", 31415);
+    g_pFirth->define_word_var("myVar", 16);
 
     // call Firth from native code
     g_pFirth->push(1);
@@ -147,7 +147,7 @@ int main()
     g_pFirth->exec_word(".");
 
     // parse Firth
-	while (g_pFirth->parse());
+    while (g_pFirth->parse());
 
     return 0;
 }
