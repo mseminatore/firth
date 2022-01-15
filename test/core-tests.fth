@@ -1,69 +1,69 @@
 \ core-tests.fth - test the core Firth Words
-\ Copyright 2022 Mark Seminatore. All rights reserved.
+\ Copyright 2022 Mark SeMINatore. All rights reserved.
 
 \
-\ Some test cases borrowed from https://forth-standard.org/standard/core/
+\ Some test cases borrowed from https://forth-stANDard.org/stANDard/core/
 \
 
 Test-group
-    ." Test drop "
-    T{ 1 2 drop }T 1 ==
+    ." Test DROP "
+    T{ 1 2 DROP }T 1 ==
 
-    ." Test swap "
-    T{ 1 2 swap }T 2 1 ==
+    ." Test SWAP "
+    T{ 1 2 SWAP }T 2 1 ==
 
-    ." Test dup "
-    T{ 1 dup }T 1 1 ==
+    ." Test DUP "
+    T{ 1 DUP }T 1 1 ==
 
-    ." Test max "
-    T{ 1 2 max }T 2 ==
-    T{ 2 1 max }T 2 ==
-    T{ -2 -1 max }T -1 ==
+    ." Test MAX "
+    T{ 1 2 MAX }T 2 ==
+    T{ 2 1 MAX }T 2 ==
+    T{ -2 -1 MAX }T -1 ==
 
-    ." Test min "
-    T{ 1 2 min }T 1 ==
-    T{ 2 1 min }T 1 ==
-    T{ -2 -1 min }T -2 ==
+    ." Test MIN "
+    T{ 1 2 MIN }T 1 ==
+    T{ 2 1 MIN }T 1 ==
+    T{ -2 -1 MIN }T -2 ==
 
-    ." Test negate "
-    T{ 1 negate }T -1 ==
-    T{ -1 negate }T 1 ==
-    T{ 0 negate }T 0 ==
+    ." Test NEGATE "
+    T{ 1 NEGATE }T -1 ==
+    T{ -1 NEGATE }T 1 ==
+    T{ 0 NEGATE }T 0 ==
 
-    ." Test abs "
-    T{ -1 abs }T 1 ==
-    T{ 1 abs }T 1 ==
-    T{ 0 abs }T 0 ==
+    ." Test ABS "
+    T{ -1 ABS }T 1 ==
+    T{ 1 ABS }T 1 ==
+    T{ 0 ABS }T 0 ==
 
-    ." Test nip "
-    T{ 1 2 nip }T 2 ==
+    ." Test NIP "
+    T{ 1 2 NIP }T 2 ==
 
-    ." Test not "
-    T{ 0 not }T 1 ==
-    T{ 1 not }T 0 ==
+    ." Test NOT "
+    T{ 0 NOT }T 1 ==
+    T{ 1 NOT }T 0 ==
 
-    ." Test or "
-    T{ 0 0 or }T 0 ==
-    T{ 1 0 or }T 1 ==
-    T{ 0 1 or }T 1 ==
-    T{ 1 1 or }T 1 ==
-    T{ 0 255 or }T 255 ==
+    ." Test OR "
+    T{ 0 0 OR }T 0 ==
+    T{ 1 0 OR }T 1 ==
+    T{ 0 1 OR }T 1 ==
+    T{ 1 1 OR }T 1 ==
+    T{ 0 255 OR }T 255 ==
 
-    ." Test xor "
-    T{ 0 0 xor }T 0 ==
-    T{ 0 1 xor }T 1 ==
-    T{ 1 0 xor }T 1 ==
-    T{ 1 1 xor }T 0 ==
+    ." Test XOR "
+    T{ 0 0 XOR }T 0 ==
+    T{ 0 1 XOR }T 1 ==
+    T{ 1 0 XOR }T 1 ==
+    T{ 1 1 XOR }T 0 ==
 
-    ." Test 2dup "
-    T{ 1 2 2dup }T 1 2 1 2 ==
+    ." Test 2DUP "
+    T{ 1 2 2DUP }T 1 2 1 2 ==
     
-    ." Test 2drop "
-    T{ 1 2 3 2drop }T 1 ==
+    ." Test 2DROP "
+    T{ 1 2 3 2DROP }T 1 ==
 
-    ." Test ?dup "
-    T{ 1 ?dup }T 1 1 ==
-    T{ 0 ?dup }T 0 ==
+    ." Test ?DUP "
+    T{ 1 ?DUP }T 1 1 ==
+    T{ 0 ?DUP }T 0 ==
 
     ." Test */ "
     T{ 1 2 2 */ }T 1 ==
@@ -106,25 +106,25 @@ Test-group
     T{ 1 0<> }T -1 ==
     T{ 0 0<> }T 0 ==
     
-    ." Test and "
-    T{ 0 0 and }T 0 ==
-    T{ 1 0 and }T 0 ==
-    T{ 0 1 and }T 0 ==
-    T{ 1 1 and }T 1 ==
-    T{ 0 255 and }T 0 ==
+    ." Test AND "
+    T{ 0 0 AND }T 0 ==
+    T{ 1 0 AND }T 0 ==
+    T{ 0 1 AND }T 0 ==
+    T{ 1 1 AND }T 1 ==
+    T{ 0 255 AND }T 0 ==
 
     ." Test over "
     T{ 1 2 over }T 1 2 1 ==
 
-    ." Test pow "
-    T{ 1 2 pow }T 1 ==
-    T{ 2 2 pow }T 4 ==
+    ." Test POW "
+    T{ 1 2 POW }T 1 ==
+    T{ 2 2 POW }T 4 ==
 
-    ." Test rot "
-    T{ 1 2 3 rot }T 2 3 1 ==
+    ." Test ROT "
+    T{ 1 2 3 ROT }T 2 3 1 ==
 
-    ." Test tuck "
-    T{ 1 2 tuck }T 2 1 2 ==
+    ." Test TUCK "
+    T{ 1 2 TUCK }T 2 1 2 ==
 
     ." Test + "
     T{ 1 1 + }T 2 ==
@@ -146,21 +146,21 @@ Test-group
     T{ 0 1 / }T 0 ==
     T{ 3 1 / }T 3 ==
 
-    ." Test mod "
-    T{ 0 1 mod }T 0 ==
-    T{ 1 1 mod }T 0 ==
-    T{ 2 1 mod }T 0 ==
+    ." Test MOD "
+    T{ 0 1 MOD }T 0 ==
+    T{ 1 1 MOD }T 0 ==
+    T{ 2 1 MOD }T 0 ==
 
-    ." Test /mod "
-    T{ 3 2 /mod }T 1 1 ==
-    T{ 1 1 /mod }T 1 0 ==
-    T{ 2 1 /mod }T 2 0 ==
+    ." Test /MOD "
+    T{ 3 2 /MOD }T 1 1 ==
+    T{ 1 1 /MOD }T 1 0 ==
+    T{ 2 1 /MOD }T 2 0 ==
 
-    ." Test sqr "
-    T{ 0 sqr }T 0 ==
-    T{ 1 sqr }T 1 ==
-    T{ 2 sqr }T 4 ==
-    T{ -2 sqr }T 4 ==
+    ." Test SQR "
+    T{ 0 SQR }T 0 ==
+    T{ 1 SQR }T 1 ==
+    T{ 2 SQR }T 4 ==
+    T{ -2 SQR }T 4 ==
 
     ." Test 1+ "
     T{ 0 1+ }T 1 ==
@@ -188,10 +188,10 @@ Test-group
     ." Test DO LOOP "
     T{ func DL1 3 0 DO I LOOP ; DL1 }T 0 1 2 ==
 
-    ." Test depth "
-    T{ 0 1 depth }T 0 1 2 ==
-    T{ 0 depth }T 0 1 ==
-    T{ depth }T 0 ==
+    ." Test DEPTH "
+    T{ 0 1 DEPTH }T 0 1 2 ==
+    T{ 0 DEPTH }T 0 1 ==
+    T{ DEPTH }T 0 ==
 
     ." Test IF ELSE THEN "
     func GI1 IF 123 THEN ;
