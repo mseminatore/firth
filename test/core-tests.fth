@@ -172,6 +172,19 @@ Test-group
     T{ -1 1- }T -2 ==
     T{ 1 1- }T 0 ==
 
+    ." Test LSHIFT "
+    T{ 1 0 LSHIFT }T 1 ==
+    T{ 1 1 LSHIFT }T 2 ==
+    T{ 1 2 LSHIFT }T 4 ==
+    \ T{ MSB 1 LSHIFT }T 0 ==
+
+    ." Test RSHIFT "
+    T{ 1 0 RSHIFT }T 1 ==
+    T{ 1 1 RSHIFT }T 0 ==
+    T{ 2 1 RSHIFT }T 1 ==
+    T{ 4 2 RSHIFT }T 1 ==
+    \ T{ MSB 1 RSHIFT 2 * }T MSB ==
+
     ." Test DO LOOP "
     T{ func DL1 3 0 DO I LOOP ; DL1 }T 0 1 2 ==
 

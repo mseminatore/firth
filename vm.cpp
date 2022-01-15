@@ -66,6 +66,8 @@ VM::VM()
 	define_word("or", OP_OR);
 	define_word("not", OP_NOT);
 	define_word("xor", OP_XOR);
+	define_word("LSHIFT", OP_LSHIFT);
+	define_word("RSHIFT", OP_RSHIFT);
 
 	// stack words
 	define_word("dup", OP_DUP);
@@ -1107,6 +1109,22 @@ int VM::exec_word(const std::string &word)
 		{
 			char *pStr = (char*)bytecode[ip++];
 			fprintf(fout, "%s\n", pStr);
+		}
+			break;
+
+		case OP_RSHIFT:
+		{
+			auto shift = pop();
+			auto num = pop();
+			push(num >> shift);
+		}
+			break;
+
+		case OP_LSHIFT:
+		{
+			auto shift = pop();
+			auto num = pop();
+			push(num << shift);
 		}
 			break;
 

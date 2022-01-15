@@ -77,11 +77,13 @@ enum
 	OP_ZGT,
 	OP_ZNE,
 
-	// logic ops
+	// bitwise and logic ops
 	OP_AND,
 	OP_OR,
 	OP_NOT,
 	OP_XOR,
+	OP_RSHIFT,
+	OP_LSHIFT,
 
 	// stack ops
 	OP_DUP,

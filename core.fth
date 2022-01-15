@@ -65,6 +65,7 @@ func 1- 1 - ;
 \ number ranges
 2147483647 const MAX-INT
 -2147483646 const MIN-INT
+2147483648 const MSB
 
 \ func IF BZ [ HERE ] ;
 
