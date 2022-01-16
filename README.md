@@ -106,7 +106,8 @@ for the number currently on the stack.
 
 Firth is designed to be very easy to embed into other apps with just a few API
 calls. The file *main.cpp* demonstrates how to initialize Firth and add custom
-`Words` for a constant, a variable, and a native function.
+`Words` for a constant, a variable, and a native function. The important excerpts
+of *main.cpp* are shown below.
 
 ```C++
 
@@ -114,17 +115,32 @@ calls. The file *main.cpp* demonstrates how to initialize Firth and add custom
 
 Firth *g_pFirth = NULL;
 
-// custom word
-int isTwo(void)
+// custom word functions
+static int isEven(Firth *pFirth)
 {
-    // get the TOS
-    auto n = g_pFirth->pop();
+	auto n = pFirth->pop();
+	pFirth->push((n % 2) == 0 ? F_TRUE : F_FALSE);
 
-    // push result onto the stack
-    g_pFirth->push(n == 2 ? TRUE : FALSE);
-
-    return TRUE;
+	return F_TRUE;
 }
+
+static int isOdd(Firth *pFirth)
+{
+	auto n = pFirth->pop();
+	pFirth->push((n % 2) ? F_TRUE : F_FALSE);
+
+	return F_TRUE;
+}
+
+// register our collection of custom words
+static const struct FirthRegister myWords[] =
+{
+	{ "even?", isEven },
+	{ "odd?", isOdd },
+	{ nullptr, nullptr }
+};
+
+FirthNumber tickCount;
 
 int main()
 {
@@ -134,16 +150,19 @@ int main()
 	g_pFirth->loadCore();
 
     // add custom words that can be called from Firth
-    g_pFirth->define_user_word("istwo", isTwo);
+	g_pFirth->register_words(myWords);
 
     // add a const and a var
-    g_pFirth->define_word_const("PI", 31415);
-    g_pFirth->define_word_var("myVar", 16);
+	g_pFirth->define_word_const("APP.VER", 1);
+	g_pFirth->define_word_var("System.Tick", &tickCount);
 
-    // call Firth from native code
-    g_pFirth->push(1);
-    g_pFirth->push(2);
-    g_pFirth->exec_word("+");
+    // examples of calling Firth from native code
+    
+	// do_word is a set of convenience methods to push 
+	// 1, 2, or 3 parameters on stack and execute a word
+	g_pFirth->do_word("+", 1, 2);
+	
+	// execute any defined word, no parameters
     g_pFirth->exec_word(".");
 
     // parse Firth

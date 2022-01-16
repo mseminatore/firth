@@ -5,11 +5,11 @@
 #include <vector>
 
 //
-typedef int Number;
+typedef int FirthNumber;
 typedef int Instruction;
 
-const int TRUE = -1;
-const int FALSE = 0;
+const int F_TRUE = -1;
+const int F_FALSE = 0;
 const int UNDEFINED = 0xCCCCCCCC;
 
 extern bool g_bVerbose;
@@ -35,6 +35,7 @@ enum
 	// variables
 	OP_VAR,
 	OP_VAR_IMPL,
+	OP_USER_VAR,
 	OP_CONST,
 	OP_FETCH,
 	OP_STORE,
@@ -109,7 +110,8 @@ enum
 };
 
 // type of native words
-typedef int(*FirthFunc)(void);
+class Firth;
+typedef int(*FirthFunc)(Firth *pFirth);
 
 //
 //
@@ -127,13 +129,21 @@ public:
 	int opcode;
 	
 	FirthFunc nativeWord;
+	FirthNumber *pUserNumber;
 
 	Word() { 
 		code_addr = data_addr = opcode = 0; 
 		compileOnly = immediate = false; 
 		type = OP_FUNC; 
 		nativeWord = nullptr;
+		pUserNumber = nullptr;
 	}
+};
+
+struct FirthRegister
+{
+	char *wordName;
+	FirthFunc func;
 };
 
 //
@@ -157,7 +167,7 @@ protected:
 	std::map<int, std::string> disasm;
 
 	// the data stack
-	typedef std::stack<Number> Stack;
+	typedef std::stack<FirthNumber> Stack;
 	Stack stack;
 	
 	// is Firth compiling or interpreting?
@@ -226,7 +236,9 @@ public:
 	int exec_word(const std::string &word);
 
 	int define_word_var(const std::string &word, int val);
-	int define_word_const(const std::string &word, int val);
+	int define_word_var(const std::string &word, FirthNumber *val);
+
+	int define_word_const(const std::string &word, FirthNumber val);
 	int define_user_word(const std::string &word, FirthFunc func, bool compileOnly = false);
 
 	int interpret(const std::string &token);
@@ -244,11 +256,17 @@ public:
 		return loadLibrary("core.fth");
 	}
 
-	void push(const Number &val)
+	int register_words(const FirthRegister words[]);
+
+	void push(const FirthNumber &val)
 	{
 		stack.push(val);
 	}
 
-	Number pop();
-	Number top() { return stack.top(); }
+	FirthNumber pop();
+	FirthNumber top() { return stack.top(); }
+
+	int do_word(const std::string &word, FirthNumber n) { push(n); return exec_word(word); }
+	int do_word(const std::string &word, FirthNumber n1, FirthNumber n2) { push(n1); push(n2); return exec_word(word); }
+	int do_word(const std::string &word, FirthNumber n1, FirthNumber n2, FirthNumber n3) { push(n1); push(n2); push(n3); return exec_word(word); }
 };
