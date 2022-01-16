@@ -90,10 +90,10 @@ Next, we define a new `Word` called `fib` that computes the Fibonacci sequence
 for the number currently on the stack.
 
 ```Forth
-> func fib dup
-    0<> IF dup 1 
+> func fib DUP
+    0<> IF DUP 1 
             <> IF
-                0 1 rot 1- 0 DO dup rot + LOOP nip
+                0 1 ROT 1- 0 DO DUP ROT + LOOP NIP
             THEN
         THEN
 ;
@@ -146,21 +146,21 @@ int main()
 {
     g_pFirth = new Firth();
 
-	// load core libraries
-	g_pFirth->loadCore();
+    // load core libraries
+    g_pFirth->loadCore();
 
     // add custom words that can be called from Firth
-	g_pFirth->register_words(myWords);
+    g_pFirth->register_words(myWords);
 
     // add a const and a var
-	g_pFirth->define_word_const("APP.VER", 1);
-	g_pFirth->define_word_var("System.Tick", &tickCount);
+    g_pFirth->define_word_const("APP.VER", 1);
+    g_pFirth->define_word_var("System.Tick", &tickCount);
 
     // examples of calling Firth from native code
-    
-	// do_word is a set of convenience methods to push 
-	// 1, 2, or 3 parameters on stack and execute a word
-	g_pFirth->do_word("+", 1, 2);
+
+    // do_word is a set of convenience methods to push 
+    // 1, 2, or 3 parameters on stack and execute a word
+    g_pFirth->do_word("+", 1, 2);
 	
 	// execute any defined word, no parameters
     g_pFirth->exec_word(".");
