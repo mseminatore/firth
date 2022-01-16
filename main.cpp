@@ -28,7 +28,7 @@ int getopt(int n, char *args[])
 	return i;
 }
 
-// custom word
+// custom word functions
 static int isEven(Firth *pFirth)
 {
 	auto n = pFirth->pop();
@@ -45,7 +45,7 @@ static int isOdd(Firth *pFirth)
 	return F_TRUE;
 }
 
-// 
+// register our collection of custom words
 static const struct FirthRegister myWords[] =
 {
 	{ "even?", isEven },
