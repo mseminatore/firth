@@ -7,10 +7,18 @@
 #include "firth.h"
 
 //
+static void firth_default_output(char *s)
+{
+	puts(s);
+}
+
+//
 // Create the default environment
 //
 Firth::Firth()
 {
+	firth_print = firth_default_output;
+
 	fin = stdin;
 	fout = stdout;
 
@@ -108,13 +116,26 @@ Firth::Firth()
 }
 
 //
+void Firth::firth_printf(char *format, ...)
+{
+	char buf[512];
+	va_list valist;
+
+	va_start(valist, format);
+	vsprintf(buf, format, valist);
+	va_end(valist);
+
+	firth_print(buf);
+}
+
+//
 int Firth::load(const std::string &file)
 {
 	FILE *f = fopen(file.c_str(), "rt");
 	if (!f)
 		return F_FALSE;
 
-	setInputFile(f);
+	set_input_file(f);
 	
 	parse();
 
@@ -254,7 +275,7 @@ FirthNumber Firth::pop()
 	// check for stack underflow
 	if (stack.size() == 0)
 	{
-		fprintf(fout, " Stack underflow\n");
+		firth_print(" Stack underflow\n");
 		return 0;
 	}
 
@@ -283,7 +304,7 @@ int Firth::interpret(const std::string &token)
 		}
 		else
 		{
-			fprintf(fout, "%s ?\n", token.c_str());
+			firth_printf("%s ?\n", token.c_str());
 			return F_FALSE;
 		}
 	}
@@ -324,7 +345,7 @@ int Firth::parse()
 	do
 	{
 		if (fin == stdin)
-			fputs("\nfirth> ", fout);
+			firth_print("\nfirth> ");
 
 		while ((token = lex()) != '\n' && token != EOF)
 		{
@@ -336,14 +357,14 @@ int Firth::parse()
 		}
 
 		if (token == '\n' && err == F_TRUE && fin == stdin)
-			fputs(" ok\n", fout);
+			firth_print(" ok\n");
 
 	} while (token != EOF);
 
 	if (fin != stdin)
 	{
 		fclose(fin);
-		setInputFile(stdin);
+		set_input_file(stdin);
 	}
 
 	return F_TRUE;
@@ -535,7 +556,7 @@ int Firth::compile(const std::string &token)
 		}
 		else
 		{
-			fprintf(fout, "%s ?\n", token.c_str());
+			firth_printf("%s ?\n", token.c_str());
 			return F_FALSE;
 		}
 	}
@@ -719,7 +740,7 @@ int Firth::exec_word(const std::string &word)
 	Word w = result->second;
 	if (w.compileOnly)
 	{
-		fputs(" action is not a function\n", fout);
+		firth_print(" action is not a function\n");
 		return F_FALSE;
 	}
 
@@ -823,7 +844,7 @@ int Firth::exec_word(const std::string &word)
 		case OP_PRINT:
 		{
 			auto a = pop();
-			fprintf(fout, "%d", a);
+			firth_printf("%d", a);
 		}
 			break;
 
@@ -914,7 +935,7 @@ int Firth::exec_word(const std::string &word)
 		case OP_EMIT:
 		{
 			auto c = pop();
-			fputc(c, fout);
+			firth_printf("%c", c);
 		}
 			break;
 
@@ -1009,13 +1030,13 @@ int Firth::exec_word(const std::string &word)
 			// make a copy of the stack
 			Stack s = stack;
 
-			fprintf(fout, "Top -> [ ");
+			firth_printf("Top -> [ ");
 			while(s.size())
 			{
-				fprintf(fout, "%d ", s.top());
+				firth_printf("%d ", s.top());
 				s.pop();
 			}
-			fputs("]\n", fout);
+			firth_print("]\n");
 		}
 			break;
 		
@@ -1027,7 +1048,7 @@ int Firth::exec_word(const std::string &word)
 			if (c != '"')
 				ungetChar(c);
 
-			fprintf(fout, "%s\n", lval);
+			firth_printf("%s\n", lval);
 		}
 			break;
 
@@ -1059,7 +1080,7 @@ int Firth::exec_word(const std::string &word)
 			FILE *f = fopen(lval, "rt");
 			// set files
 			if (f)
-				setInputFile(f);
+				set_input_file(f);
 		}
 			break;
 
@@ -1194,7 +1215,7 @@ int Firth::exec_word(const std::string &word)
 		case OP_SPRINT:
 		{
 			char *pStr = (char*)bytecode[ip++];
-			fprintf(fout, "%s\n", pStr);
+			firth_printf("%s\n", pStr);
 		}
 			break;
 
@@ -1218,9 +1239,9 @@ int Firth::exec_word(const std::string &word)
 		{
 			for (auto iter = dict.begin(); iter != dict.end(); iter++)
 			{
-				fprintf(fout, "%s\n", iter->first.c_str());
+				firth_printf("%s\n", iter->first.c_str());
 			}
-			fprintf(fout, "\nThere are %d WORDS in the dictionary.\n", dict.size());
+			firth_printf("\nThere are %d WORDS in the dictionary.\n", dict.size());
 		}
 			break;
 

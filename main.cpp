@@ -53,6 +53,12 @@ static const struct FirthRegister myWords[] =
 	{ nullptr, nullptr }
 };
 
+// custom output function
+static void myprint(char *s)
+{
+	fputs(s, fout);
+}
+
 FirthNumber tickCount;
 
 //
@@ -62,11 +68,12 @@ int main(int argc, char **argv)
 {
 	g_pFirth = new Firth();
 
-	g_pFirth->setInputFile(fin);
-	g_pFirth->setOutputFile(fout);
+	g_pFirth->set_input_file(fin);
+	g_pFirth->set_output_file(fout);
+	g_pFirth->set_output_func(myprint);
 
 	// load (optional) core libraries
-	g_pFirth->loadCore();
+	g_pFirth->load_core();
 
 	// add our own custom words
 	g_pFirth->register_words(myWords);

@@ -113,6 +113,8 @@ enum
 class Firth;
 typedef int(*FirthFunc)(Firth *pFirth);
 
+typedef void(*FirthOutputFunc)(char*);
+
 //
 //
 //
@@ -127,13 +129,14 @@ public:
 	bool immediate;		// execute immediately
 	int type;
 	int opcode;
-	
+	bool hidden;
+
 	FirthFunc nativeWord;
 	FirthNumber *pUserNumber;
 
 	Word() { 
 		code_addr = data_addr = opcode = 0; 
-		compileOnly = immediate = false; 
+		compileOnly = immediate = hidden = false; 
 		type = OP_FUNC; 
 		nativeWord = nullptr;
 		pUserNumber = nullptr;
@@ -188,6 +191,8 @@ protected:
 	FILE *fin, *fout;
 	char lval[256];
 
+	FirthOutputFunc firth_print;
+
 	//
 	// non-public methods
 	//
@@ -213,20 +218,23 @@ public:
 	virtual ~Firth() {}
 
 
-	void setInputFile(FILE *f) { 
+	void set_input_file(FILE *f) { 
 		if (f) 
 			fin = f; 
 		else 
 			fin = stdin; 
 	}
 
-	void setOutputFile(FILE *f) 
+	void set_output_file(FILE *f) 
 	{ 
 		if (f) 
 			fout = f; 
 		else 
 			fout = stdout; 
 	}
+
+	void set_output_func(FirthOutputFunc func) { firth_print = func; }
+	void firth_printf(char *format, ...);
 
 	int parse();
 	int parse_token(const std::string &token);
@@ -245,15 +253,15 @@ public:
 	int compile(const std::string &token);
 	int compile_time(const Word &w);
 
-	int loadLibrary(const std::string &file)
+	int load_library(const std::string &file)
 	{
 		return load(file);
 	}
 
-	int loadCore()
+	int load_core()
 	{
 		// core words
-		return loadLibrary("core.fth");
+		return load_library("core.fth");
 	}
 
 	int register_words(const FirthRegister words[]);
