@@ -69,7 +69,6 @@ int main(int argc, char **argv)
 	g_pFirth = new Firth();
 
 	g_pFirth->set_input_file(fin);
-	g_pFirth->set_output_file(fout);
 	g_pFirth->set_output_func(myprint);
 
 	// load (optional) core libraries

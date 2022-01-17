@@ -7,10 +7,11 @@
 //
 typedef int FirthNumber;
 typedef int Instruction;
+typedef float FirthFloat;
 
 const int F_TRUE = -1;
 const int F_FALSE = 0;
-const int UNDEFINED = 0xCCCCCCCC;
+const int F_UNDEFINED = 0xCCCCCCCC;
 
 extern bool g_bVerbose;
 
@@ -132,14 +133,14 @@ public:
 	bool hidden;
 
 	FirthFunc nativeWord;
-	FirthNumber *pUserNumber;
+	FirthNumber *pUserVar;
 
 	Word() { 
 		code_addr = data_addr = opcode = 0; 
 		compileOnly = immediate = hidden = false; 
 		type = OP_FUNC; 
 		nativeWord = nullptr;
-		pUserNumber = nullptr;
+		pUserVar = nullptr;
 	}
 };
 
@@ -181,14 +182,17 @@ protected:
 	std::vector<int> bytecode;
 
 	// data segment
-	std::vector<int> dataseg;
+	std::vector<FirthNumber> dataseg;
 
 	// stack of return addrs
 	std::stack<int> return_stack;
 
+	// float stack
+	std::stack<FirthFloat> fstack;
+
 	int ip, cp;
 
-	FILE *fin, *fout;
+	FILE *fin;
 	char lval[256];
 
 	FirthOutputFunc firth_print;
@@ -209,9 +213,10 @@ protected:
 	int skipLeadingWhiteSpace();
 	int lex(int delim = ' ');
 
-	int define_word_var(const std::string &word, int val, int daddr);
+	int define_word_var(const std::string &word, FirthNumber val, int daddr);
 	int define_word(const std::string &word, int op, bool compileOnly = false);
 	int create_word(const std::string &word, const Word &w);
+	int make_hidden(const std::string &word, bool flag);
 
 public:
 	Firth();
@@ -225,14 +230,6 @@ public:
 			fin = stdin; 
 	}
 
-	void set_output_file(FILE *f) 
-	{ 
-		if (f) 
-			fout = f; 
-		else 
-			fout = stdout; 
-	}
-
 	void set_output_func(FirthOutputFunc func) { firth_print = func; }
 	void firth_printf(char *format, ...);
 
@@ -240,10 +237,10 @@ public:
 	int parse_token(const std::string &token);
 	int parse_string(const std::string &line);
 
-	int lookup_word(const std::string &word, Word &w);
+	int lookup_word(const std::string &word, Word **ppWord);
 	int exec_word(const std::string &word);
 
-	int define_word_var(const std::string &word, int val);
+	int define_word_var(const std::string &word, FirthNumber val);
 	int define_word_var(const std::string &word, FirthNumber *val);
 
 	int define_word_const(const std::string &word, FirthNumber val);
@@ -273,6 +270,10 @@ public:
 
 	FirthNumber pop();
 	FirthNumber top() { return stack.top(); }
+
+	FirthFloat popf();
+	void pushf(const FirthFloat &f) { fstack.push(f); }
+	FirthFloat topf() { return fstack.top(); }
 
 	int do_word(const std::string &word, FirthNumber n) { push(n); return exec_word(word); }
 	int do_word(const std::string &word, FirthNumber n1, FirthNumber n2) { push(n1); push(n2); return exec_word(word); }
