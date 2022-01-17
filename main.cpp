@@ -5,6 +5,7 @@
 #include <ctype.h>
 
 #include "firth.h"
+#include "firth_float.h"
 
 static FILE *fin = stdin;
 static FILE *fout = stdout;
@@ -62,6 +63,17 @@ static void myprint(char *s)
 FirthNumber tickCount;
 
 //
+void callFirth(Firth *pFirth)
+{
+	// do_word is a set of convenience methods to push 
+	// 1, 2, or 3 parameters on stack and execute a word
+	pFirth->do_word("+", 1, 2);
+
+	// execute any defined word, no parameters
+	pFirth->exec_word(".");
+}
+
+//
 // This is an example of the Firth REPL embedded in another program.
 //
 int main(int argc, char **argv)
@@ -74,6 +86,9 @@ int main(int argc, char **argv)
 	// load (optional) core libraries
 	g_pFirth->load_core();
 
+	// load (optional) floating point libraries
+	firth_register_float(g_pFirth);
+
 	// add our own custom words
 	g_pFirth->register_words(myWords);
 
@@ -82,13 +97,7 @@ int main(int argc, char **argv)
 	g_pFirth->define_word_var("System.Tick", &tickCount);
 
 	// examples of calling Firth from native code
-	
-	// do_word is a set of convenience methods to push 
-	// 1, 2, or 3 parameters on stack and execute a word
-	g_pFirth->do_word("+", 1, 2);
-	
-	// execute any defined word, no parameters
-	g_pFirth->exec_word(".");
+//	callFirth();
 
 	// REPL loop
 	int active = F_TRUE;

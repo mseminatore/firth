@@ -191,6 +191,7 @@ protected:
 	std::stack<FirthFloat> fstack;
 
 	int ip, cp;
+	int hexmode;
 
 	FILE *fin;
 	char lval[256];
@@ -212,6 +213,7 @@ protected:
 	void skipToChar(int c);
 	int skipLeadingWhiteSpace();
 	int lex(int delim = ' ');
+	bool isInteger(const char *s);
 
 	int define_word_var(const std::string &word, FirthNumber val, int daddr);
 	int define_word(const std::string &word, int op, bool compileOnly = false);

@@ -24,6 +24,8 @@ Firth::Firth()
 	cp = 0;
 	ip = 0;
 
+	hexmode = 0;
+
 	dataseg.push_back(0);
 
 	interpreter = true;
@@ -180,6 +182,22 @@ bool Firth::isNumber(int c)
 	return (isdigit(c) || c == '-');
 }
 
+bool Firth::isInteger(const char *s)
+{
+	if (*s != '-' && *s != '+' && !isdigit(*s))
+		return false;
+
+	s++;
+
+	for (; *s; s++)
+	{
+		if (!isdigit(*s))
+			return false;
+	}
+
+	return true;
+}
+
 //
 //
 //
@@ -314,10 +332,15 @@ int Firth::interpret(const std::string &token)
 	if (!exec_word(token))
 	{
 		// if the word is not in dictionary assume it is a number and push it on the stack
-		if (isdigit(token[0]) || token[0] == '-')
+		if (isInteger(token.c_str()))
 		{
 			FirthNumber num = atoi(token.c_str());
 			push(num);
+		}
+		else if (strchr(token.c_str(), '.'))
+		{
+			FirthFloat num = (FirthFloat)atof(token.c_str());
+			pushf(num);
 		}
 		else
 		{
@@ -499,7 +522,7 @@ int Firth::define_word_var(const std::string &word, FirthNumber val)
 	return F_TRUE;
 }
 
-//
+// define a user var word
 int Firth::define_word_var(const std::string &word, FirthNumber *pValue)
 {
 	Word w;
@@ -507,8 +530,11 @@ int Firth::define_word_var(const std::string &word, FirthNumber *pValue)
 	// all vars call the same run-time code
 	w.code_addr = bytecode.size();
 	w.type = OP_USER_VAR;
+	w.opcode = OP_USER_VAR;
 	w.pUserVar = pValue;
 
+	emit(OP_LIT);
+	emit((int)pValue);
 	emit(OP_USER_VAR);
 	emit(OP_RET);
 
@@ -599,6 +625,14 @@ int Firth::compile_time(const Word &w)
 {
 	switch (w.opcode)
 	{
+	case OP_USER_VAR:
+	{
+		emit(OP_LIT);
+		emit((int)w.pUserVar);
+		emit(OP_USER_VAR);
+	}
+		break;
+
 	case OP_VAR:
 	{
 		emit(OP_LIT);
@@ -1197,10 +1231,12 @@ int Firth::exec_word(const std::string &word)
 		// ( -- n )
 		case OP_USER_VAR:
 		{
-			if (w.pUserVar)
-				push(*w.pUserVar);
-			else
-				push(0);	// TODO - error?
+			FirthNumber *pNum = (FirthNumber*)pop();
+			push(*pNum);
+			//if (w.pUserVar)
+			//	push(*w.pUserVar);
+			//else
+			//	push(0);	// TODO - error?
 		}
 			break;
 
