@@ -47,7 +47,7 @@ static int isOdd(Firth *pFirth)
 }
 
 // register our collection of custom words
-static const struct FirthRegister myWords[] =
+static const struct FirthWordSet myWords[] =
 {
 	{ "even?", isEven },
 	{ "odd?", isOdd },
@@ -62,7 +62,7 @@ static void myprint(char *s)
 
 FirthNumber tickCount;
 
-//
+// examples of calling Firth from native code
 void callFirth(Firth *pFirth)
 {
 	// do_word is a set of convenience methods to push 
@@ -90,18 +90,14 @@ int main(int argc, char **argv)
 	firth_register_float(g_pFirth);
 
 	// add our own custom words
-	g_pFirth->register_words(myWords);
+	g_pFirth->register_wordset(myWords);
 
 	// add a const and a var
 	g_pFirth->define_word_const("APP.VER", 1);
 	g_pFirth->define_word_var("System.Tick", &tickCount);
 
-	// examples of calling Firth from native code
-//	callFirth();
-
 	// REPL loop
 	int active = F_TRUE;
-
 	while (active)
 	{
 		tickCount = GetTickCount();

@@ -15,21 +15,23 @@ static void firth_default_output(char *s)
 //
 // Create the default environment
 //
-Firth::Firth()
+Firth::Firth(unsigned data_limit)
 {
 	firth_print = firth_default_output;
 
 	fin = stdin;
 
-	cp = 0;
+	this->data_limit = data_limit;
+	DP = pDataSegment = new FirthNumber[data_limit];
+
+	CP = DP++;
+	*CP = 0;
+
 	ip = 0;
 
 	hexmode = 0;
 
-	dataseg.push_back(0);
-
 	interpreter = true;
-	compiling = true;
 
 	// special opcode that tells us when execution is finished
 	emit(OP_DONE);
@@ -39,10 +41,10 @@ Firth::Firth()
 	define_word("-", OP_MINUS);
 	define_word("*", OP_MUL);
 	define_word("/", OP_DIV);
-	define_word("mod", OP_MOD);
-	define_word("/mod", OP_DIVMOD);
+	define_word("MOD", OP_MOD);
+	define_word("/MOD", OP_DIVMOD);
 	define_word("*/", OP_MULDIV);
-	define_word("pow", OP_POW);
+	define_word("POW", OP_POW);
 
 	// relational words
 	define_word("<", OP_LT);
@@ -72,61 +74,63 @@ Firth::Firth()
 	define_word("I", OP_RFETCH, true);
 
 	// logic words
-	define_word("and", OP_AND);
-	define_word("or", OP_OR);
-	define_word("not", OP_NOT);
-	define_word("xor", OP_XOR);
+	define_word("AND", OP_AND);
+	define_word("OR", OP_OR);
+	define_word("NOT", OP_NOT);
+	define_word("XOR", OP_XOR);
 	define_word("LSHIFT", OP_LSHIFT);
 	define_word("RSHIFT", OP_RSHIFT);
 
 	// stack words
-	define_word("dup", OP_DUP);
-	define_word("swap", OP_SWAP);
-	define_word("drop", OP_DROP);
-	define_word("rot", OP_ROT);
-	define_word("over", OP_OVER);
+	define_word("DUP", OP_DUP);
+	define_word("SWAP", OP_SWAP);
+	define_word("DROP", OP_DROP);
+	define_word("ROT", OP_ROT);
+	define_word("OVER", OP_OVER);
 	define_word(">R", OP_TO_R);
 	define_word("R>", OP_FROM_R);
 	define_word("R@", OP_RFETCH);
 
 	// IO words
 	define_word(".", OP_PRINT);
-	define_word("emit", OP_EMIT);
+	define_word("EMIT", OP_EMIT);
 	define_word(".S", OP_DOTS);
 	define_word(".\"", OP_DOTQUOTE);
 
 	// variable and constant words
-	define_word("var", OP_VAR);
+	define_word("VAR", OP_VAR);
+	define_word("VARIABLE", OP_VAR);			// for Forth compat
 	define_word("__var_impl", OP_VAR_IMPL);
-	define_word("const", OP_CONST);
+	define_word("CONST", OP_CONST);
+	define_word("CONSTANT", OP_CONST);			// for Forth compat
 	define_word("@", OP_FETCH);
 	define_word("!", OP_STORE);
-	define_word("allot", OP_ALLOT);
+	define_word("ALLOT", OP_ALLOT);
 
 	// compiler words
 	define_word(":", OP_FUNC);
-	define_word("func", OP_FUNC);
-	define_word("fn", OP_FUNC);
-	define_word("def", OP_FUNC);
-	define_word("include", OP_LOAD);
-	define_word("depth", OP_DEPTH);
+	define_word("FUNC", OP_FUNC);
+	define_word("FN", OP_FUNC);
+	define_word("DEF", OP_FUNC);
+	define_word("INCLUDE", OP_LOAD);
+	define_word("DEPTH", OP_DEPTH);
 	define_word("WORDS", OP_WORDS);
 
 	// pre-defined variables
-	define_word_var("CP", 0, cp);
+	define_word_var("CP", CP);
 
 	// hide internal words
 	make_hidden("__var_impl", true);
 }
 
-//
+// Firth formatted output function
 void Firth::firth_printf(char *format, ...)
 {
 	char buf[512];
 	va_list valist;
 
 	va_start(valist, format);
-	vsprintf(buf, format, valist);
+		vsprintf(buf, format, valist);
 	va_end(valist);
 
 	firth_print(buf);
@@ -148,13 +152,13 @@ int Firth::load(const std::string &file)
 	return F_TRUE;
 }
 
-//
+// write given opcode to code segment
 void Firth::emit(int op)
 {
 	bytecode.push_back(op);
 
 	// update CP
-	dataseg[cp] = bytecode.size();
+	*CP = bytecode.size();
 }
 
 //
@@ -411,7 +415,7 @@ int Firth::parse()
 }
 
 //
-int Firth::register_words(const FirthRegister words[])
+int Firth::register_wordset(const FirthWordSet words[])
 {
 	for (int i = 0; words[i].wordName && words[i].func; i++)
 	{
@@ -459,7 +463,7 @@ int Firth::define_word(const std::string &word, int opcode, bool compileOnly)
 }
 
 //
-// Create a new 
+// Create a new native word
 //
 int Firth::define_user_word(const std::string &word, FirthFunc func, bool compileOnly)
 {
@@ -470,6 +474,8 @@ int Firth::define_user_word(const std::string &word, FirthFunc func, bool compil
 
 	w.nativeWord = func;
 	w.compileOnly = compileOnly;
+	w.opcode = OP_NATIVE_FUNC;
+	w.type = OP_NATIVE_FUNC;
 
 	if (F_FALSE == create_word(word, w))
 		return F_FALSE;
@@ -477,7 +483,7 @@ int Firth::define_user_word(const std::string &word, FirthFunc func, bool compil
 	return F_TRUE;
 }
 
-//
+// prevent the word from enumerating to users
 int Firth::make_hidden(const std::string &word, bool flag)
 {
 	Word *word_obj = nullptr;
@@ -490,8 +496,8 @@ int Firth::make_hidden(const std::string &word, bool flag)
 	return F_TRUE;
 }
 
-//
-int Firth::define_word_var(const std::string &word, FirthNumber val, int daddr)
+// define a variable at the given address
+int Firth::define_word_var(const std::string &word, FirthNumber *daddr)
 {
 	Word *var_word = nullptr;
 
@@ -512,35 +518,13 @@ int Firth::define_word_var(const std::string &word, FirthNumber val, int daddr)
 	return F_TRUE;
 }
 
-//
+// initialize a new variable with given value
 int Firth::define_word_var(const std::string &word, FirthNumber val)
 {
-	if (F_FALSE == define_word_var(word, val, dataseg.size()))
+	if (F_FALSE == define_word_var(word, DP))
 		return F_FALSE;
 
-	dataseg.push_back(val);
-	return F_TRUE;
-}
-
-// define a user var word
-int Firth::define_word_var(const std::string &word, FirthNumber *pValue)
-{
-	Word w;
-
-	// all vars call the same run-time code
-	w.code_addr = bytecode.size();
-	w.type = OP_USER_VAR;
-	w.opcode = OP_USER_VAR;
-	w.pUserVar = pValue;
-
-	emit(OP_LIT);
-	emit((int)pValue);
-	emit(OP_USER_VAR);
-	emit(OP_RET);
-
-	if (F_FALSE == create_word(word, w))
-		return F_FALSE;
-
+	push_data(val);
 	return F_TRUE;
 }
 
@@ -551,7 +535,7 @@ int Firth::define_word_const(const std::string &word, FirthNumber val)
 
 	// all vars call the same run-time code
 	w.code_addr = bytecode.size();
-	w.data_addr = val;
+//	w.data_addr = val;
 	w.type = OP_CONST;
 
 	emit(OP_LIT);
@@ -625,18 +609,10 @@ int Firth::compile_time(const Word &w)
 {
 	switch (w.opcode)
 	{
-	case OP_USER_VAR:
-	{
-		emit(OP_LIT);
-		emit((int)w.pUserVar);
-		emit(OP_USER_VAR);
-	}
-		break;
-
 	case OP_VAR:
 	{
 		emit(OP_LIT);
-		emit(w.data_addr);
+		emit((int)w.data_addr);
 	}
 		break;
 
@@ -781,6 +757,13 @@ int Firth::compile_time(const Word &w)
 	}
 		break;
 
+	case OP_NATIVE_FUNC:
+	{
+		emit(w.opcode);
+		emit((int)w.nativeWord);
+	}
+		break;
+
 	case OP_DONE:
 	default:
 		emit(w.opcode);
@@ -800,8 +783,9 @@ int Firth::exec_word(const std::string &word)
 	if (result == dict.end())
 		return F_FALSE;
 
-	// exec the word
 	Word w = result->second;
+
+	// we can't execute compile-time only words
 	if (w.compileOnly)
 	{
 		firth_print(" action is not a function\n");
@@ -814,7 +798,8 @@ int Firth::exec_word(const std::string &word)
 		return w.nativeWord(this);
 	}
 
-	return_stack.push(ip);
+	// jump to the execution context (xt) for the word
+	return_stack.push(ip);	// TODO is this needed?
 	ip = w.code_addr;
 	
 	while(1)
@@ -826,6 +811,13 @@ int Firth::exec_word(const std::string &word)
 		{
 			ip = 0;
 			return F_TRUE;
+		}
+			break;
+
+		case OP_NATIVE_FUNC:
+		{
+			FirthFunc nativeWord = (FirthFunc)bytecode[ip++];
+			nativeWord(this);
 		}
 			break;
 
@@ -1197,8 +1189,8 @@ int Firth::exec_word(const std::string &word)
 		// @ (addr -- val)
 		case OP_FETCH:
 		{
-			auto addr = pop();
-			auto val = dataseg[addr];
+			FirthNumber *pNum = (FirthNumber*)pop();
+			auto val = *pNum;
 			push(val);
 		}
 			break;
@@ -1206,9 +1198,9 @@ int Firth::exec_word(const std::string &word)
 		// ! (addr val -- )
 		case OP_STORE:
 		{
-			auto addr = pop();
+			FirthNumber *pNum = (FirthNumber*)pop();
 			auto val = pop();
-			dataseg[addr] = val;
+			*pNum = val;
 		}
 			break;
 
@@ -1224,19 +1216,7 @@ int Firth::exec_word(const std::string &word)
 		case OP_VAR_IMPL:
 		{
 			// get addr of the variable and push it onto the stack
-			push(w.data_addr);
-		}
-			break;
-
-		// ( -- n )
-		case OP_USER_VAR:
-		{
-			FirthNumber *pNum = (FirthNumber*)pop();
-			push(*pNum);
-			//if (w.pUserVar)
-			//	push(*w.pUserVar);
-			//else
-			//	push(0);	// TODO - error?
+			push((int)w.data_addr);
 		}
 			break;
 
@@ -1256,7 +1236,7 @@ int Firth::exec_word(const std::string &word)
 			auto count = pop();
 			
 			while (count--)
-				dataseg.push_back(F_UNDEFINED);
+				push_data(F_UNDEFINED);
 		}
 			break;
 
@@ -1315,8 +1295,10 @@ int Firth::exec_word(const std::string &word)
 						firth_print(" [compile-time]");
 					if (w.nativeWord)
 						firth_print(" [native word]");
-					if (w.pUserVar)
-						firth_print(" [user var]");
+					if (w.type == OP_VAR)
+						firth_print(" [var]");
+					if (w.type == OP_CONST)
+						firth_print(" [const]");
 
 					firth_print("\n");
 					count++;

@@ -15,10 +15,10 @@ func BEL 7 EMIT ;
 func CR 13 EMIT 10 EMIT ;
 
 \ define a convenience word for printing the TOS ( n -- )
-func print . ;
+func PRINT . ;
 
 \ sqr the TOS ( n -- n )
-func sqr DUP * ;
+func SQR DUP * ;
 
 func HERE CP @ ;
 

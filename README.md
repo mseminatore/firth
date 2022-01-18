@@ -133,7 +133,7 @@ static int isOdd(Firth *pFirth)
 }
 
 // register our collection of custom words
-static const struct FirthRegister myWords[] =
+static const struct FirthWordSet myWords[] =
 {
 	{ "even?", isEven },
 	{ "odd?", isOdd },
@@ -141,6 +141,17 @@ static const struct FirthRegister myWords[] =
 };
 
 FirthNumber tickCount;
+
+// examples of calling Firth from native code
+void callFirth(Firth *pFirth)
+{
+    // do_word is a set of convenience methods to push 
+    // 1, 2, or 3 parameters on stack and execute a word
+    g_pFirth->do_word("+", 1, 2);
+	
+	// execute any defined word, no passed parameters
+    g_pFirth->exec_word(".");
+}
 
 int main()
 {
@@ -150,20 +161,11 @@ int main()
     g_pFirth->loadCore();
 
     // add custom words that can be called from Firth
-    g_pFirth->register_words(myWords);
+    g_pFirth->register_wordset(myWords);
 
     // add a const and a var
     g_pFirth->define_word_const("APP.VER", 1);
     g_pFirth->define_word_var("System.Tick", &tickCount);
-
-    // examples of calling Firth from native code
-
-    // do_word is a set of convenience methods to push 
-    // 1, 2, or 3 parameters on stack and execute a word
-    g_pFirth->do_word("+", 1, 2);
-	
-	// execute any defined word, no parameters
-    g_pFirth->exec_word(".");
 
     // parse Firth
     while (g_pFirth->parse());
@@ -351,63 +353,63 @@ They are:
 
 Word | Description | Stack effects
 ---- | ----------- | -------------
-abs | take absolute value of TOS | ( n -- \|n\| )
+ABS | take absolute value of TOS | ( n -- \|n\| )
 AGAIN | loop back to BEGIN | ( -- )
-allot | reserve n extra cells for array | ( n -- )
-and | bitwise AND | ( n1 n2 -- n3 )
+ALLOT | reserve n extra cells for array | ( n -- )
+AND | bitwise AND | ( n1 n2 -- n3 )
 BEGIN | start an indefinite loop
 BEL | emits a BEL char | ( -- )
 BL | prints a space | ( -- )
-cells | calculate cell count for array size | ( n -- n )
-const | define a new constant | ( n -- )
+CELLS | calculate cell count for array size | ( n -- n )
+CONST | define a new constant | ( n -- )
 CR | print a carriage return | ( -- )
 DO | start a definite loop | ( -- )
-drop | discard TOS | ( n -- )
-dup | duplicate TOS | ( n -- n n )
+DROP | discard TOS | ( n -- )
+DUP | duplicate TOS | ( n -- n n )
 ELSE | start of else clause | ( -- )
-emit | print TOS as ASCII | ( n -- )
+EMIT | print TOS as ASCII | ( n -- )
 EXIT | exit from current loop | ( -- )
 FALSE | constant representing logical false | ( -- f )
-func | begin definition of new word | ( -- )
+FUNC | begin definition of new word | ( -- )
 I | put current loop index on the stack | ( -- n )
-include | load and parse the given Firth file | ( -- )
+INCLUDE | load and parse the given Firth file | ( -- )
 IF | start a conditional | ( f -- )
 LF | print a line feed | ( -- )
 LOOP | end of definite loop | ( -- )
 LSHIFT | logical shift left n, u places | ( n1 u -- n2 )
-max | leave greater of top two stack entries | ( n1 n2 -- n1|n2 )
+MAX | leave greater of top two stack entries | ( n1 n2 -- n1|n2 )
 MAX-INT | puts largest representable int value on stack | ( -- n )
-min | leave lesser of top two stack entries | ( n1 n2 -- n1|n2 )
+MIN | leave lesser of top two stack entries | ( n1 n2 -- n1|n2 )
 MIN-INT | puts smallest representable int value on stack | ( -- n )
-mod | compute remainder | ( n1 n2 -- n3 )
-negate | change sign of TOS | ( n -- -n )
-nip | discard the second entry on stack | ( n1 n2 -- n2 )
-not | bitwise NOT | ( n1 n2 -- n3 )
-or | bitwise OR | ( n1 n2 -- n3 )
-over | dupe the second stack entry to the top | ( n1 n2 -- n1 n2 n1 )
-pow | raise x to power of y | ( x y -- x^y )
+MOD | compute remainder | ( n1 n2 -- n3 )
+NEGATE | change sign of TOS | ( n -- -n )
+NIP | discard the second entry on stack | ( n1 n2 -- n2 )
+NOT | bitwise NOT | ( n1 n2 -- n3 )
+OR | bitwise OR | ( n1 n2 -- n3 )
+OVER | dupe the second stack entry to the top | ( n1 n2 -- n1 n2 n1 )
+POW | raise x to power of y | ( x y -- x^y )
 REPEAT | loop back to BEGIN | ( -- )
-rot | rotate the top 3 stack entries | ( n1 n2 n3 -- n2 n3 n1 )
+ROT | rotate the top 3 stack entries | ( n1 n2 n3 -- n2 n3 n1 )
 RSHIFT | logical shift right n, u places | ( n1 u -- n2 )
-swap | swap top two stack entries| ( n1 n2 -- n2 n1 )
+SWAP | swap top two stack entries| ( n1 n2 -- n2 n1 )
 TAB | prints a tab char | ( -- )
 THEN | end of IF conditional | ( --  )
 TRUE | constant representing logical true | ( -- f )
-tuck | copy the top stack item below the second stack item | ( n1 n2 -- n2 n1 n2)
+TUCK | copy the top stack item below the second stack item | ( n1 n2 -- n2 n1 n2)
 UNTIL | end of indefinite loop | ( -- )
-var | define a new variable | ( -- )
+VAR | define a new variable | ( -- )
 WHILE | test whether loop condition is true | ( -- )
 WORDS | list all words in the dictionary | ( -- )
-xor | bitwise XOR | ( n1 n2 -- n3 )
-2dup | duplicate top two stack entries | ( n1 n2 -- n1 n2 n1 n2 )
-?dup | duplicate TOS if it is non-zero | ( n1 -- n1\| n1 n1 )
+XOR | bitwise XOR | ( n1 n2 -- n3 )
+2DUP | duplicate top two stack entries | ( n1 n2 -- n1 n2 n1 n2 )
+?DUP | duplicate TOS if it is non-zero | ( n1 -- n1\| n1 n1 )
 ; | end definition of new word | ( -- )
 \+ | addition | ( n1 n2 -- n3 )
 \- | subtraction | ( n1 n2 -- n3 )
 \* | multiplcation | ( n1 n2 -- n3 )
 / | division | ( n1 n2 -- n3 )
 \*/ | multiply then divide | ( n1 n2 n3 -- n4 )
-/mod | remainder and quotient | ( n1 n2 -- n3 n4 )
+/MOD | remainder and quotient | ( n1 n2 -- n3 n4 )
 < | less than comparison | ( n1 n2 -- f )
 \> | greater than comparison | ( n1 n2 -- f )
 = | equivalence comparison | ( n1 n2 -- f )
