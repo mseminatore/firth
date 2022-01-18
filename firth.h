@@ -36,7 +36,6 @@ enum
 	// variables
 	OP_VAR,
 	OP_VAR_IMPL,
-	OP_USER_VAR,
 	OP_CONST,
 	OP_FETCH,
 	OP_STORE,
@@ -114,37 +113,38 @@ enum
 class Firth;
 typedef int(*FirthFunc)(Firth *pFirth);
 
+// type for custom output functions
 typedef void(*FirthOutputFunc)(char*);
 
 //
-//
+// Structure of a Firth Word
 //
 struct Word
 {
 protected:
 
 public:
-	int code_addr;		// address of bytecode for this word
-	int data_addr;		// for VAR addr of value, for const the value
-	bool compileOnly;	// can be executed only in compile mode
-	bool immediate;		// execute immediately
-	int type;
-	int opcode;
-	bool hidden;
+	int code_addr;				// offset address of bytecode for this word
+	FirthNumber *data_addr;		// for VAR addr of value, for const the value
+	bool compileOnly;			// can be executed only in compile mode
+	bool immediate;				// execute immediately
+	int type;					// type of this word
+	int opcode;					// bytecode for this word
+	bool hidden;				// Word not visible
 
 	FirthFunc nativeWord;
-	FirthNumber *pUserVar;
 
 	Word() { 
-		code_addr = data_addr = opcode = 0; 
+		code_addr = opcode = 0; 
+		data_addr = nullptr;
 		compileOnly = immediate = hidden = false; 
 		type = OP_FUNC; 
 		nativeWord = nullptr;
-		pUserVar = nullptr;
 	}
 };
 
-struct FirthRegister
+// custom function registration struct
+struct FirthWordSet
 {
 	char *wordName;
 	FirthFunc func;
@@ -173,16 +173,17 @@ protected:
 	// the data stack
 	typedef std::stack<FirthNumber> Stack;
 	Stack stack;
-	
+
 	// is Firth compiling or interpreting?
 	bool interpreter;
-	bool compiling;
 
 	// compiled dictionary code
 	std::vector<int> bytecode;
 
 	// data segment
-	std::vector<FirthNumber> dataseg;
+	FirthNumber *pDataSegment;
+	FirthNumber *DP;
+	unsigned data_limit;
 
 	// stack of return addrs
 	std::stack<int> return_stack;
@@ -190,7 +191,8 @@ protected:
 	// float stack
 	std::stack<FirthFloat> fstack;
 
-	int ip, cp;
+	int ip;
+	FirthNumber *CP;
 	int hexmode;
 
 	FILE *fin;
@@ -215,17 +217,16 @@ protected:
 	int lex(int delim = ' ');
 	bool isInteger(const char *s);
 
-	int define_word_var(const std::string &word, FirthNumber val, int daddr);
 	int define_word(const std::string &word, int op, bool compileOnly = false);
 	int create_word(const std::string &word, const Word &w);
 	int make_hidden(const std::string &word, bool flag);
 
 public:
-	Firth();
+	Firth(unsigned data_limit = 1024);
 	virtual ~Firth() {}
 
-
-	void set_input_file(FILE *f) { 
+	void set_input_file(FILE *f) 
+	{ 
 		if (f) 
 			fin = f; 
 		else 
@@ -263,7 +264,7 @@ public:
 		return load_library("core.fth");
 	}
 
-	int register_words(const FirthRegister words[]);
+	int register_wordset(const FirthWordSet words[]);
 
 	void push(const FirthNumber &val)
 	{
@@ -277,6 +278,19 @@ public:
 	void pushf(const FirthFloat &f) { fstack.push(f); }
 	FirthFloat topf() { return fstack.top(); }
 
+	unsigned data_size() { return (unsigned)(DP - pDataSegment); }
+	void push_data(FirthNumber number) 
+	{
+		if (data_size() >= data_limit)
+		{
+			firth_print("Out of data space!\n");
+			return;
+		}
+
+		*DP++ = number;
+	}
+	
+	// convenience methods for executing words
 	int do_word(const std::string &word, FirthNumber n) { push(n); return exec_word(word); }
 	int do_word(const std::string &word, FirthNumber n1, FirthNumber n2) { push(n1); push(n2); return exec_word(word); }
 	int do_word(const std::string &word, FirthNumber n1, FirthNumber n2, FirthNumber n3) { push(n1); push(n2); push(n3); return exec_word(word); }

@@ -47,7 +47,7 @@ static int fdot(Firth *pFirth)
 }
 
 // register our collection of custom words
-static const struct FirthRegister float_lib[] =
+static const struct FirthWordSet float_lib[] =
 {
 	{ "F+", fadd },
 	{ "F-", fsub },
@@ -60,5 +60,5 @@ static const struct FirthRegister float_lib[] =
 //
 int firth_register_float(Firth *pFirth)
 {
-	return pFirth->register_words(float_lib);
+	return pFirth->register_wordset(float_lib);
 }
