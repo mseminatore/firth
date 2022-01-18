@@ -9,9 +9,9 @@ typedef int FirthNumber;
 typedef int Instruction;
 typedef float FirthFloat;
 
-const int F_TRUE = -1;
-const int F_FALSE = 0;
-const int F_UNDEFINED = 0xCCCCCCCC;
+const int FTH_TRUE = -1;
+const int FTH_FALSE = 0;
+const int FTH_UNDEFINED = 0xCDCDCDCD;
 
 extern bool g_bVerbose;
 
@@ -195,8 +195,10 @@ protected:
 	int ip;
 	FirthNumber *CP;
 	int hexmode;
+	bool halted;
 
 	FILE *fin;
+	const char *txtInput;
 	char lval[256];
 
 	FirthOutputFunc firth_print;

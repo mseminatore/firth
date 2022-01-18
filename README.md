@@ -72,7 +72,7 @@ This creates a new `Word` named `add` that calls `+` to add the top two stack
 entries and put the result on the stack. The built-in `Word` called `print` 
 prints the top of stack.
 
-### Examples
+### Firth Examples
 
 Below are a few examples of Firth in action. First, the canonical hello world 
 program.
@@ -104,8 +104,11 @@ for the number currently on the stack.
 ```
 ### Embedding Firth
 
-Firth is designed to be very easy to embed into other apps with just a few API
-calls. The file *main.cpp* demonstrates how to initialize Firth and add custom
+Firth is designed to be very easy to embed into other apps. Doing so requires
+integration of one .cpp and one .h file and just a few Firth API calls. Adding
+in the optional floating point support is one additional API call.
+
+The file *main.cpp* demonstrates how to initialize Firth and add custom
 `Words` for a constant, a variable, and a native function. The important excerpts
 of *main.cpp* are shown below.
 
