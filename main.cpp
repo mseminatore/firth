@@ -33,17 +33,17 @@ int getopt(int n, char *args[])
 static int isEven(Firth *pFirth)
 {
 	auto n = pFirth->pop();
-	pFirth->push((n % 2) == 0 ? F_TRUE : F_FALSE);
+	pFirth->push((n % 2) == 0 ? FTH_TRUE : FTH_FALSE);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 static int isOdd(Firth *pFirth)
 {
 	auto n = pFirth->pop();
-	pFirth->push((n % 2) ? F_TRUE : F_FALSE);
+	pFirth->push((n % 2) ? FTH_TRUE : FTH_FALSE);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 // register our collection of custom words
@@ -71,6 +71,9 @@ void callFirth(Firth *pFirth)
 
 	// execute any defined word, no parameters
 	pFirth->exec_word(".");
+
+	// parse and execute a line of text
+	g_pFirth->parse_string("CP @ .");
 }
 
 //
@@ -97,7 +100,7 @@ int main(int argc, char **argv)
 	g_pFirth->define_word_var("System.Tick", &tickCount);
 
 	// REPL loop
-	int active = F_TRUE;
+	int active = FTH_TRUE;
 	while (active)
 	{
 		tickCount = GetTickCount();

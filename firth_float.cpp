@@ -7,7 +7,7 @@ static int fadd(Firth *pFirth)
 	auto b = pFirth->popf();
 	pFirth->pushf(a + b);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 static int fsub(Firth *pFirth)
@@ -16,7 +16,7 @@ static int fsub(Firth *pFirth)
 	auto b = pFirth->popf();
 	pFirth->pushf(a - b);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 //
@@ -26,7 +26,7 @@ static int fmul(Firth *pFirth)
 	auto b = pFirth->popf();
 	pFirth->pushf(a * b);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 static int fdiv(Firth *pFirth)
@@ -35,7 +35,7 @@ static int fdiv(Firth *pFirth)
 	auto b = pFirth->popf();
 	pFirth->pushf(a / b);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 static int fdot(Firth *pFirth)
@@ -43,7 +43,7 @@ static int fdot(Firth *pFirth)
 	auto a = pFirth->popf();
 	pFirth->firth_printf("%f", a);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 // register our collection of custom words
