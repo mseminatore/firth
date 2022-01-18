@@ -47,6 +47,7 @@ enum
 
 	// internal compiler opcodes
 	OP_FUNC,
+	OP_NATIVE_FUNC,
 	OP_CALL,
 	OP_RET,
 	OP_LIT,

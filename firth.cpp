@@ -474,6 +474,8 @@ int Firth::define_user_word(const std::string &word, FirthFunc func, bool compil
 
 	w.nativeWord = func;
 	w.compileOnly = compileOnly;
+	w.opcode = OP_NATIVE_FUNC;
+	w.type = OP_NATIVE_FUNC;
 
 	if (F_FALSE == create_word(word, w))
 		return F_FALSE;
@@ -755,6 +757,13 @@ int Firth::compile_time(const Word &w)
 	}
 		break;
 
+	case OP_NATIVE_FUNC:
+	{
+		emit(w.opcode);
+		emit((int)w.nativeWord);
+	}
+		break;
+
 	case OP_DONE:
 	default:
 		emit(w.opcode);
@@ -802,6 +811,13 @@ int Firth::exec_word(const std::string &word)
 		{
 			ip = 0;
 			return F_TRUE;
+		}
+			break;
+
+		case OP_NATIVE_FUNC:
+		{
+			FirthFunc nativeWord = (FirthFunc)bytecode[ip++];
+			nativeWord(this);
 		}
 			break;
 
