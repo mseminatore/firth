@@ -46,6 +46,62 @@ static int fdot(Firth *pFirth)
 	return FTH_TRUE;
 }
 
+static int fsin(Firth *pFirth)
+{
+	auto a = pFirth->popf();
+	pFirth->pushf(sin(a));
+
+	return FTH_TRUE;
+}
+
+static int fcos(Firth *pFirth)
+{
+	auto a = pFirth->popf();
+	pFirth->pushf(cos(a));
+
+	return FTH_TRUE;
+}
+
+static int ftan(Firth *pFirth)
+{
+	auto a = pFirth->popf();
+	pFirth->pushf(tan(a));
+
+	return FTH_TRUE;
+}
+
+static int fln(Firth *pFirth)
+{
+	auto a = pFirth->popf();
+	pFirth->pushf(log(a));
+
+	return FTH_TRUE;
+}
+
+static int fexp(Firth *pFirth)
+{
+	auto a = pFirth->popf();
+	pFirth->pushf(exp(a));
+
+	return FTH_TRUE;
+}
+
+static int fabsolute(Firth *pFirth)
+{
+	auto a = pFirth->popf();
+	pFirth->pushf(fabs(a));
+
+	return FTH_TRUE;
+}
+
+static int fsqrt(Firth *pFirth)
+{
+	auto a = pFirth->popf();
+	pFirth->pushf(sqrtf(a));
+
+	return FTH_TRUE;
+}
+
 // register our collection of custom words
 static const struct FirthWordSet float_lib[] =
 {
@@ -54,6 +110,15 @@ static const struct FirthWordSet float_lib[] =
 	{ "F*", fmul },
 	{ "F/", fdiv },
 	{ "F.", fdot },
+	{ "Fsin", fsin},
+	{ "Fcos", fcos },
+	{ "Fcos", fcos },
+	{ "Ftan", ftan },
+	{ "Fln", fln },
+	{ "Fexp", fexp },
+	{ "Fabs", fabsolute },
+	{ "Fsqrt", fsqrt },
+
 	{ nullptr, nullptr }
 };
 
