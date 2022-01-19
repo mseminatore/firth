@@ -220,6 +220,42 @@ static int ftuck(Firth *pFirth)
 	return FTH_TRUE;
 }
 
+int feq(Firth *pFirth)
+{
+	auto n2 = pFirth->popf();
+	auto n1 = pFirth->popf();
+	pFirth->push(n1 == n2 ? FTH_TRUE : FTH_FALSE);
+
+	return FTH_TRUE;
+}
+
+int fless(Firth *pFirth)
+{
+	auto n2 = pFirth->popf();
+	auto n1 = pFirth->popf();
+	pFirth->push(n1 < n2 ? FTH_TRUE : FTH_FALSE);
+
+	return FTH_TRUE;
+}
+
+int fgreater(Firth *pFirth)
+{
+	auto n2 = pFirth->popf();
+	auto n1 = pFirth->popf();
+	pFirth->push(n1 > n2 ? FTH_TRUE : FTH_FALSE);
+
+	return FTH_TRUE;
+}
+
+int fne(Firth *pFirth)
+{
+	auto n2 = pFirth->popf();
+	auto n1 = pFirth->popf();
+	pFirth->push(n1 != n2 ? FTH_TRUE : FTH_FALSE);
+
+	return FTH_TRUE;
+}
+
 // register our collection of custom words
 static const struct FirthWordSet float_lib[] =
 {
@@ -246,6 +282,11 @@ static const struct FirthWordSet float_lib[] =
 	{ "FOVER", fover },
 	{ "FNIP", fnip },
 	{ "FTUCK", ftuck },
+	
+	{ "F=", feq },
+	{ "F<", fless },
+	{ "F>", fgreater },
+	{ "F<>", fne },
 
 	{ nullptr, nullptr }
 };
