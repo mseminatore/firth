@@ -14,6 +14,8 @@ bool g_bVerbose = false;
 
 Firth *g_pFirth = NULL;
 
+FirthNumber tickCount;
+
 //
 // get options from the command line
 //
@@ -60,8 +62,6 @@ static void myprint(char *s)
 	fputs(s, fout);
 }
 
-FirthNumber tickCount;
-
 // examples of calling Firth from native code
 void callFirth(Firth *pFirth)
 {
@@ -77,6 +77,14 @@ void callFirth(Firth *pFirth)
 }
 
 //
+void banner(Firth *pFirth)
+{
+	pFirth->firth_printf("Welcome to Firth! Copyright 2022 by Mark Seminatore\n");
+	pFirth->firth_printf("See LICENSE file for usage rights and obligations.\n");
+	pFirth->firth_printf("Type 'halt' to quit.\n");
+}
+
+//
 // This is an example of the Firth REPL embedded in another program.
 //
 int main(int argc, char **argv)
@@ -86,11 +94,15 @@ int main(int argc, char **argv)
 	g_pFirth->set_input_file(fin);
 	g_pFirth->set_output_func(myprint);
 
+	banner(g_pFirth);
+
 	// load (optional) core libraries
 	g_pFirth->load_core();
 
+#if FTH_INCLUDE_FLOAT == 1
 	// load (optional) floating point libraries
 	firth_register_float(g_pFirth);
+#endif
 
 	// add our own custom words
 	g_pFirth->register_wordset(myWords);
@@ -103,9 +115,11 @@ int main(int argc, char **argv)
 	int active = FTH_TRUE;
 	while (active)
 	{
-		tickCount = GetTickCount();
+		tickCount++;
 		active = g_pFirth->parse();
 	}
+
+	delete g_pFirth;
 
 	return 0;
 }

@@ -1,7 +1,7 @@
 # Welcome to Firth!
 **Firth** is an experimental programming language heavily inspired by Forth.
 
-> If you are new to Forth, you can learn a lot of the basics at 
+> If you are new to Forth, you can learn n1 lot of the basics at 
 > [Easy Forth](https://skilldrick.github.io/easyforth/). I also highly recommend
 > [Starting Forth](https://www.forth.com/starting-forth) by Leo Brodie of
 > Forth, Inc.
@@ -422,7 +422,54 @@ XOR | bitwise XOR | ( n1 n2 -- n3 )
 0> | true if TOS is greater than zero  | ( n -- f )
 0<> | true if TOS is not equal zero | ( n -- f )
 \. | print TOS | ( n -- )
-\.S | print the stack contents | ( -- )
+\.S | non-destructively print the stack contents | ( -- )
 \." | print the following " delimited string | ( -- )
 
 * **Note:** These are not yet implemented
+
+### Floating point support
+
+Forth traditionally does not include support for floating point. Firth by 
+default *does* include primitive floating point support, adding a floating
+point number stack, float variables and load/store operations. 
+
+> If memory space is at a premium and you do not need or want floating point 
+> support you can edit the file *firth_config.h* to remove it.
+
+By also including the files *firth_float.cpp* and *firth_float.h* you can
+install a set of floating point support words.
+
+```C++
+    #include "firth.h"
+    #include "firth_float.h"
+    ...
+	// load (optional) floating point libraries
+	firth_register_float(pFirth);
+
+```
+
+Below is a list of the additional words that the floating point library 
+includes. In the listing below TOFS represents the `top of float stack`.
+
+Word | Description | Stack effects
+---- | ----------- | -------------
+FVAR | define a new float variable | ( f: -- )
+F+ | float addition | ( f: n1 n2 -- n1+n2 )
+F- | float subtraction | ( f: n1 n2 -- n1-n2 )
+F* | float multiplication | ( f: n1 n2 -- n1*n2 )
+F/ | float division | ( f: n1 n2 -- n1/n2 )
+F. | print TOFS | ( f: n -- )
+FSIN | sin of TOFS | ( f: n -- sin(n) )
+FCOS | cos of TOFS | ( f: n -- cos(n) )
+FTAN | tan of TOFS | ( f: n -- tan(n) )
+FLN | natural log of TOFS | ( f: n -- log(n) )
+FEXP | exp of TOFS | ( f: n -- exp(n) )
+FABS | absolute value of TOFS | ( f: n -- abs(n) )
+FSQRT | square root of TOFS | ( f: n -- sqrt(n) )
+F@ | fetch a float variable |  ( f: addr -- n )
+F! | store a float variable | ( f: n addr -- )
+FDEPTH | put depth of float stack on data stack | ( -- n )
+FDUP | duplicate the TOFS | ( f: n -- n n )
+FDROP | drop the TOFS | ( f: n -- )
+FSWAP | swap the top two float stack entries | ( f: n1 n2 -- n2 n1 )
+\.F | non-destructively print the float stack contents | ( f: -- )

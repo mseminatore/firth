@@ -110,9 +110,11 @@ Firth::Firth(unsigned data_limit)
 	define_word("!", OP_STORE);
 	define_word("ALLOT", OP_ALLOT);
 
+#if FTH_INCLUDE_FLOAT == 1
 	// float support
 	define_word("FVAR", OP_FVAR);
 	define_word("FVARIABLE", OP_FVAR);
+#endif
 
 	// compiler words
 	define_word(":", OP_FUNC);
@@ -133,7 +135,7 @@ Firth::Firth(unsigned data_limit)
 // Firth formatted output function
 void Firth::firth_printf(char *format, ...)
 {
-	char buf[512];
+	char buf[FTH_MAX_PRINTF_SIZE];
 	va_list valist;
 
 	va_start(valist, format);
@@ -160,7 +162,7 @@ int Firth::load(const std::string &file)
 }
 
 // write given opcode to code segment
-void Firth::emit(int op)
+void Firth::emit(FirthInstruction op)
 {
 	bytecode.push_back(op);
 
@@ -199,7 +201,6 @@ bool Firth::isWhitespace(int c)
 //
 bool Firth::isNumber(int c)
 {
-	// TODO - since minus sign is a word this may be incorrect
 	return (isdigit(c) || c == '-');
 }
 
@@ -220,8 +221,6 @@ bool Firth::isInteger(const char *s)
 }
 
 //
-//
-//
 void Firth::skipToEOL(void)
 {
 	int c;
@@ -235,8 +234,6 @@ void Firth::skipToEOL(void)
 	ungetChar(c);
 }
 
-//
-//
 //
 void Firth::skipToChar(int chr)
 {
@@ -325,6 +322,7 @@ FirthNumber Firth::pop()
 	return num;
 }
 
+#if FTH_INCLUDE_FLOAT == 1
 //
 FirthFloat Firth::popf()
 {
@@ -339,6 +337,7 @@ FirthFloat Firth::popf()
 	fstack.pop();
 	return num;
 }
+#endif
 
 //
 int Firth::interpret(const std::string &token)
@@ -358,11 +357,13 @@ int Firth::interpret(const std::string &token)
 			FirthNumber num = atoi(token.c_str());
 			push(num);
 		}
+#if FTH_INCLUDE_FLOAT == 1
 		else if (strchr(token.c_str(), '.'))
 		{
 			FirthFloat num = (FirthFloat)atof(token.c_str());
 			pushf(num);
 		}
+#endif
 		else
 		{
 			firth_printf("%s ?\n", token.c_str());
@@ -465,9 +466,7 @@ int Firth::create_word(const std::string &word, const Word &w)
 	return FTH_TRUE;
 }
 
-//
 // Create a new builtin word
-//
 int Firth::define_word(const std::string &word, int opcode, bool compileOnly)
 {
 	Word w;
@@ -482,15 +481,13 @@ int Firth::define_word(const std::string &word, int opcode, bool compileOnly)
 	emit(opcode);
 	emit(OP_RET);
 
-	// TODO - add opcode/word to diasm
+	// add opcode/word to diasm
 	disasm.insert(std::pair<int, std::string>(opcode, word));
 
 	return FTH_TRUE;
 }
 
-//
 // Create a new native word
-//
 int Firth::define_user_word(const std::string &word, FirthFunc func, bool compileOnly)
 {
 	Word w;
@@ -554,6 +551,7 @@ int Firth::define_word_var(const std::string &word, FirthNumber val)
 	return FTH_TRUE;
 }
 
+#if FTH_INCLUDE_FLOAT == 1
 //
 int Firth::define_word_fvar(const std::string &word, FirthFloat *daddr)
 {
@@ -585,6 +583,7 @@ int Firth::define_word_fvar(const std::string &word, FirthFloat val)
 	push_data((FirthNumber)val);
 	return FTH_TRUE;
 }
+#endif
 
 //
 int Firth::define_word_const(const std::string &word, FirthNumber val)
@@ -606,9 +605,7 @@ int Firth::define_word_const(const std::string &word, FirthNumber val)
 	return FTH_TRUE;
 }
 
-//
 // Look word up in the dictionary
-//
 int Firth::lookup_word(const std::string &word, Word **ppWord)
 {
 	auto result = dict.find(word);
@@ -646,12 +643,20 @@ int Firth::compile(const std::string &token)
 	else
 	{
 		// or compile the NUMBER
-		if (isdigit(token[0]) || token[0] == '-')
+		if (isInteger(token.c_str()))
 		{
 			FirthNumber num = atoi(token.c_str());
 			emit(OP_LIT);
 			emit(num);
 		}
+#if FTH_INCLUDE_FLOAT == 1
+		else if (strchr(token.c_str(), '.'))
+		{
+			FirthFloat num = (FirthFloat)atof(token.c_str());
+			emit(OP_FLIT);
+			emit(*(int*)&num);
+		}
+#endif
 		else
 		{
 			firth_printf("%s ?\n", token.c_str());
@@ -670,16 +675,18 @@ int Firth::compile_time(const Word &w)
 	case OP_VAR:
 	{
 		emit(OP_LIT);
-		emit((int)w.data_addr);
+		emit((FirthInstruction)w.data_addr);
 	}
 		break;
 
+#if FTH_INCLUDE_FLOAT == 1
 	case OP_FVAR:
 	{
-		emit(OP_LIT);
-		emit((int)w.data_addr);
+		emit(OP_FLIT);
+		emit((FirthInstruction)w.data_addr);
 	}
 		break;
+#endif
 
 	case OP_IF:
 	{
@@ -704,12 +711,12 @@ int Firth::compile_time(const Word &w)
 		auto dest = pop();	// get TOS addr for branch target
 
 		// setup branch around ELSE clause to the THEN clause
-		emit(OP_GOTO);							// unconditional branch
-		push(bytecode.size());					// push current code pointer onto the stack for THEN
-		emit(FTH_UNDEFINED);						// default to next instruction
+		emit(OP_GOTO);						// unconditional branch
+		push(bytecode.size());				// push current code pointer onto the stack for THEN
+		emit(FTH_UNDEFINED);				// default to next instruction
 
 		// patch IF branch to here, beyond the ELSE
-		bytecode[dest] = bytecode.size();		// fixup branch target
+		bytecode[dest] = bytecode.size();	// fixup branch target
 	}
 		break;
 
@@ -750,7 +757,7 @@ int Firth::compile_time(const Word &w)
 		// compile-time behavior
 		emit(OP_BZ);			// if test fails jump to after REPEAT
 		push(bytecode.size());	// push fixup addr onto stack
-		emit(FTH_UNDEFINED);		// placeholder for forward address
+		emit(FTH_UNDEFINED);	// placeholder for forward address
 	}
 		break;
 
@@ -809,7 +816,7 @@ int Firth::compile_time(const Word &w)
 
 		//w.data_addr = (int)strdup(lval);
 		emit(OP_SPRINT);
-		emit((int)_strdup(lval));
+		emit((FirthInstruction)_strdup(lval));
 	}
 		break;
 
@@ -825,7 +832,7 @@ int Firth::compile_time(const Word &w)
 	case OP_NATIVE_FUNC:
 	{
 		emit(w.opcode);
-		emit((int)w.nativeWord);
+		emit((FirthInstruction)w.nativeWord);
 	}
 		break;
 
@@ -1051,6 +1058,15 @@ int Firth::exec_word(const std::string &word)
 			push(num);
 		}
 			break;
+
+#if FTH_INCLUDE_FLOAT == 1
+		case OP_FLIT:
+		{
+			auto num = (FirthNumber)bytecode[ip++];
+			pushf(*((FirthFloat*)&num));
+		}
+			break;
+#endif
 
 		// ( c -- )
 		case OP_EMIT:
@@ -1281,6 +1297,7 @@ int Firth::exec_word(const std::string &word)
 		}
 			break;
 
+#if FTH_INCLUDE_FLOAT == 1
 		// fvar
 		case OP_FVAR:
 		{
@@ -1288,12 +1305,13 @@ int Firth::exec_word(const std::string &word)
 			define_word_fvar(lval, 0.0f);
 		}
 			break;
+#endif
 
 		// ( -- addr)
 		case OP_VAR_IMPL:
 		{
 			// get addr of the variable and push it onto the stack
-			push((int)w.data_addr);
+			push((FirthNumber)w.data_addr);
 		}
 			break;
 

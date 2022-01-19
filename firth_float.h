@@ -2,5 +2,8 @@
 
 class Firth;
 
-int firth_register_float(Firth *pFirth);
+#if FTH_INCLUDE_FLOAT == 1
+	int firth_register_float(Firth *pFirth);
+#endif
+
 

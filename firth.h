@@ -4,16 +4,13 @@
 #include <stack>
 #include <vector>
 
+#include "firth_config.h"
+
 //
-typedef int FirthNumber;
-typedef int Instruction;
-typedef float FirthFloat;
+typedef int FirthInstruction;
 
-const int FTH_TRUE = -1;
-const int FTH_FALSE = 0;
-const int FTH_UNDEFINED = 0xCDCDCDCD;
-
-extern bool g_bVerbose;
+const FirthNumber FTH_TRUE = -1;
+const FirthNumber FTH_FALSE = 0;
 
 // tokens
 enum
@@ -45,10 +42,13 @@ enum
 	OP_LOAD,
 	OP_ALLOT,
 
+#if FTH_INCLUDE_FLOAT == 1
 	// float support
 	OP_FVAR,
 	OP_FSTORE,
 	OP_FFETCH,
+	OP_FLIT,
+#endif
 
 	// internal compiler opcodes
 	OP_FUNC,
@@ -162,6 +162,7 @@ struct FirthWordSet
 class Firth
 {
 protected:
+#if FTH_CASE_SENSITIVE == 0
 	struct WordLessThan
 	{
 		bool operator() (const std::string &a, const std::string &b) const
@@ -169,12 +170,21 @@ protected:
 			return _strcmpi(a.c_str(), b.c_str()) < 0 ;
 		}
 	};
+#else
+	struct WordLessThan
+	{
+		bool operator() (const std::string &a, const std::string &b) const
+		{
+			return strcmp(a.c_str(), b.c_str()) < 0;
+		}
+	};
+#endif
 
 	// dictionary of words
 	std::map<std::string, Word, WordLessThan> dict;
 
 	// reverse lookup for disassembly of bytecodes
-	std::map<int, std::string> disasm;
+	std::map<FirthInstruction, std::string> disasm;
 
 	// the data stack
 	typedef std::stack<FirthNumber> Stack;
@@ -184,7 +194,7 @@ protected:
 	bool interpreter;
 
 	// compiled dictionary code
-	std::vector<int> bytecode;
+	std::vector<FirthInstruction> bytecode;
 
 	// data segment
 	FirthNumber *pDataSegment;
@@ -194,8 +204,10 @@ protected:
 	// stack of return addrs
 	std::stack<int> return_stack;
 
+#if FTH_INCLUDE_FLOAT == 1
 	// float stack
 	std::stack<FirthFloat> fstack;
+#endif
 
 	int ip;
 	FirthNumber *CP;
@@ -204,7 +216,7 @@ protected:
 
 	FILE *fin;
 	const char *txtInput;
-	char lval[256];
+	char lval[FTH_MAX_WORD_NAME];
 
 	FirthOutputFunc firth_print;
 
@@ -212,7 +224,7 @@ protected:
 	// non-public methods
 	//
 	int load(const std::string &file);
-	void emit(int op);
+	void emit(FirthInstruction op);
 
 	// lexical analyzer methods
 	int getChar();
@@ -230,7 +242,7 @@ protected:
 	int make_hidden(const std::string &word, bool flag);
 
 public:
-	Firth(unsigned data_limit = 1024);
+	Firth(unsigned data_limit = FTH_DEFAULT_DATA_SEGMENT_SIZE);
 	virtual ~Firth() {}
 
 	void set_input_file(FILE *f) 
@@ -254,8 +266,10 @@ public:
 	int define_word_var(const std::string &word, FirthNumber val);
 	int define_word_var(const std::string &word, FirthNumber *val);
 
+#if FTH_INCLUDE_FLOAT == 1
 	int define_word_fvar(const std::string &word, FirthFloat val);
 	int define_word_fvar(const std::string &word, FirthFloat *val);
+#endif
 
 	int define_word_const(const std::string &word, FirthNumber val);
 	int define_user_word(const std::string &word, FirthFunc func, bool compileOnly = false);
@@ -286,11 +300,13 @@ public:
 	FirthNumber pop();
 	FirthNumber top() { return stack.top(); }
 
+#if FTH_INCLUDE_FLOAT == 1
 	// float stack
 	FirthFloat popf();
 	void pushf(const FirthFloat &f) { fstack.push(f); }
 	FirthFloat topf() { return fstack.top(); }
 	size_t fdepth() { return fstack.size(); }
+#endif
 
 	// data segment
 	unsigned data_size() { return (unsigned)(DP - pDataSegment); }

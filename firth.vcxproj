@@ -153,7 +153,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="firth.h" />
-    <ClInclude Include="firth_float.h" />
+    <ClInclude Include="firth_config.h" />
+    <ClInclude Include="firth_float.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

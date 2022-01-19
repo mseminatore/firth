@@ -38,7 +38,7 @@ static int fdiv(Firth *pFirth)
 	return FTH_TRUE;
 }
 
-static int fdot(Firth *pFirth)
+static int fprint(Firth *pFirth)
 {
 	auto a = pFirth->popf();
 	pFirth->firth_printf("%f", a);
@@ -184,14 +184,14 @@ static const struct FirthWordSet float_lib[] =
 	{ "F-", fsub },
 	{ "F*", fmul },
 	{ "F/", fdiv },
-	{ "F.", fdot },
-	{ "Fsin", fsin},
-	{ "Fcos", fcos },
-	{ "Ftan", ftan },
-	{ "Fln", fln },
-	{ "Fexp", fexp },
-	{ "Fabs", fabsolute },
-	{ "Fsqrt", fsqrt },
+	{ "F.", fprint },
+	{ "FSIN", fsin},
+	{ "FCOS", fcos },
+	{ "FTAN", ftan },
+	{ "FLN", fln },
+	{ "FEXP", fexp },
+	{ "FABS", fabsolute },
+	{ "FSQRT", fsqrt },
 	{ "F@", ffetch },
 	{ "F!", fstore },
 	{ "FDEPTH", fdepth },
