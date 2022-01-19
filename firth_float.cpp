@@ -112,7 +112,6 @@ static const struct FirthWordSet float_lib[] =
 	{ "F.", fdot },
 	{ "Fsin", fsin},
 	{ "Fcos", fcos },
-	{ "Fcos", fcos },
 	{ "Ftan", ftan },
 	{ "Fln", fln },
 	{ "Fexp", fexp },
