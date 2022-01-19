@@ -48,6 +48,7 @@ enum
 	OP_FSTORE,
 	OP_FFETCH,
 	OP_FLIT,
+	OP_FCONST,
 #endif
 
 	// internal compiler opcodes
@@ -269,6 +270,7 @@ public:
 #if FTH_INCLUDE_FLOAT == 1
 	int define_word_fvar(const std::string &word, FirthFloat val);
 	int define_word_fvar(const std::string &word, FirthFloat *val);
+	int define_word_fconst(const std::string &word, FirthFloat val);
 #endif
 
 	int define_word_const(const std::string &word, FirthNumber val);

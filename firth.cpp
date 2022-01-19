@@ -114,6 +114,7 @@ Firth::Firth(unsigned data_limit)
 	// float support
 	define_word("FVAR", OP_FVAR);
 	define_word("FVARIABLE", OP_FVAR);
+	define_word("FCONST", OP_FCONST);
 #endif
 
 	// compiler words
@@ -575,6 +576,24 @@ int Firth::define_word_fvar(const std::string &word, FirthFloat val)
 	push_data((FirthNumber)val);
 	return FTH_TRUE;
 }
+
+//
+int Firth::define_word_fconst(const std::string &word, FirthFloat val)
+{
+	Word w;
+
+	w.code_addr = bytecode.size();
+	w.type = OP_FCONST;
+
+	emit(OP_FLIT);
+	emit(*(int*)&val);
+	emit(OP_RET);
+
+	if (FTH_FALSE == create_word(word, w))
+		return FTH_FALSE;
+
+	return FTH_TRUE;
+}
 #endif
 
 //
@@ -582,9 +601,7 @@ int Firth::define_word_const(const std::string &word, FirthNumber val)
 {
 	Word w;
 
-	// all vars call the same run-time code
 	w.code_addr = bytecode.size();
-//	w.data_addr = val;
 	w.type = OP_CONST;
 
 	emit(OP_LIT);
@@ -1307,7 +1324,7 @@ int Firth::exec_word(const std::string &word)
 		}
 			break;
 
-		// const ( -- n)
+		// const ( n -- )
 		case OP_CONST:
 		{
 			auto val = pop();
@@ -1316,6 +1333,18 @@ int Firth::exec_word(const std::string &word)
 			define_word_const(lval, val);
 		}
 			break;
+
+#if FTH_INCLUDE_FLOAT == 1
+			// fconst ( f: n -- )
+		case OP_FCONST:
+		{
+			auto val = popf();
+
+			lex();
+			define_word_fconst(lval, val);
+		}
+			break;
+#endif
 
 		// allot ( n -- )
 		case OP_ALLOT:
