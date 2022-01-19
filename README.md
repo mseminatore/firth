@@ -449,7 +449,7 @@ install a set of floating point support words.
 ```
 
 Below is a list of the additional words that the floating point library 
-includes. In the listing below TOFS represents the `top of float stack`.
+includes. In the listing below TOFS represents the top of float stack.
 
 Word | Description | Stack effects
 ---- | ----------- | -------------

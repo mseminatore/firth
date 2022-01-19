@@ -358,7 +358,7 @@ int Firth::interpret(const std::string &token)
 			push(num);
 		}
 #if FTH_INCLUDE_FLOAT == 1
-		else if (strchr(token.c_str(), '.'))
+		else if (strchr(token.c_str(), '.') || strchr(token.c_str(), 'e'))
 		{
 			FirthFloat num = (FirthFloat)atof(token.c_str());
 			pushf(num);
@@ -375,8 +375,6 @@ int Firth::interpret(const std::string &token)
 }
 
 //
-//
-//
 int Firth::parse_token(const std::string &token)
 {
 	if (interpreter)
@@ -385,9 +383,7 @@ int Firth::parse_token(const std::string &token)
 	return compile(token);
 }
 
-//
 // Parse and execute a string of Firth
-//
 int Firth::parse_string(const std::string &line)
 {
 	// set string pointer
@@ -402,9 +398,7 @@ int Firth::parse_string(const std::string &line)
 	return FTH_TRUE;
 }
 
-//
 // Parse and execute a line of text
-//
 int Firth::parse()
 {
 	int token;
@@ -453,8 +447,6 @@ int Firth::register_wordset(const FirthWordSet words[])
 	return FTH_TRUE;
 }
 
-//
-//
 //
 int Firth::create_word(const std::string &word, const Word &w)
 {
@@ -650,7 +642,7 @@ int Firth::compile(const std::string &token)
 			emit(num);
 		}
 #if FTH_INCLUDE_FLOAT == 1
-		else if (strchr(token.c_str(), '.'))
+		else if (strchr(token.c_str(), '.') || strchr(token.c_str(), 'e'))
 		{
 			FirthFloat num = (FirthFloat)atof(token.c_str());
 			emit(OP_FLIT);
