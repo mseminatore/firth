@@ -45,6 +45,11 @@ enum
 	OP_LOAD,
 	OP_ALLOT,
 
+	// float support
+	OP_FVAR,
+	OP_FSTORE,
+	OP_FFETCH,
+
 	// internal compiler opcodes
 	OP_FUNC,
 	OP_NATIVE_FUNC,
@@ -249,6 +254,9 @@ public:
 	int define_word_var(const std::string &word, FirthNumber val);
 	int define_word_var(const std::string &word, FirthNumber *val);
 
+	int define_word_fvar(const std::string &word, FirthFloat val);
+	int define_word_fvar(const std::string &word, FirthFloat *val);
+
 	int define_word_const(const std::string &word, FirthNumber val);
 	int define_user_word(const std::string &word, FirthFunc func, bool compileOnly = false);
 
@@ -274,13 +282,17 @@ public:
 		stack.push(val);
 	}
 
+	// data stack
 	FirthNumber pop();
 	FirthNumber top() { return stack.top(); }
 
+	// float stack
 	FirthFloat popf();
 	void pushf(const FirthFloat &f) { fstack.push(f); }
 	FirthFloat topf() { return fstack.top(); }
+	size_t fdepth() { return fstack.size(); }
 
+	// data segment
 	unsigned data_size() { return (unsigned)(DP - pDataSegment); }
 	void push_data(FirthNumber number) 
 	{

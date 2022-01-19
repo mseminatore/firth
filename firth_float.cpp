@@ -102,6 +102,81 @@ static int fsqrt(Firth *pFirth)
 	return FTH_TRUE;
 }
 
+static int ffetch(Firth *pFirth)
+{
+	FirthFloat *pNum = (FirthFloat*)pFirth->pop();
+	auto val = *pNum;
+	pFirth->pushf(val);
+
+	return FTH_TRUE;
+}
+
+static int fstore(Firth *pFirth)
+{
+	FirthFloat *pNum = (FirthFloat*)pFirth->pop();
+	auto val = pFirth->popf();
+	*pNum = val;
+
+	return FTH_TRUE;
+}
+
+static int fdepth(Firth *pFirth)
+{
+	pFirth->push(pFirth->fdepth());
+
+	return FTH_TRUE;
+}
+
+static int fdup(Firth *pFirth)
+{
+	auto a = pFirth->topf();
+	pFirth->pushf(a);
+
+	return FTH_TRUE;
+}
+
+static int fdrop(Firth *pFirth)
+{
+	pFirth->popf();
+
+	return FTH_TRUE;
+}
+
+static int fswap(Firth *pFirth)
+{
+	auto a = pFirth->popf();
+	auto b = pFirth->popf();
+	
+	pFirth->pushf(a);
+	pFirth->pushf(b);
+
+	return FTH_TRUE;
+}
+
+static int dotf(Firth *pFirth)
+{
+	std::stack<FirthFloat> fs;
+
+	pFirth->firth_printf("Top -> [ ");
+
+	while (pFirth->fdepth())
+	{
+		auto f = pFirth->popf();
+		pFirth->firth_printf("%f ", f);
+		fs.push(f);
+	}
+
+	pFirth->firth_printf("]\n");
+
+	while (fs.size())
+	{
+		pFirth->pushf(fs.top());
+		fs.pop();
+	}
+
+	return FTH_TRUE;
+}
+
 // register our collection of custom words
 static const struct FirthWordSet float_lib[] =
 {
@@ -117,6 +192,13 @@ static const struct FirthWordSet float_lib[] =
 	{ "Fexp", fexp },
 	{ "Fabs", fabsolute },
 	{ "Fsqrt", fsqrt },
+	{ "F@", ffetch },
+	{ "F!", fstore },
+	{ "FDEPTH", fdepth },
+	{ "FDUP", fdup },
+	{ "FDROP", fdrop },
+	{ "FSWAP", fswap },
+	{ ".F", dotf },
 
 	{ nullptr, nullptr }
 };

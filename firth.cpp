@@ -110,6 +110,10 @@ Firth::Firth(unsigned data_limit)
 	define_word("!", OP_STORE);
 	define_word("ALLOT", OP_ALLOT);
 
+	// float support
+	define_word("FVAR", OP_FVAR);
+	define_word("FVARIABLE", OP_FVAR);
+
 	// compiler words
 	define_word(":", OP_FUNC);
 	define_word("FUNC", OP_FUNC);
@@ -551,6 +555,38 @@ int Firth::define_word_var(const std::string &word, FirthNumber val)
 }
 
 //
+int Firth::define_word_fvar(const std::string &word, FirthFloat *daddr)
+{
+	Word *var_word = nullptr;
+
+	if (!lookup_word("__var_impl", &var_word))
+		return FTH_FALSE;
+
+	Word w;
+
+	// all vars call the same run-time code
+	w.code_addr = var_word->code_addr;
+	w.data_addr = (FirthNumber*)daddr;
+	w.type = OP_FVAR;
+	w.opcode = OP_FVAR;
+
+	if (FTH_FALSE == create_word(word, w))
+		return FTH_FALSE;
+
+	return FTH_TRUE;
+}
+
+//
+int Firth::define_word_fvar(const std::string &word, FirthFloat val)
+{
+	if (FTH_FALSE == define_word_fvar(word, (FirthFloat*)DP))
+		return FTH_FALSE;
+
+	push_data((FirthNumber)val);
+	return FTH_TRUE;
+}
+
+//
 int Firth::define_word_const(const std::string &word, FirthNumber val)
 {
 	Word w;
@@ -632,6 +668,13 @@ int Firth::compile_time(const Word &w)
 	switch (w.opcode)
 	{
 	case OP_VAR:
+	{
+		emit(OP_LIT);
+		emit((int)w.data_addr);
+	}
+		break;
+
+	case OP_FVAR:
 	{
 		emit(OP_LIT);
 		emit((int)w.data_addr);
@@ -1235,6 +1278,14 @@ int Firth::exec_word(const std::string &word)
 		{
 			lex();
 			define_word_var(lval, FTH_UNDEFINED);
+		}
+			break;
+
+		// fvar
+		case OP_FVAR:
+		{
+			lex();
+			define_word_fvar(lval, 0.0f);
 		}
 			break;
 
