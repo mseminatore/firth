@@ -34,7 +34,7 @@ func 2DROP DROP DROP ;
 ( -- )
 func RDROP R> DROP ;
 
-(n1 n2 -- n2 n1 n2 )
+( n1 n2 -- n2 n1 n2 )
 func TUCK SWAP OVER ;
 
 ( n1 -- 0 | n1 n1 )

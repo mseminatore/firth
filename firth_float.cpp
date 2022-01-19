@@ -177,6 +177,49 @@ static int dotf(Firth *pFirth)
 	return FTH_TRUE;
 }
 
+static int frot(Firth *pFirth)
+{
+	auto n3 = pFirth->popf();
+	auto n2 = pFirth->popf();
+	auto n1 = pFirth->popf();
+	pFirth->pushf(n2);
+	pFirth->pushf(n3);
+	pFirth->pushf(n1);
+
+	return FTH_TRUE;
+}
+
+static int fover(Firth *pFirth)
+{
+	auto n2 = pFirth->popf();
+	auto n1 = pFirth->popf();
+	pFirth->pushf(n1);
+	pFirth->pushf(n2);
+	pFirth->pushf(n1);
+
+	return FTH_TRUE;
+}
+
+static int fnip(Firth *pFirth)
+{
+	auto n2 = pFirth->popf();
+	auto n1 = pFirth->popf();
+	pFirth->pushf(n2);
+
+	return FTH_TRUE;
+}
+
+static int ftuck(Firth *pFirth)
+{
+	auto n2 = pFirth->popf();
+	auto n1 = pFirth->popf();
+	pFirth->pushf(n2);
+	pFirth->pushf(n1);
+	pFirth->pushf(n2);
+
+	return FTH_TRUE;
+}
+
 // register our collection of custom words
 static const struct FirthWordSet float_lib[] =
 {
@@ -199,6 +242,10 @@ static const struct FirthWordSet float_lib[] =
 	{ "FDROP", fdrop },
 	{ "FSWAP", fswap },
 	{ ".F", dotf },
+	{ "FROT", frot },
+	{ "FOVER", fover },
+	{ "FNIP", fnip },
+	{ "FTUCK", ftuck },
 
 	{ nullptr, nullptr }
 };
