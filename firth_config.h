@@ -24,3 +24,5 @@ typedef int FirthNumber;
 #if FTH_INCLUDE_FLOAT == 1
 	typedef float FirthFloat;
 #endif
+
+const FirthFloat FTH_EPSILON = 1e-5;

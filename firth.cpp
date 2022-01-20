@@ -359,7 +359,7 @@ int Firth::interpret(const std::string &token)
 			push(num);
 		}
 #if FTH_INCLUDE_FLOAT == 1
-		else if (strchr(token.c_str(), '.') || strchr(token.c_str(), 'e'))
+		else if (isdigit(token[0]) && (strchr(token.c_str(), '.') || strchr(token.c_str(), 'e')))
 		{
 			FirthFloat num = (FirthFloat)atof(token.c_str());
 			pushf(num);
@@ -659,7 +659,7 @@ int Firth::compile(const std::string &token)
 			emit(num);
 		}
 #if FTH_INCLUDE_FLOAT == 1
-		else if (strchr(token.c_str(), '.') || strchr(token.c_str(), 'e'))
+		else if (isdigit(token[0]) && (strchr(token.c_str(), '.') || strchr(token.c_str(), 'e')))
 		{
 			FirthFloat num = (FirthFloat)atof(token.c_str());
 			emit(OP_FLIT);

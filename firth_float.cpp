@@ -1,3 +1,4 @@
+#include <math.h>
 #include "firth.h"
 
 //
@@ -294,5 +295,8 @@ static const struct FirthWordSet float_lib[] =
 //
 int firth_register_float(Firth *pFirth)
 {
+	pFirth->define_word_fconst("PI", 3.14159);
+	pFirth->define_word_fconst("FEPSILON", FTH_EPSILON);
+
 	return pFirth->register_wordset(float_lib);
 }
