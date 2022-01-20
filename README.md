@@ -427,6 +427,22 @@ XOR | bitwise XOR | ( n1 n2 -- n3 )
 
 * **Note:** These are not yet implemented
 
+### Configuring Firth
+
+Firth is designed to be somewhat configurable. Configuration parameters are
+adjusted by editing the file *firth_config.h* and rebuilding Firth. The
+parameters
+
+Name | Description
+---- | -----------
+FTH_UNDEFINED | The value placed in memory for uninitialized variables
+FTH_CASE_SENSITIVE | Controls compiler case sensitivity
+FTH_INCLUDE_FLOAT | Controls whether floating point is compiled into Firth
+FTH_MAX_WORD_NAME | Sets the limit for the length of a word name
+FTH_DEFAULT_DATA_SEGMENT_SIZE | Sets the default size reserved for variables
+FTH_MAX_PRINTF_SIZE | Sets the limit for the length of a firth_printf result
+FTH_EPSILON | Defines epsilon for floating point precision
+
 ### Floating point support
 
 Forth traditionally does not include support for floating point. Firth by 
@@ -465,8 +481,9 @@ F\> | greater than comparison | ( f: n1 n2 -- s: f )
 F= | equivalence comparison | ( f: n1 n2 -- s: f )
 F<> | not equivalence comparison | ( f: n1 n2 -- s: f )
 FABS | absolute value of TOFS | ( f: n -- abs(n) )
+FCONST | define a new float constant | ( f: n -- )
 FCOS | cos of TOFS | ( f: n -- cos(n) )
-FDEPTH | put depth of float stack on data stack | ( -- n )
+FDEPTH | put depth of float stack on data stack | ( s: -- n )
 FDROP | drop the TOFS | ( f: n -- )
 FDUP | duplicate the TOFS | ( f: n -- n n )
 FEXP | exp of TOFS | ( f: n -- exp(n) )
