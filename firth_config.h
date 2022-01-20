@@ -25,4 +25,4 @@ typedef int FirthNumber;
 	typedef float FirthFloat;
 #endif
 
-const FirthFloat FTH_EPSILON = 1e-5;
+const FirthFloat FTH_EPSILON = 1e-5f;
