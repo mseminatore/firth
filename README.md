@@ -107,8 +107,9 @@ for the number currently on the stack.
 ### Embedding Firth
 
 Firth is designed to be very easy to embed into other apps. Doing so requires
-integration of one .cpp and one .h file and just a few Firth API calls. Adding
-in the optional floating point support is one additional API call.
+integration of one .cpp and one .h file (firth.cpp and firth.h) and just a few
+Firth API calls. Adding in optional floating point support words involves one 
+additional API call.
 
 The file *main.cpp* demonstrates how to initialize Firth and add custom
 `Words` for a constant, a variable, and a native function. The important excerpts
