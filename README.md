@@ -174,7 +174,12 @@ int main()
     g_pFirth->define_word_var("System.Tick", &tickCount);
 
     // parse Firth
-    while (g_pFirth->parse());
+    int active = FTH_TRUE;
+    while(active)
+    (
+        active = g_pFirth->parse();
+        tickCount++;
+    );
 
     return 0;
 }
@@ -462,8 +467,14 @@ install a set of floating point support words.
     #include "firth.h"
     #include "firth_float.h"
     ...
-	// load (optional) floating point libraries
+	FirthFloat fSimTime;
+
+    // load (optional) floating point libraries
 	firth_register_float(pFirth);
+
+    // create a float const and var
+    pFirth->define_word_fconst("PI", 3.1415926);
+    pFirth->define_word_fvar("SimTime", &fSimTime);
 
 ```
 
