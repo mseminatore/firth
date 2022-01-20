@@ -90,7 +90,7 @@ Next, we define a new `Word` called `fib` that computes the Fibonacci sequence
 for the number currently on the stack.
 
 ```Forth
-> func fib DUP
+> func fibonacci DUP
     0<> IF DUP 1 
             <> IF
                 0 1 ROT 1- 0 DO DUP ROT + LOOP NIP
@@ -99,7 +99,7 @@ for the number currently on the stack.
 ;
   ok
 
-> 9 fib print
+> 9 fibonacci PRINT
 34  ok
 ```
 ### Embedding Firth
