@@ -71,6 +71,7 @@ enum
 	OP_UNTIL,
 	OP_DO,
 	OP_LOOP,
+	OP_PLOOP,
 	OP_WHILE,
 	OP_REPEAT,
 	OP_EXIT,

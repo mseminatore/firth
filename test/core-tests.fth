@@ -187,9 +187,13 @@ Test-group
 
     ." Test DO LOOP "
     T{ func DL1 3 0 DO I LOOP ; DL1 }T 0 1 2 ==
+    T{ func DL2 10 7 FOR I LOOP ; DL2 }T 7 8 9 ==
 
     ." Test FOR LOOP "
-    T{ func DL1 3 0 FOR I LOOP ; DL1 }T 0 1 2 ==
+    T{ func DL3 3 0 FOR I LOOP ; DL3 }T 0 1 2 ==
+
+    ." Test FOR +LOOP "
+    T{ func DL4 6 0 FOR I 2 +LOOP ; DL4 }T 0 2 4 ==
 
     ." Test DEPTH "
     T{ 0 1 DEPTH }T 0 1 2 ==

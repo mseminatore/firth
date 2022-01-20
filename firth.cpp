@@ -69,6 +69,7 @@ Firth::Firth(unsigned data_limit)
 	define_word("UNTIL", OP_UNTIL, true);
 	define_word("DO", OP_DO, true);
 	define_word("LOOP", OP_LOOP, true);
+	define_word("+LOOP", OP_PLOOP, true);
 	define_word("AGAIN", OP_AGAIN, true);
 	define_word("EXIT", OP_EXIT, true);
 	define_word("WHILE", OP_WHILE, true);
@@ -83,21 +84,21 @@ Firth::Firth(unsigned data_limit)
 	define_word("VAR", OP_VAR);
 	define_word("CONST", OP_CONST);
 
-#if FTH_I_LIKE_SWIFT == 1
-	define_word("FUNC", OP_FUNC);
-#endif
+	#if FTH_I_LIKE_SWIFT == 1
+		define_word("FUNC", OP_FUNC);
+	#endif
 
-#if FTH_I_LIKE_GOLANG == 1
-	define_word("FN", OP_FUNC);
-#endif
+	#if FTH_I_LIKE_GOLANG == 1
+		define_word("FN", OP_FUNC);
+	#endif
 
-#if FTH_I_LIKE_PYTHON == 1
-	define_word("DEF", OP_FUNC);
-#endif
+	#if FTH_I_LIKE_PYTHON == 1
+		define_word("DEF", OP_FUNC);
+	#endif
 
-#if FTH_I_LIKE_JAVASCRIPT == 1
-	define_word("FUNCTION", OP_FUNC);
-#endif
+	#if FTH_I_LIKE_JAVASCRIPT == 1
+		define_word("FUNCTION", OP_FUNC);
+	#endif
 
 #endif
 
@@ -819,9 +820,10 @@ int Firth::compile_time(const Word &w)
 		emit(OP_FROM_R);	// get index from return stack
 		emit(OP_FROM_R);	// get limit from return stack
 		emit(OP_SWAP);
+
 		emit(OP_LIT);
 		emit(1);
-		emit(OP_PLUS);		// inc index
+		emit(OP_PLUS);		// inc index by 1
 
 		emit(OP_OVER);		// make copy of limit index
 		emit(OP_OVER);		// one to test, other goes back on return stack
@@ -831,6 +833,31 @@ int Firth::compile_time(const Word &w)
 
 		auto dest = pop();	// get TOS addr for branch target
 		emit(dest);
+
+		emit(OP_DROP);		// drop limit index from stack
+		emit(OP_DROP);
+	}
+		break;
+
+	case OP_PLOOP:
+	{
+		// compile-time behavior
+		emit(OP_FROM_R);	// get index from return stack
+		emit(OP_FROM_R);	// get limit from return stack
+		emit(OP_SWAP);
+
+		emit(OP_ROT);		// increment limit index -> limit index increment
+		emit(OP_PLUS);		// add increment to index
+
+		emit(OP_OVER);		// make copy of limit index
+		emit(OP_OVER);		// one to test, other goes back on return stack
+
+		emit(OP_EQ);		// we consume one copy with Limit > index test
+		emit(OP_BZ);		// conditional branch back to DO
+
+		auto dest = pop();	// get TOS addr for branch target
+		emit(dest);
+
 		emit(OP_DROP);		// drop limit index from stack
 		emit(OP_DROP);
 	}
@@ -1001,7 +1028,7 @@ int Firth::exec_word(const std::string &word)
 		case OP_PRINT:
 		{
 			auto a = pop();
-			firth_printf("%d", a);
+			firth_printf("%d ", a);
 		}
 			break;
 
