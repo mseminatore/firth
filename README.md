@@ -80,7 +80,7 @@ Below are a few examples of Firth in action. First, the canonical hello world
 program.
 
 ```Forth
-> func hello ." Hello World! "
+> func hello ." Hello World! " ;
   ok
 
 > hello
