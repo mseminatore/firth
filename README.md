@@ -88,16 +88,16 @@ Hello World!
   ok
 ```
 
-Next, we define a new `Word` called `fib` that computes the Fibonacci sequence 
+Next, we define a new `Word` called `fibonacci` that computes the Fibonacci sequence 
 for the number currently on the stack.
 
 ```Forth
 > func fibonacci DUP
     0<> IF DUP 1 
             <> IF
-                0 1 ROT 1- 0 DO DUP ROT + LOOP NIP
-            THEN
-        THEN
+                0 1 ROT 1- 0 FOR DUP ROT + LOOP NIP
+            ENDIF
+        ENDIF
 ;
   ok
 
@@ -117,7 +117,7 @@ Forth | Firth | Comments
 VARIABLE | VAR | The keyword `var` is pretty common in modern languages
 CONSTANT | CONST | The use of `const` is also pretty common
 : | FUNC | Colon feels obscure for a modern function declaration
-THEN | ENDIF | If prefer IF-ELSE-ENDIF to the Forth IF-ELSE-THEN construct
+THEN | ENDIF | I prefer IF-ELSE-ENDIF to the Forth IF-ELSE-THEN construct
 DO | FOR | The `limit` and `index` make this is a FOR loop by modern standards
 
 At the moment I prefer `func` as a colon synonym. It is short yet descriptive,
