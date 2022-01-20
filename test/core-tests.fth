@@ -113,7 +113,7 @@ Test-group
     T{ 1 1 AND }T 1 ==
     T{ 0 255 AND }T 0 ==
 
-    ." Test over "
+    ." Test OVER "
     T{ 1 2 over }T 1 2 1 ==
 
     ." Test POW "
@@ -188,6 +188,9 @@ Test-group
     ." Test DO LOOP "
     T{ func DL1 3 0 DO I LOOP ; DL1 }T 0 1 2 ==
 
+    ." Test FOR LOOP "
+    T{ func DL1 3 0 FOR I LOOP ; DL1 }T 0 1 2 ==
+
     ." Test DEPTH "
     T{ 0 1 DEPTH }T 0 1 2 ==
     T{ 0 DEPTH }T 0 1 ==
@@ -202,5 +205,15 @@ Test-group
     T{ 0 GI2 }T 234 ==
     T{ 1 GI2 }T 123 ==
     T{ -1 GI2 }T 123 ==
+
+    ." Test IF ELSE ENDIF "
+    func GI3 IF 123 ENDIF ;
+    func GI4 IF 123 ELSE 234 ENDIF ;
+    T{ 0 0 GI3 }T 0 ==
+    T{ 1 GI3 }T 123 ==
+    T{ -1 GI3 }T 123 ==
+    T{ 0 GI4 }T 234 ==
+    T{ 1 GI4 }T 123 ==
+    T{ -1 GI4 }T 123 ==
 
 Test-end

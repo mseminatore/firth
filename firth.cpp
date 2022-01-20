@@ -76,6 +76,31 @@ Firth::Firth(unsigned data_limit)
 	define_word("HALT", OP_HALT);
 	define_word("I", OP_RFETCH, true);
 
+#if FTH_FIRTH_SYNTAX == 1
+	// modern syntax
+	define_word("ENDIF", OP_THEN, true);
+	define_word("FOR", OP_DO, true);
+	define_word("VAR", OP_VAR);
+	define_word("CONST", OP_CONST);
+
+#if FTH_I_LIKE_SWIFT == 1
+	define_word("FUNC", OP_FUNC);
+#endif
+
+#if FTH_I_LIKE_GOLANG == 1
+	define_word("FN", OP_FUNC);
+#endif
+
+#if FTH_I_LIKE_PYTHON == 1
+	define_word("DEF", OP_FUNC);
+#endif
+
+#if FTH_I_LIKE_JAVASCRIPT == 1
+	define_word("FUNCTION", OP_FUNC);
+#endif
+
+#endif
+
 	// logic words
 	define_word("AND", OP_AND);
 	define_word("OR", OP_OR);
@@ -101,10 +126,8 @@ Firth::Firth(unsigned data_limit)
 	define_word(".\"", OP_DOTQUOTE);
 
 	// variable and constant words
-	define_word("VAR", OP_VAR);
 	define_word("VARIABLE", OP_VAR);			// for Forth compat
 	define_word("__var_impl", OP_VAR_IMPL);
-	define_word("CONST", OP_CONST);
 	define_word("CONSTANT", OP_CONST);			// for Forth compat
 	define_word("@", OP_FETCH);
 	define_word("!", OP_STORE);
@@ -119,9 +142,6 @@ Firth::Firth(unsigned data_limit)
 
 	// compiler words
 	define_word(":", OP_FUNC);
-	define_word("FUNC", OP_FUNC);
-	define_word("FN", OP_FUNC);
-	define_word("DEF", OP_FUNC);
 	define_word("INCLUDE", OP_LOAD);
 	define_word("DEPTH", OP_DEPTH);
 	define_word("WORDS", OP_WORDS);

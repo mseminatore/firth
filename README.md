@@ -104,6 +104,32 @@ for the number currently on the stack.
 > 9 fibonacci PRINT
 34  ok
 ```
+
+### From Forth to Firth
+
+You may be asking, where does Firth diverge from Forth? In nearly all cases
+I've added "syntactic sugar" to modernize the feel of the code. These are
+implemented as `Word` synonyms. You can stick with Forth syntax if you prefer.
+Or you can migrate to the more modern Firth syntax when and as you wish.
+
+Forth | Firth | Comments
+----- | ----- | --------
+VARIABLE | VAR | The keyword `var` is pretty common in modern languages
+CONSTANT | CONST | The use of `const` is also pretty common
+: | FUNC | Colon feels obscure for a modern function declaration
+THEN | ENDIF | If prefer IF-ELSE-ENDIF to the Forth IF-ELSE-THEN construct
+DO | FOR | The `limit` and `index` make this is a FOR loop by modern standards
+
+At the moment I prefer `func` as a colon synonym. It is short yet descriptive,
+which seems to be in the spirit of Forth word naming. So that is what I've 
+documented here.
+
+That said, I am still actively debating whether to use the Golang `fn`, 
+Swift's `func`, Javascript's `function` or Python's `def` as a replacement 
+for `:`. For now they all exist to see which feels better. If you have strong 
+opinions please let me know. You can configure the defaults in 
+*firth_config.h*.
+
 ### Embedding Firth
 
 Firth is designed to be very easy to embed into other apps. Doing so requires

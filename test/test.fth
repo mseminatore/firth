@@ -27,7 +27,7 @@ var StackDepth \ saved stack DEPTH
 
 \ compute h1 by hashing x1 and h0
 : hash ( x1 h0 -- h1 )
-    SWAP 1+ xor
+    SWAP 1+ XOR
 ;
 
 \ hash n items from the stack and return the hash code
@@ -64,7 +64,7 @@ var StackDepth \ saved stack DEPTH
 : == ( hy x1 x2 ... xn -- )
     DEPTH StackDepth @ - ( hy x1 x2 .. xn Nx )
     hash-n ( hy hx )
-    = 0= IF Test-halt ELSE BL CHECKMARK THEN CR
+    = 0= IF Test-halt ELSE BL CHECKMARK ENDIF CR
 ;
 
 \ end of test group
