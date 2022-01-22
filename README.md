@@ -2,18 +2,17 @@
 **Firth** is an experimental programming language heavily inspired by Forth.
 Its goals are to be small, fast and efficient, portable and embeddable.
 
-> If you are new to Forth, you can learn n1 lot of the basics at 
+> If you are new to Forth, you can learn a lot of the basics at 
 > [Easy Forth](https://skilldrick.github.io/easyforth/). I also highly recommend
 > [Starting Forth](https://www.forth.com/starting-forth) by Leo Brodie of
 > Forth, Inc.
 
-I like learning, and creating, programming languages. I created **Firth** 
-primarily as an exercise in learning Forth. And also to have my own environment 
-for experimentation. The original plan was to create my own Forth system, 
-written in C++. However, along the way I realized that there were some things 
-about Forth that I probably wanted to change. Mainly small things to modernize 
-the syntax to make it a little bit easier for beginners. That said, Firth is
-largely Forth compatible.
+I created **Firth** primarily as an exercise in learning Forth. And also to 
+have my own environment for experimentation. The original plan was to create 
+a simple Forth system, written in C++. However, along the way I realized that 
+there were some things about Forth that I probably wanted to change. Mainly 
+small things to modernize the syntax to make it a little bit easier for 
+beginners. That said, Firth is largely Forth compatible.
 
 > If you are already familiar with Forth you may find the idea of creating a 
 > new Forth-like language to be strange. After all, a key feature of Forth 

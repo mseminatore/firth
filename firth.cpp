@@ -448,7 +448,8 @@ int Firth::parse()
 		if (fin != stdin)
 		{
 			fclose(fin);
-			set_input_file(stdin);
+			fin = stdin;
+			set_input_file(fin);
 		}
 
 		return FTH_FALSE;

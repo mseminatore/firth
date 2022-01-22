@@ -1,20 +1,20 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <windows.h>
 #include <stdio.h>
 #include <ctype.h>
 
 #include "firth.h"
 #include "firth_float.h"
 
+//
 static FILE *fin = stdin;
 static FILE *fout = stdout;
 
 bool g_bVerbose = false;
 
-Firth *g_pFirth = NULL;
-
 FirthNumber tickCount;
+
+char *g_szInputfile = NULL;
 
 //
 // get options from the command line
@@ -26,6 +26,12 @@ int getopt(int n, char *args[])
 	{
 		if (args[i][1] == 'v')
 			g_bVerbose = true;
+
+		if (args[i][1] == 'o')
+		{
+			fout = fopen(args[i + 1], "wt");
+			i++;
+		}
 	}
 
 	return i;
@@ -73,7 +79,7 @@ void callFirth(Firth *pFirth)
 	pFirth->exec_word(".");
 
 	// parse and execute a line of text
-	g_pFirth->parse_string("CP @ .");
+	pFirth->parse_string("CP @ .");
 }
 
 //
@@ -89,37 +95,66 @@ void banner(Firth *pFirth)
 //
 int main(int argc, char **argv)
 {
-	g_pFirth = new Firth();
+	Firth *pFirth = new Firth();
 
-	g_pFirth->set_input_file(fin);
-	g_pFirth->set_output_func(myprint);
+	// parse command line params
+	int firstParam = getopt(argc, argv);
 
-	banner(g_pFirth);
+	// setup Firth output
+	pFirth->set_output_func(myprint);
+
+	banner(pFirth);
 
 	// load (optional) core libraries
-	g_pFirth->load_core();
+	pFirth->load_core();
+
+	// handle file passed on command line
+	if (argc > firstParam)
+	{
+		g_szInputfile = argv[firstParam];
+	}
 
 #if FTH_INCLUDE_FLOAT == 1
 	// load (optional) floating point libraries
-	firth_register_float(g_pFirth);
+	firth_register_float(pFirth);
 #endif
 
 	// add our own custom words
-	g_pFirth->register_wordset(myWords);
+	pFirth->register_wordset(myWords);
 
 	// add a const and a var
-	g_pFirth->define_word_const("APP.VER", 1);
-	g_pFirth->define_word_var("System.Tick", &tickCount);
+	pFirth->define_word_const("APP.VER", 1);
+	pFirth->define_word_var("System.Tick", &tickCount);
 
+	// process command line file input
+	if (g_szInputfile)
+	{
+		FILE *f = fopen(g_szInputfile, "rt");
+		if (!f)
+		{
+			pFirth->firth_printf("File (%s) not found!\n", g_szInputfile);
+			exit(-1);
+		}
+		
+		pFirth->set_input_file(f);
+		while (pFirth->parse());
+		fclose(f);
+	}
+
+	//
 	// REPL loop
+	//
+
+	// setup Firth input
+	pFirth->set_input_file(stdin);
 	int active = FTH_TRUE;
 	while (active)
 	{
 		tickCount++;
-		active = g_pFirth->parse();
+		active = pFirth->parse();
 	}
 
-	delete g_pFirth;
+	delete pFirth;
 
 	return 0;
 }
