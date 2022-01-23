@@ -12,17 +12,16 @@ have my own environment for experimentation. The original plan was to create
 a simple Forth system, written in C++. However, along the way I realized that 
 there were some things about Forth that I probably wanted to change. Mainly 
 small things to modernize the syntax to make it a little bit easier for 
-beginners. That said, Firth is largely Forth compatible.
+beginners. That said, Firth remains largely Forth compatible.
 
 > If you are already familiar with Forth you may find the idea of creating a 
 > new Forth-like language to be strange. After all, a key feature of Forth 
-> is the ability to completely redefine existing behavior. I 
-> wanted to retain the ability to break basic Forth compatibility when and 
-> where I want.
+> is the ability to completely redefine existing behavior.
 
-Rather than risk creating a version of Forth that might not be compatible with 
-existing Forth code, I decided to make a language heavily influenced by and 
-largely compatible with Forth.
+Rather than create a version of Forth that might not be compatible with 
+existing Forth code, it seemed a better idea to make a language heavily 
+influenced by, and largely compatible with Forth. While still retaining the 
+option to break basic Forth compatibility when and where that made sense.
 
 ## Basics of the Firth language
 
@@ -40,16 +39,16 @@ Arithmetic in Firth, as in Forth, uses Reverse Polish Notation (RPN). To add two
 numbers together you would write:
 
 ```Forth
-> 1 2 +
+Firth> 1 2 +
   ok
 
-> .S
+Firth> .S
 Top -> [ 3 ] 
   ok
 ```
 
-This would push the number 1 and then the number 2 onto the stack. And then it 
-would add those two numbers together, replacing them with the result on the 
+This code pushes the number 1 and then the number 2 onto the stack. And then it 
+adds those two numbers together, replacing them with the result on the 
 stack. The built-in `Word` called `.S` prints out, without modifying, the 
 contents of the stack.
 
@@ -59,17 +58,17 @@ contents of the stack.
 `Words`. Let's create a `Word` for addition. To do so looks like this:
 
 ```Forth
-> func add + ;
+Firth> func add + ;
   ok
 
-> 1 2 add
+Firth> 1 2 add
   ok
 
-> print
+Firth> print
 3  ok
 ```
 
-This creates a new `Word` named `add` that calls `+` to add the top two stack 
+This code creates a new `Word` named `add` that calls `+` to add the top two stack 
 entries and put the result on the stack. The built-in `Word` called `print` 
 prints the top of stack.
 
@@ -111,6 +110,8 @@ I've added "syntactic sugar" to modernize the feel of the code. These are
 implemented as `Word` synonyms. You can stick with Forth syntax if you prefer.
 Or you can migrate to the more modern Firth syntax when and as you wish.
 
+Here are the word synonyms that Firth offers: 
+
 Forth | Firth | Comments
 ----- | ----- | --------
 VARIABLE | VAR | The keyword `var` is pretty common in modern languages
@@ -144,23 +145,21 @@ of *main.cpp* are shown below.
 
 #include "firth.h"
 
-Firth *g_pFirth = NULL;
-
 // custom word functions
 static int isEven(Firth *pFirth)
 {
 	auto n = pFirth->pop();
-	pFirth->push((n % 2) == 0 ? F_TRUE : F_FALSE);
+	pFirth->push((n % 2) == 0 ? FTH_TRUE : FTH_FALSE);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 static int isOdd(Firth *pFirth)
 {
 	auto n = pFirth->pop();
-	pFirth->push((n % 2) ? F_TRUE : F_FALSE);
+	pFirth->push((n % 2) ? FTH_TRUE : FTH_FALSE);
 
-	return F_TRUE;
+	return FTH_TRUE;
 }
 
 // register our collection of custom words
@@ -178,31 +177,35 @@ void callFirth(Firth *pFirth)
 {
     // do_word is a set of convenience methods to push 
     // 1, 2, or 3 parameters on stack and execute a word
-    g_pFirth->do_word("+", 1, 2);
+    pFirth->do_word("+", 1, 2);
 	
 	// execute any defined word, no passed parameters
-    g_pFirth->exec_word(".");
+    pFirth->exec_word(".");
+
+    // parse and execute a line of text
+	pFirth->parse_string("CP @ .");
+
 }
 
 int main()
 {
-    g_pFirth = new Firth();
+    Firth *pFirth = new Firth();
 
     // load core libraries
-    g_pFirth->loadCore();
+    pFirth->loadCore();
 
     // add custom words that can be called from Firth
-    g_pFirth->register_wordset(myWords);
+    pFirth->register_wordset(myWords);
 
     // add a const and a var
-    g_pFirth->define_word_const("APP.VER", 1);
-    g_pFirth->define_word_var("System.Tick", &tickCount);
+    pFirth->define_word_const("APP.VER", 1);
+    pFirth->define_word_var("System.Tick", &tickCount);
 
     // parse Firth
     int active = FTH_TRUE;
     while(active)
     (
-        active = g_pFirth->parse();
+        active = pFirth->parse();
         tickCount++;
     );
 
@@ -232,7 +235,7 @@ tests are also found in the **test** sub-folder in a file called
 > But even more importantly, having a rich set of unit tests allowed me to 
 > re-factor and optimize code with confidence.
 
-The *core-tests.fth* file file both defines and runs the unit tests. If all goes well a message will be 
+The *core-tests.fth* file both defines and runs the unit tests. If all goes well a message will be 
 displayed saying that *All tests passed!*
 
 ```Forth
@@ -465,7 +468,7 @@ XOR | bitwise XOR | ( n1 n2 -- n3 )
 
 Firth is designed to be somewhat configurable. Configuration parameters are
 adjusted by editing the file *firth_config.h* and rebuilding Firth. The
-parameters
+parameters are:
 
 Name | Description
 ---- | -----------
