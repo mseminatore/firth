@@ -135,7 +135,7 @@ opinions please let me know. You can configure the defaults in
 Firth is designed to be very easy to embed into other apps. Doing so requires
 integration of one .cpp and one .h file (firth.cpp and firth.h) and just a few
 Firth API calls. Adding in optional floating point support words involves one 
-additional API call.
+additional API call and one more .cpp file (firth_float.cpp).
 
 The file *main.cpp* demonstrates how to initialize Firth and add custom
 `Words` for a constant, a variable, and a native function. The important excerpts
@@ -183,7 +183,7 @@ void callFirth(Firth *pFirth)
     pFirth->exec_word(".");
 
     // parse and execute a line of text
-	pFirth->parse_string("CP @ .");
+    pFirth->parse_string("CP @ .");
 
 }
 
