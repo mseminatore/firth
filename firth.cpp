@@ -60,8 +60,8 @@ Firth::Firth(unsigned data_limit)
 	define_word("0<>", OP_ZNE);
 
 	// control words
-	define_word("GOTO", OP_GOTO, true);
-	define_word("BZ", OP_BZ, true);
+	define_word("BRANCH", OP_GOTO, true);
+	define_word("BRANCH?", OP_BZ, true);
 	define_word("IF", OP_IF, true);
 	define_word("THEN", OP_THEN, true);
 	define_word("ELSE", OP_ELSE, true);
@@ -167,7 +167,7 @@ void Firth::firth_printf(char *format, ...)
 	firth_print(buf);
 }
 
-//
+// Load and parsse the given file
 int Firth::load(const std::string &file)
 {
 	FILE *f = fopen(file.c_str(), "rt");
@@ -458,7 +458,7 @@ int Firth::parse()
 	return FTH_TRUE;
 }
 
-//
+// Register a new set of words in the dictionary
 int Firth::register_wordset(const FirthWordSet words[])
 {
 	for (int i = 0; words[i].wordName && words[i].func; i++)
@@ -470,7 +470,7 @@ int Firth::register_wordset(const FirthWordSet words[])
 	return FTH_TRUE;
 }
 
-//
+// Create and add a new word to the dictionary
 int Firth::create_word(const std::string &word, const Word &w)
 {
 	// TODO - we might want to succeed in overwriting existing words here
@@ -567,7 +567,7 @@ int Firth::define_word_var(const std::string &word, FirthNumber val)
 }
 
 #if FTH_INCLUDE_FLOAT == 1
-//
+// Create a new float variable at the given address
 int Firth::define_word_fvar(const std::string &word, FirthFloat *daddr)
 {
 	Word *var_word = nullptr;
@@ -648,7 +648,7 @@ int Firth::lookup_word(const std::string &word, Word **ppWord)
 	return FTH_TRUE;
 }
 
-//
+// Compile the given word
 int Firth::compile(const std::string &token)
 {
 	if (token == "[")
@@ -698,7 +698,7 @@ int Firth::compile(const std::string &token)
 	return FTH_TRUE;
 }
 
-//
+// Process compile time code for the given word
 int Firth::compile_time(const Word &w)
 {
 	switch (w.opcode)
@@ -722,8 +722,8 @@ int Firth::compile_time(const Word &w)
 	case OP_IF:
 	{
 		// compile-time behavior
-		emit(OP_BZ);			// emit conditional branch on zero
-		push(bytecode.size());	// push current code pointer onto the stack
+		emit(OP_BZ);				// emit conditional branch on zero
+		push(bytecode.size());		// push current code pointer onto the stack
 		emit(FTH_UNDEFINED);		// reserve space for branch address
 	}
 		break;
@@ -731,7 +731,7 @@ int Firth::compile_time(const Word &w)
 	case OP_THEN:
 	{
 		// compile-time behavior
-		auto dest = pop();	// get TOS addr for branch target
+		auto dest = pop();						// get TOS addr for branch target
 		bytecode[dest] = bytecode.size();		// fixup branch target
 	}
 		break;
@@ -744,7 +744,7 @@ int Firth::compile_time(const Word &w)
 		// setup branch around ELSE clause to the THEN clause
 		emit(OP_GOTO);						// unconditional branch
 		push(bytecode.size());				// push current code pointer onto the stack for THEN
-		emit(FTH_UNDEFINED);				// default to next instruction
+		emit(FTH_UNDEFINED);				// default to undefined location
 
 		// patch IF branch to here, beyond the ELSE
 		bytecode[dest] = bytecode.size();	// fixup branch target
