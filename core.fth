@@ -14,12 +14,18 @@ func LF 10 EMIT ;
 func BEL 7 EMIT ;
 func CR 13 EMIT 10 EMIT ;
 
+\ toggles for hex/decimal output
+func HEX 1 _hexmode ! ;
+func DECIMAL 0 _hexmode ! ;
+
 \ define a convenience word for printing the TOS ( n -- )
 func PRINT . ;
 
 \ sqr the TOS ( n -- n )
 func SQR DUP * ;
 
+\ leave the current code pointer on the stack
+\ ( -- n )
 func HERE CP @ ;
 
 ( n -- n )

@@ -156,14 +156,19 @@ Firth::Firth(unsigned data_limit)
 	define_word("DEPTH", OP_DEPTH);
 	define_word("WORDS", OP_WORDS);
 
+	//define_word("HEX", OP_HEX);
+	//define_word("DECIMAL", OP_DECIMAL);
+
 	// pre-defined variables
 	define_word_var("CP", CP);
 //	define_word_var("DP", DP);
+	define_word_var("_hexmode", &hexmode);
 
 	// hide internal words
 	make_hidden("__var_impl", true);
 	make_hidden("BRANCH", true);
 	make_hidden("BRANCH?", true);
+	make_hidden("_hexmode", true);
 }
 
 // Firth formatted output function
@@ -555,7 +560,10 @@ int Firth::create_word(const std::string &word, const Word &w)
 	// TODO - we might want to succeed in overwriting existing words here
 	auto result = dict.insert(std::pair<const std::string, Word>(word, w));
 	if (result.second == false)
+	{
+		firth_printf("Word (%s) already exists.\n", word.c_str());
 		return FTH_FALSE;
+	}
 
 	return FTH_TRUE;
 }
@@ -1112,7 +1120,10 @@ int Firth::exec_word(const std::string &word)
 		case OP_PRINT:
 		{
 			auto a = pop();
-			firth_printf("%d ", a);
+			if (hexmode)
+				firth_printf("0x%0X ", a);
+			else
+				firth_printf("%d ", a);
 		}
 			break;
 
@@ -1310,7 +1321,10 @@ int Firth::exec_word(const std::string &word)
 			firth_printf("Top -> [ ");
 			while(s.size())
 			{
-				firth_printf("%d ", s.top());
+				if (hexmode)
+					firth_printf("0x%0X ", s.top());
+				else
+					firth_printf("%d ", s.top());
 				s.pop();
 			}
 			firth_print("]\n");
