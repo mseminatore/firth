@@ -152,14 +152,18 @@ Firth::Firth(unsigned data_limit)
 	// compiler words
 	define_word(":", OP_FUNC);
 	define_word("INCLUDE", OP_LOAD);
+	define_word("REQUIRE", OP_LOAD);
 	define_word("DEPTH", OP_DEPTH);
 	define_word("WORDS", OP_WORDS);
 
 	// pre-defined variables
 	define_word_var("CP", CP);
+//	define_word_var("DP", DP);
 
 	// hide internal words
 	make_hidden("__var_impl", true);
+	make_hidden("BRANCH", true);
+	make_hidden("BRANCH?", true);
 }
 
 // Firth formatted output function
@@ -213,6 +217,14 @@ int Firth::push_input_file(const std::string &filename)
 	char path[FTH_MAX_PATH];
 	char oldWorkingDir[FTH_MAX_PATH];
 
+	// don't load files already loaded
+	auto iter = includeNames.find(filename);
+	if (iter != includeNames.end())
+	{
+		firth_printf("File (%s) already loaded.\n", filename.c_str());
+		return FTH_TRUE;
+	}
+
 	// save current working dir
 	_getcwd(oldWorkingDir, sizeof(oldWorkingDir));
 
@@ -236,6 +248,8 @@ int Firth::push_input_file(const std::string &filename)
 	}
 
 	inputStack.push(FDNode(f, filename.c_str(), oldWorkingDir));
+
+	includeNames.insert(filename);
 
 	return FTH_TRUE;
 }
