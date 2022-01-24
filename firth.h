@@ -3,6 +3,8 @@
 #include <map>
 #include <stack>
 #include <vector>
+#include <set>
+#include <direct.h>
 
 #include "firth_config.h"
 
@@ -158,6 +160,56 @@ struct FirthWordSet
 	FirthFunc func;
 };
 
+// File descriptor node
+struct FDNode
+{
+	FILE *fd;
+	// char *pTextData;	// for parsing strings
+	char *filename;
+	char *prevDir;
+
+	FDNode() : fd(nullptr), filename(nullptr), prevDir(nullptr) {}
+	
+	FDNode(FILE *f, const char *fname, const char *oldDir) : fd(f) {
+		filename = _strdup(fname);
+		prevDir = _strdup(oldDir);
+	}
+
+	FDNode(FDNode &&rhs) 
+	{ 
+		fd = rhs.fd; 
+		filename = rhs.filename; 
+		prevDir = rhs.prevDir; 
+
+		// take ownership of the values
+		rhs.fd = nullptr;
+		rhs.filename = nullptr;
+		rhs.prevDir = nullptr;
+	}
+	
+	virtual ~FDNode()
+	{
+		if (fd)
+		{
+			fclose(fd);
+			fd = nullptr;
+		}
+
+		if (filename)
+		{
+			free(filename); 
+			filename = nullptr;
+		}
+
+		if (prevDir)
+		{
+			_chdir(prevDir);
+			free(prevDir); 
+			prevDir = nullptr;
+		}
+	}
+};
+
 //
 //
 //
@@ -181,6 +233,12 @@ protected:
 		}
 	};
 #endif
+
+	// file descriptor stack
+	std::stack<FDNode> inputStack;
+
+	// tracks already included files
+	std::set<std::string, WordLessThan> includeNames;
 
 	// dictionary of words
 	std::map<std::string, Word, WordLessThan> dict;
@@ -216,7 +274,7 @@ protected:
 	int hexmode;
 	bool halted;
 
-	FILE *fin;
+//	FILE *fin;
 	const char *txtInput;
 	char lval[FTH_MAX_WORD_NAME];
 
@@ -225,6 +283,9 @@ protected:
 	//
 	// non-public methods
 	//
+	const char *basename(const char *s);
+	char *dirname(char *s);
+
 	int load(const std::string &file);
 	void emit(FirthInstruction op);
 
@@ -247,13 +308,7 @@ public:
 	Firth(unsigned data_limit = FTH_DEFAULT_DATA_SEGMENT_SIZE);
 	virtual ~Firth() {}
 
-	void set_input_file(FILE *f) 
-	{ 
-		if (f) 
-			fin = f; 
-		else 
-			fin = stdin; 
-	}
+	int push_input_file(const std::string &filename);
 
 	void set_output_func(FirthOutputFunc func) { firth_print = func; }
 	void firth_printf(char *format, ...);

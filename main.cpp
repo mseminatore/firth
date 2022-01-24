@@ -129,16 +129,13 @@ int main(int argc, char **argv)
 	// process command line file input
 	if (g_szInputfile)
 	{
-		FILE *f = fopen(g_szInputfile, "rt");
-		if (!f)
+		if (pFirth->push_input_file(g_szInputfile))
+			while (pFirth->parse());
+		else
 		{
 			pFirth->firth_printf("File (%s) not found!\n", g_szInputfile);
 			exit(-1);
 		}
-		
-		pFirth->set_input_file(f);
-		while (pFirth->parse());
-		fclose(f);
 	}
 
 	//
@@ -146,7 +143,7 @@ int main(int argc, char **argv)
 	//
 
 	// setup Firth input
-	pFirth->set_input_file(stdin);
+//	pFirth->push_input_file(stdin);
 	int active = FTH_TRUE;
 	while (active)
 	{

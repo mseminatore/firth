@@ -4,6 +4,7 @@
 \
 \ Some test cases borrowed from https://forth-stANDard.org/stANDard/core/
 \
+\include test.fth
 
 Test-group
     ." Test DROP "

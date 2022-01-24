@@ -10,6 +10,22 @@
 #	define FTH_CASE_SENSITIVE 0
 #endif
 
+#ifndef FTH_DIR_SEPARATOR
+	#ifdef WIN32
+	#	define FTH_DIR_SEPARATOR '\\'
+	#else
+	#	define FTH_DIR_SEPARATOR '/'
+	#endif
+#endif
+
+#ifndef FTH_MAX_PATH
+	#ifdef _MAX_PATH
+	#	define FTH_MAX_PATH _MAX_PATH
+	#else
+	#	define FTH_MAX_PATH 260
+	#endif
+#endif
+
 // Set this to zero to remove all float support
 #ifndef FTH_INCLUDE_FLOAT
 #	define FTH_INCLUDE_FLOAT 1

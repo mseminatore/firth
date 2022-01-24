@@ -21,22 +21,29 @@ Firth::Firth(unsigned data_limit)
 
 	halted = false;
 
-	fin = stdin;
+	// read from standard input by default
+	inputStack.push(FDNode(stdin, "stdin", "."));
+
+	// TODO - this should go on FD stack so that a parsed string can
+	// TODO - include a file
 	txtInput = nullptr;
 
+	// setup data stack and data pointer DP
 	this->data_limit = data_limit;
 	DP = pDataSegment = new FirthNumber[data_limit];
 
+	// setup code pointer CP
 	CP = DP++;
 	*CP = 0;
 
+	// instruction pointer IP for interpreter
 	ip = 0;
 
 	hexmode = 0;
 
 	interpreter = true;
 
-	// special opcode that tells us when execution is finished
+	// special opcode that tells VM when execution is finished
 	emit(OP_DONE);
 
 	// math words
@@ -127,12 +134,13 @@ Firth::Firth(unsigned data_limit)
 	define_word(".\"", OP_DOTQUOTE);
 
 	// variable and constant words
-	define_word("VARIABLE", OP_VAR);			// for Forth compat
+	define_word("VARIABLE", OP_VAR);
 	define_word("__var_impl", OP_VAR_IMPL);
-	define_word("CONSTANT", OP_CONST);			// for Forth compat
+	define_word("CONSTANT", OP_CONST);
 	define_word("@", OP_FETCH);
 	define_word("!", OP_STORE);
 	define_word("ALLOT", OP_ALLOT);
+	define_word("ALLOC", OP_ALLOT);
 
 #if FTH_INCLUDE_FLOAT == 1
 	// float support
@@ -167,19 +175,78 @@ void Firth::firth_printf(char *format, ...)
 	firth_print(buf);
 }
 
-// Load and parsse the given file
+// return pointer to the base filename without path
+const char *Firth::basename(const char *s)
+{
+	if (!strchr(s, FTH_DIR_SEPARATOR))
+		return s;
+
+	const char *p = s + strlen(s);
+
+	for (; p != s; p--)
+		if (*p == FTH_DIR_SEPARATOR)
+		{
+			p++;
+			break;
+		}
+	return p;
+}
+
+// return pointer to the path name
+char *Firth::dirname(char *s)
+{
+	if (!strchr(s, FTH_DIR_SEPARATOR))
+		return ".";
+
+	char *p = (char*)basename(s);
+	if (p == s)
+		return s;
+
+	p--;
+	*p = 0;
+	return s;
+}
+
+//
+int Firth::push_input_file(const std::string &filename)
+{
+	char path[FTH_MAX_PATH];
+	char oldWorkingDir[FTH_MAX_PATH];
+
+	// save current working dir
+	_getcwd(oldWorkingDir, sizeof(oldWorkingDir));
+
+	strcpy(path, filename.c_str());
+
+	const char *file = basename(path);
+	const char *dir = dirname(path);
+
+	// set new working dir
+	if (strcmp(dir, oldWorkingDir))
+		_chdir(dir);
+
+	FILE *f = fopen(file, "rt");
+	if (!f)
+	{
+		// restore previous working dir
+		_chdir(oldWorkingDir);
+		firth_printf("File (%s) not found!\n", filename.c_str());
+
+		return FTH_FALSE;
+	}
+
+	inputStack.push(FDNode(f, filename.c_str(), oldWorkingDir));
+
+	return FTH_TRUE;
+}
+
+// Load and parse the given file
 int Firth::load(const std::string &file)
 {
-	FILE *f = fopen(file.c_str(), "rt");
-	if (!f)
-		return FTH_FALSE;
-
-	set_input_file(f);
+	push_input_file(file);
 	
 	while(parse());
 
-	fclose(f);
-	
 	return FTH_TRUE;
 }
 
@@ -198,7 +265,7 @@ int Firth::getChar()
 	if (txtInput)
 		return *txtInput++;
 
-	return fgetc(fin);
+	return fgetc(inputStack.top().fd);
 }
 
 //
@@ -211,7 +278,7 @@ void Firth::ungetChar(int c)
 		return;
 	}
 
-	ungetc(c, fin);
+	ungetc(c, inputStack.top().fd);
 }
 
 //
@@ -426,7 +493,7 @@ int Firth::parse()
 	int token;
 	int success = FTH_TRUE;
 
-	if (fin == stdin)
+	if (inputStack.top().fd == stdin)
 		firth_print("\nfirth> ");
 
 	while ((token = lex()) != '\n' && token != EOF && token != 0 && halted == false)
@@ -439,17 +506,15 @@ int Firth::parse()
 		}
 	}
 
-	if (token == '\n' && success == FTH_TRUE && fin == stdin)
+	if (token == '\n' && success == FTH_TRUE && inputStack.top().fd == stdin)
 		firth_print(" ok\n");
 
 	if (token == EOF || token == 0 || halted)
 	{
 		// if reading from a file and file is finished, read from stdin
-		if (fin != stdin)
+		if (inputStack.top().fd != stdin)
 		{
-			fclose(fin);
-			fin = stdin;
-			set_input_file(fin);
+			inputStack.pop();
 		}
 
 		return FTH_FALSE;
@@ -927,8 +992,12 @@ int Firth::exec_word(const std::string &word)
 		return w.nativeWord(this);
 	}
 
+	// make sure return stack is empty
+	while (return_stack.size())
+		return_stack.pop();
+	return_stack.push(0);
+
 	// jump to the execution context (xt) for the word
-	return_stack.push(ip);	// TODO is this needed?
 	ip = w.code_addr;
 	
 	while(1)
@@ -1270,15 +1339,10 @@ int Firth::exec_word(const std::string &word)
 			// get the file name word
 			lex();
 
-			// open the file
-			FILE *f = fopen(lval, "rt");
-			// set files
-			if (f)
-			{
-				set_input_file(f);
+			if (push_input_file(lval))
 				while (parse());
-				fclose(f);
-			}
+			
+			return FTH_TRUE;
 		}
 			break;
 
@@ -1306,7 +1370,7 @@ int Firth::exec_word(const std::string &word)
 		}
 			break;
 
-		// GOTO (addr -- )
+		// BRANCH (addr -- )
 		case OP_GOTO:
 		{
 			auto addr = bytecode[ip];
@@ -1314,7 +1378,7 @@ int Firth::exec_word(const std::string &word)
 		}
 			break;
 
-		// BZ (n -- )
+		// BRANCH? (n -- )
 		case OP_BZ:
 		{
 			auto n = pop();
@@ -1463,7 +1527,12 @@ int Firth::exec_word(const std::string &word)
 						firth_print(" [var]");
 					if (w.type == OP_CONST)
 						firth_print(" [const]");
-
+#if FTH_INCLUDE_FLOAT == 1
+					if (w.type == OP_FVAR)
+						firth_print(" [fvar]");
+					if (w.type == OP_FCONST)
+						firth_print(" [fconst]");
+#endif
 					firth_print("\n");
 					count++;
 				}
