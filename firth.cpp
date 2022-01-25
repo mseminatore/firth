@@ -158,6 +158,7 @@ Firth::Firth(unsigned data_limit)
 	define_word("WORDS", OP_WORDS);
 	define_word("HIDE", OP_HIDE);
 	define_word("IMMEDIATE", OP_IMMEDIATE);
+	define_word("FORGET", OP_FORGET);
 
 	// pre-defined variables
 	define_word_var("CP", CP);
@@ -567,6 +568,24 @@ int Firth::create_word(const std::string &word, const Word &w)
 
 	// remember the last word defined
 	lastDefinedWord = word;
+
+	return FTH_TRUE;
+}
+
+// if found, remove the given word from the dictionary
+// Note that bytecode space is not freed!
+int Firth::forget_word(const std::string &word)
+{
+	auto iter = dict.find(word);
+	if (iter == dict.end())
+		return FTH_FALSE;
+
+	// remove the word from the dictionary
+	dict.erase(iter);
+
+	// if we just deleted the last word created then forget that too
+	if (lastDefinedWord == word)
+		lastDefinedWord = "";
 
 	return FTH_TRUE;
 }
@@ -1555,7 +1574,16 @@ int Firth::exec_word(const std::string &word)
 				word_obj->immediate = true;
 			}
 		}
-		break;
+			break;
+
+		case OP_FORGET:
+		{
+			lex();
+
+			if (FTH_TRUE != forget_word(lval))
+				firth_printf("Failed to forget word (%s).\n", lval);
+		}
+			break;
 
 		case OP_WORDS:
 		{

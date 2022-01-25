@@ -67,6 +67,7 @@ enum
 	OP_HIDE,
 	OP_IMMEDIATE,
 	OP_REVEAL,
+	OP_FORGET,
 
 	// conditionals and loops
 	OP_IF,
@@ -312,6 +313,7 @@ protected:
 	int define_word(const std::string &word, int op, bool compileOnly = false);
 	int create_word(const std::string &word, const Word &w);
 	int make_hidden(const std::string &word, bool flag);
+	int forget_word(const std::string &word);
 
 public:
 	Firth(unsigned data_limit = FTH_DEFAULT_DATA_SEGMENT_SIZE);
