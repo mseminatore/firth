@@ -39,6 +39,7 @@ Firth::Firth(unsigned data_limit)
 	// instruction pointer IP for interpreter
 	ip = 0;
 
+	// exposed as _hexmode variable to control hex/decimal output
 	hexmode = 0;
 
 	interpreter = true;
@@ -155,9 +156,8 @@ Firth::Firth(unsigned data_limit)
 	define_word("REQUIRE", OP_LOAD);
 	define_word("DEPTH", OP_DEPTH);
 	define_word("WORDS", OP_WORDS);
-
-	//define_word("HEX", OP_HEX);
-	//define_word("DECIMAL", OP_DECIMAL);
+	define_word("HIDE", OP_HIDE);
+	define_word("IMMEDIATE", OP_IMMEDIATE);
 
 	// pre-defined variables
 	define_word_var("CP", CP);
@@ -216,7 +216,7 @@ char *Firth::dirname(char *s)
 	return s;
 }
 
-//
+// open and set input stream to given filename
 int Firth::push_input_file(const std::string &filename)
 {
 	char path[FTH_MAX_PATH];
@@ -564,6 +564,9 @@ int Firth::create_word(const std::string &word, const Word &w)
 		firth_printf("Word (%s) already exists.\n", word.c_str());
 		return FTH_FALSE;
 	}
+
+	// remember the last word defined
+	lastDefinedWord = word;
 
 	return FTH_TRUE;
 }
@@ -1536,6 +1539,23 @@ int Firth::exec_word(const std::string &word)
 			push(num << shift);
 		}
 			break;
+
+		case OP_HIDE:
+		{
+			make_hidden(lastDefinedWord, true);
+		}
+			break;
+
+		case OP_IMMEDIATE:
+		{
+			Word *word_obj = nullptr;
+
+			if (lookup_word(lastDefinedWord, &word_obj))
+			{
+				word_obj->immediate = true;
+			}
+		}
+		break;
 
 		case OP_WORDS:
 		{

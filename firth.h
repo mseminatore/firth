@@ -64,6 +64,9 @@ enum
 	OP_BZ,
 	OP_HERE,
 	OP_WORDS,
+	OP_HIDE,
+	OP_IMMEDIATE,
+	OP_REVEAL,
 
 	// conditionals and loops
 	OP_IF,
@@ -164,27 +167,30 @@ struct FirthWordSet
 struct FDNode
 {
 	FILE *fd;
-	// char *pTextData;	// for parsing strings
+	char *pTextData;	// for parsing strings
 	char *filename;
 	char *prevDir;
 
-	FDNode() : fd(nullptr), filename(nullptr), prevDir(nullptr) {}
+	FDNode() : fd(nullptr), pTextData(nullptr), filename(nullptr), prevDir(nullptr) {}
 	
 	FDNode(FILE *f, const char *fname, const char *oldDir) : fd(f) {
 		filename = _strdup(fname);
 		prevDir = _strdup(oldDir);
 	}
 
+	// move semantic
 	FDNode(FDNode &&rhs) 
 	{ 
 		fd = rhs.fd; 
 		filename = rhs.filename; 
 		prevDir = rhs.prevDir; 
+		pTextData = rhs.pTextData;
 
 		// take ownership of the values
 		rhs.fd = nullptr;
 		rhs.filename = nullptr;
 		rhs.prevDir = nullptr;
+		rhs.pTextData = nullptr;
 	}
 	
 	virtual ~FDNode()
@@ -239,6 +245,9 @@ protected:
 
 	// tracks already included files
 	std::set<std::string, WordLessThan> includeNames;
+
+	// track the last word added to the dictionary
+	std::string lastDefinedWord;
 
 	// dictionary of words
 	std::map<std::string, Word, WordLessThan> dict;
