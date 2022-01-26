@@ -398,8 +398,9 @@ Word | Description | Stack effects
 ABS | take absolute value of TOS | ( n -- \|n\| )
 AGAIN | loop back to BEGIN | ( -- )
 ALLOT | reserve n extra cells for array | ( n -- )
+ALLOC | synonym for ALLOT
 AND | bitwise AND | ( n1 n2 -- n3 )
-BEGIN | start an indefinite loop
+BEGIN | start an indefinite loop | ( -- )
 BEL | emits a BEL char | ( -- )
 BL | prints a space | ( -- )
 CELLS | calculate cell count for array size | ( n -- n )
@@ -411,8 +412,10 @@ DROP | discard TOS | ( n -- )
 DUP | duplicate TOS | ( n -- n n )
 ELSE | start of else clause | ( -- )
 EMIT | print TOS as ASCII | ( n -- )
+ENDIF | synonym for THEN
 EXIT | exit from current loop | ( -- )
 FALSE | constant representing logical false | ( -- f )
+FOR | synonym for DO
 FUNC | begin definition of new word | ( -- )
 I | put current loop index on the stack | ( -- n )
 INCLUDE | load and parse the given Firth file | ( -- )

@@ -221,4 +221,12 @@ Test-group
     T{ 1 GI4 }T 123 ==
     T{ -1 GI4 }T 123 ==
 
+ \   ." Test >R R> "
+ \   T{ 0 >R R> }T 0 ==
+ \   T{ 1 2 3 >R R> }T 1 2 3 ==
+
+ \   ." Test 2>R 2R> "
+ \   T{ 0 1 2>R 2R> }T 0 1 ==
+ \   T{ 1 2 3 2>R 2R> }T 1 2 3 ==
+
 Test-end

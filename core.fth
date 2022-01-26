@@ -40,6 +40,12 @@ func 2DROP DROP DROP ;
 ( -- )
 func RDROP R> DROP ;
 
+( -- n1 n2 ) ( r: n1 n2 -- )
+func 2R> R> R> ;
+
+( n1 n2 -- ) ( r: -- n1 n2 )
+func 2>R >R >R ;
+
 ( n1 n2 -- n2 n1 n2 )
 func TUCK SWAP OVER ;
 
