@@ -114,14 +114,14 @@ Or you can migrate to the more modern Firth syntax when and as you wish.
 
 Here are the word synonyms that Firth offers: 
 
-Forth | Firth | Comments
+Firth | Forth | Comments
 ----- | ----- | --------
-VARIABLE | VAR | The keyword `var` is pretty common in modern languages
-CONSTANT | CONST | The use of `const` is also pretty common
-: | FUNC | Colon feels obscure for a modern function declaration
-THEN | ENDIF | I prefer IF-ELSE-ENDIF to the Forth IF-ELSE-THEN construct
-DO | FOR | The `limit` and `index` make this is a FOR loop by modern standards
-ALLOT | ALLOC | Alloc seems better for allocating space for cells
+VAR | VARIABLE | The keyword `var` is pretty common in modern languages
+CONST | CONSTANT | The use of `const` is also pretty common
+FUNC | : | Colon feels obscure for a modern function declaration
+ENDIF | THEN | I prefer IF-ELSE-ENDIF to the Forth IF-ELSE-THEN construct
+FOR | DO | The `limit` and `index` make this is a FOR loop by modern standards
+ALLOC | ALLOT | Alloc seems better for allocating space for cells
 
 At the moment I prefer `func` as a colon synonym. It is short yet descriptive,
 which seems to be in the spirit of Forth word naming. So that is what I've 
