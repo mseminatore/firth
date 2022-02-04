@@ -121,7 +121,7 @@ CONST | CONSTANT | The use of `const` is also pretty common
 FUNC | : | Colon feels obscure for a modern function declaration
 ENDIF | THEN | I prefer IF-ELSE-ENDIF to the Forth IF-ELSE-THEN construct
 FOR | DO | The `limit` and `index` make this is a FOR loop by modern standards
-ALLOC | ALLOT | Alloc seems better for allocating space for cells
+ALLOC | ALLOT | Alloc feels more modern for allocating space for memory cells
 
 At the moment I prefer `func` as a colon synonym. It is short yet descriptive,
 which seems to be in the spirit of Forth word naming. So that is what I've 
