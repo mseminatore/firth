@@ -127,7 +127,7 @@ At the moment I prefer `func` as a colon synonym. It is short yet descriptive,
 which seems to be in the spirit of Forth word naming. So that is what I've 
 documented here.
 
-That said, I am still actively debating whether to use the Golang `fn`, 
+That said, I am still actively debating whether to use the Rust `fn`, 
 Swift's `func`, Javascript's `function` or Python's `def` as a replacement 
 for `:`. For now they all exist to see which feels better. If you have strong 
 opinions please let me know. You can configure the defaults in 

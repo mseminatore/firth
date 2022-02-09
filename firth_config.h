@@ -58,8 +58,8 @@ const FirthFloat FTH_EPSILON = 1e-5f;
 
 #if FTH_FIRTH_SYNTAX == 1
 	// Enable fn as colon synonym
-	#ifndef FTH_I_LIKE_GOLANG
-		#define FTH_I_LIKE_GOLANG 1
+	#ifndef FTH_I_LIKE_RUST
+		#define FTH_I_LIKE_RUST 1
 	#endif
 
 	// Enable func as colon synonym

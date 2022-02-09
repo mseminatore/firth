@@ -96,7 +96,7 @@ Firth::Firth(unsigned data_limit)
 		define_word("FUNC", OP_FUNC);
 	#endif
 
-	#if FTH_I_LIKE_GOLANG == 1
+	#if FTH_I_LIKE_RUST == 1
 		define_word("FN", OP_FUNC);
 	#endif
 
